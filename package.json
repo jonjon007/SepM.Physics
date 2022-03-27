@@ -10,7 +10,7 @@
 	  "physics"
   ],
   "dependencies": {
-    "com.danielmansson.mathematics.fixedpoint": "https://github.com/danielmansson/Unity.Mathematics.FixedPoint.git"
+    "com.danielmansson.mathematics.fixedpoint": "*"
   },
   "repository": {
     "type": "git",
