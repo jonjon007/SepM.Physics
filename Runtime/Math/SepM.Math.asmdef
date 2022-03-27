@@ -1,0 +1,16 @@
+{
+    "name": "SepM.Math",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0efc075be62ff074592f9ad36fcc4058"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

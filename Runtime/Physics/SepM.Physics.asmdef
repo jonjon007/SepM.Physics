@@ -1,0 +1,19 @@
+{
+    "name": "SepM.Physics",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:0efc075be62ff074592f9ad36fcc4058",
+        "GUID:55770e403955231488d8ed097be37fcc",
+        "GUID:6b0b408ea85668448b83478eaade3cb8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

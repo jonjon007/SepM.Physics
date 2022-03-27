@@ -1,0 +1,20 @@
+{
+  "name": "com.sepm.physics",
+  "displayName": "SepM Physics",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "description": "Fixed-point physics based using danielmansson's FixedPoint library.",
+  "keywords": [
+    "fixedpoint",
+    "math",
+	"physics"
+  ],
+  "dependencies": {
+    "com.danielmansson.mathematics.fixedpoint": "0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonjon007/DeterminisitcPhysicsExploration",
+    "revision": ""
+  }
+}
