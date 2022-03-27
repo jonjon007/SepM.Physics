@@ -9,9 +9,7 @@
     "math",
 	  "physics"
   ],
-  "dependencies": {
-    "com.danielmansson.mathematics.fixedpoint": "0.1.0"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/jonjon007/DeterminisitcPhysicsExploration",
