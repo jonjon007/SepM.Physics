@@ -7,10 +7,10 @@
   "keywords": [
     "fixedpoint",
     "math",
-	"physics"
+	  "physics"
   ],
   "dependencies": {
-    "com.danielmansson.mathematics.fixedpoint": "0.1.0"
+    "com.danielmansson.mathematics.fixedpoint.nonsense": "0.1.0"
   },
   "repository": {
     "type": "git",
