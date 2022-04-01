@@ -453,8 +453,16 @@ namespace SepM.Physics{
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
 
+        public void AddForce(fp3 f){
+            Force += f;
+        }
+
         public fp GetMass(){
             return 1m/InverseMass;
+        }
+
+        public void SetVelocity(fp3 v){
+            Velocity = v;
         }
 
         public override string ToString(){
