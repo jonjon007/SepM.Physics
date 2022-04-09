@@ -16,11 +16,15 @@ public class PhysWorld{
     }
 
     public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g){
+        return CreateSphereObject(center, r, isDyn, isKin, g, Constants.coll_layers.normal);
+    }
+
+    public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l){
         // Set up the collider, the physics object, and the game object
         GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         // Destroy the default Unity collider
         GameObject.Destroy(g_obj.GetComponent<UnityEngine.SphereCollider>());
-        SepM.Physics.SphereCollider coll = new SepM.Physics.SphereCollider(r);
+        SepM.Physics.SphereCollider coll = new SepM.Physics.SphereCollider(r, l);
         PhysObject p_obj = new PhysObject(center){
             IsDynamic = isDyn,
             IsKinematic = isKin,
@@ -45,11 +49,15 @@ public class PhysWorld{
     }
 
     public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g){
+        return CreateCapsuleObject(center, r, h, isDyn, isKin, g, Constants.coll_layers.normal);
+    }
+
+    public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l){
         // Set up the collider, the physics object, and the game object
         GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         // Destroy the default Unity collider
         GameObject.Destroy(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
-        SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h);
+        SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h, l);
         PhysObject p_obj = new PhysObject(center){
             IsDynamic = isDyn,
             IsKinematic = isKin,
@@ -76,11 +84,15 @@ public class PhysWorld{
     }
 
     public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g){
+        return CreateAABBoxObject(center, scale, isDyn, isKin, g, Constants.coll_layers.normal);
+    }
+
+    public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l){
         // Set up the collider, the physics object, and the game object
         GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         // Destroy the default Unity collider
         GameObject.Destroy(g_obj.GetComponent<UnityEngine.BoxCollider>());
-        SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(center, scale, true);
+        SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(center, scale, true, l);
         PhysObject p_obj = new PhysObject(center){
             IsDynamic = isDyn,
             IsKinematic = isKin,
