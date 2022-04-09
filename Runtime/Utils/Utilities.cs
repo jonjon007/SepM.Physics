@@ -72,6 +72,10 @@ namespace SepM.Utils{
         public static fp max(fp a, fp b){
             return a > b ? a : b;
         }
+
+        public static fp min(fp a, fp b){
+            return a < b ? a : b;
+        }
         
         /* Returns the vector length squared, avoiding the slow operation */
         public static void normalize(ref this fp3 vec){

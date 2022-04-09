@@ -264,6 +264,62 @@ namespace SepM.Physics{
             fp result = (box.closestPointAABB(point) - point).lengthSqrd();
             return result;
         }
+
+        public static bool Raycast(PhysObject p_obj, fp3 origin, fp3 dir){
+            return Raycast(p_obj, origin, dir, Constants.layer_all);
+        }
+
+        public static bool Raycast(PhysObject p_obj, fp3 origin, fp3 dir, long layers){
+            if(p_obj.Coll is null)
+                return false;
+            else
+                return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers);
+        }
+
+        public static bool Raycast(Collider coll, fp3 origin, fp3 dir){
+            return Raycast(coll, origin, dir, Constants.layer_all);
+        }
+
+        public static bool Raycast(Collider coll, fp3 origin, fp3 dir, long layers){
+            if(coll is AABBoxCollider)
+                return Raycast((AABBoxCollider) coll, origin, dir, layers);
+            // TODO: Write for other collider types
+            else
+                return false;
+        }
+
+        public static bool Raycast(AABBoxCollider coll, fp3 origin, fp3 dir, long layers){
+            if(!coll.InLayers(layers)){
+                return false;
+            }
+
+
+            fp3 n_inv = new fp3(
+                dir.x == 0 ? fp.max_value : 1/dir.x,
+                dir.y == 0 ? fp.max_value : 1/dir.y,
+                dir.z == 0 ? fp.max_value : 1/dir.z
+            ); //The inverse of each component of the ray's slope
+
+            fp tx1 = (coll.MinValue.x - origin.x)*n_inv.x;
+            fp tx2 = (coll.MaxValue.x - origin.x)*n_inv.x;
+
+            fp tmin = Utilities.min(tx1, tx2);
+            fp tmax = Utilities.max(tx1, tx2);
+
+            fp ty1 = (coll.MinValue.y - origin.y)*n_inv.y;
+            fp ty2 = (coll.MaxValue.y - origin.y)*n_inv.y;
+
+            tmin = Utilities.max(tmin, Utilities.min(ty1, ty2));
+            tmax = Utilities.min(tmax, Utilities.max(ty1, ty2));
+
+            fp tz1 = (coll.MinValue.z - origin.z)*n_inv.z;
+            fp tz2 = (coll.MaxValue.z - origin.z)*n_inv.z;
+
+            tmin = Utilities.max(tmin, Utilities.min(tz1, tz2));
+            tmax = Utilities.min(tmax, Utilities.max(tz1, tz2));
+
+            return tmax >= Utilities.max(0, tmin) && tmin < fp.max_value;
+        }
     }
 }
 /*

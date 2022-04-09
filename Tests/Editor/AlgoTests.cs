@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
 using SepM.Physics;
+using SepM.Utils;
 
 public class AlgoTests
 {
@@ -243,5 +244,79 @@ public class AlgoTests
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
         Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void Raycast_AABB_Touching(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        bool expected = true;
+
+        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Edge(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        bool expected = true;
+
+        bool actual = algo.Raycast(coll, new fp3(1,1,0), new fp3(-1,0,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Non_Unit_Vec(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        bool expected = true;
+
+        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Not_Touching(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        bool expected = false;
+
+        bool actual = algo.Raycast(coll, new fp3(2,2,0), new fp3(0,-1,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Phys_Obj_Non_Unit_Vec(){
+        PhysObject p_obj = new PhysObject(new fp3(-1,0,0));
+        AABBoxCollider coll = new AABBoxCollider(new fp3(0,-1,-1), new fp3(2,1,1));
+        p_obj.Coll = coll;
+        bool expected = true;
+
+        bool actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_No_Coll_Phys_Obj(){
+        PhysObject p_obj = new PhysObject(new fp3(0,0,0));
+        bool expected = false;
+
+        bool actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Right_Layer(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
+        bool expected = true;
+
+        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_ground);
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void Raycast_AABB_Wrong_Layer(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
+        bool expected = false;
+
+        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
+        Assert.AreEqual(expected, actual);
     }
 }

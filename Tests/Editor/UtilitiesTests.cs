@@ -180,6 +180,16 @@ public class UtilitiesTests
     }
 
     [Test]
+    public void TestMin(){
+        fp small = -1;
+        fp large = 1.1m;
+        fp expected = -1;
+
+        fp actual = Utilities.min(small, large);
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
     public void TestMultiplyQQ(){
         fpq q1 = new fpq(1,2,3,1);
         fpq q2 = new fpq(3,2,1,1);

@@ -5,6 +5,21 @@ using SepM.Math;
 
 namespace SepM.Physics{
     public static class Constants{
+        public enum coll_layers {
+            normal = 0,
+            ground = 1,
+            wall = 2,
+            player = 3,
+            noPlayer = 4, // Collides with ground and such, but no players
+        };
+        // Bitwise for collision layers
+        public static long layer_none = 0;
+        public static long layer_all = ~0;
+        public static long layer_normal = 1 << ((int)coll_layers.normal);
+        public static long layer_ground = 1 << ((int)coll_layers.ground);
+        public static long layer_wall = 1 << ((int)coll_layers.wall);
+        public static long layer_player = 1 << ((int)coll_layers.player);
+        public static long layer_noPlayer = 1 << ((int)coll_layers.noPlayer);
         public static fp3 GRAVITY = new fp3(0,-9.81m, 0);
     }
     public struct PhysCollision{
@@ -80,6 +95,7 @@ namespace SepM.Physics{
     };
 
     public abstract class Collider {
+        public Constants.coll_layers Layer;
         public abstract CollisionPoints TestCollision(
             PhysTransform transform,
             Collider collider,
@@ -107,6 +123,12 @@ namespace SepM.Physics{
             AABBoxCollider capsule,
             PhysTransform capsuleTransform
         );
+
+        public virtual bool InLayers(long layers){
+            return (
+                (1 << ((int)Layer)) & layers
+            ) != 0;
+        }
     };
 
     public class SphereCollider : Collider{
@@ -116,7 +138,15 @@ namespace SepM.Physics{
         public SphereCollider(fp r){
             Center = fp3.zero;
             Radius = r;
+            Layer = Constants.coll_layers.normal;
         }
+
+        public SphereCollider(fp r, Constants.coll_layers l){
+            Center = fp3.zero;
+            Radius = r;
+            Layer = l;
+        }
+
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             Collider collider,
@@ -173,6 +203,7 @@ namespace SepM.Physics{
 			Radius = 0.5m;
 			Height = 2;
             Direction = new fp3(0,1,0);
+            Layer = Constants.coll_layers.normal;
         }
     
         public CapsuleCollider(fp r, fp h){
@@ -180,6 +211,15 @@ namespace SepM.Physics{
             Radius = r;
             Height = h;
             Direction = new fp3(0,1,0);
+            Layer = Constants.coll_layers.normal;
+        }
+
+        public CapsuleCollider(fp r, fp h, Constants.coll_layers l){
+            Center = fp3.zero;
+            Radius = r;
+            Height = h;
+            Direction = new fp3(0,1,0);
+            Layer = l;
         }
         
         public CapsuleCollider(fp3 c, fp r, fp h){
@@ -187,6 +227,15 @@ namespace SepM.Physics{
             Radius = r;
             Height = h;
             Direction = new fp3(0,1,0);
+            Layer = Constants.coll_layers.normal;
+        }
+
+        public CapsuleCollider(fp3 c, fp r, fp h, Constants.coll_layers l){
+            Center = c;
+            Radius = r;
+            Height = h;
+            Direction = new fp3(0,1,0);
+            Layer = l;
         }
 
         public CapsuleStats GetStats(PhysTransform transform){
@@ -268,12 +317,26 @@ namespace SepM.Physics{
         public AABBoxCollider(fp3 minVal, fp3 maxVal){
             MinValue = minVal;
             MaxValue = maxVal;
+            Layer = Constants.coll_layers.normal;
+        }
+
+        public AABBoxCollider(fp3 minVal, fp3 maxVal, Constants.coll_layers l){
+            MinValue = minVal;
+            MaxValue = maxVal;
+            Layer = l;
         }
 
         // TODO: Consider getting rid of the minval max val constructor?
         public AABBoxCollider(fp3 center, fp3 scale, bool isCenter){
             MinValue = center - scale/2;
             MaxValue = center + scale/2;
+            Layer = Constants.coll_layers.normal;
+        }
+
+        public AABBoxCollider(fp3 center, fp3 scale, bool isCenter, Constants.coll_layers l){
+            MinValue = center - scale/2;
+            MaxValue = center + scale/2;
+            Layer = l;
         }
 
         public override CollisionPoints TestCollision(
@@ -348,6 +411,13 @@ namespace SepM.Physics{
         public PlaneCollider(fp3 n, fp d){
             Normal = n;
             Distance = d;
+            Layer = Constants.coll_layers.normal;
+        }
+
+        public PlaneCollider(fp3 n, fp d, Constants.coll_layers l){
+            Normal = n;
+            Distance = d;
+            Layer = l;
         }
 
         public override CollisionPoints TestCollision(
