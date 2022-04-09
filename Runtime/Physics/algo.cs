@@ -265,6 +265,15 @@ namespace SepM.Physics{
             return result;
         }
 
+        public static bool Raycast(List<PhysObject> p_objs, fp3 origin, fp3 dir, long layers){
+            List<PhysObject> filetered_colls = p_objs.FindAll(p => !(p.Coll is null) && p.Coll.InLayers(layers));
+            foreach(PhysObject p_obj in filetered_colls){
+                if(Raycast(p_obj, origin, dir, Constants.layer_all))
+                    return true;
+            }
+            return false;
+        }
+
         public static bool Raycast(PhysObject p_obj, fp3 origin, fp3 dir){
             return Raycast(p_obj, origin, dir, Constants.layer_all);
         }
@@ -274,6 +283,15 @@ namespace SepM.Physics{
                 return false;
             else
                 return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers);
+        }
+
+        public static bool Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers){
+            List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
+            foreach (Collider coll in filetered_colls){
+                if(Raycast(coll, origin, dir, layers))
+                    return true;
+            }
+            return false;
         }
 
         public static bool Raycast(Collider coll, fp3 origin, fp3 dir){
@@ -288,6 +306,7 @@ namespace SepM.Physics{
                 return false;
         }
 
+        // TODO: Not an infinite ray
         public static bool Raycast(AABBoxCollider coll, fp3 origin, fp3 dir, long layers){
             if(!coll.InLayers(layers)){
                 return false;
