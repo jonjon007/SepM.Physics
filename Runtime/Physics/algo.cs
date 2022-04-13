@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
-using SepM.Physics;
 
 namespace SepM.Physics{
     public static class algo{
@@ -29,7 +26,7 @@ namespace SepM.Physics{
 
             AtoB = B - A;
 
-            return new CollisionPoints{ 
+            return new CollisionPoints{
                 A = A,
                 B = B,
                 Normal = AtoB.normalized(),
@@ -63,7 +60,7 @@ namespace SepM.Physics{
 
             fp3 AtoB = B - A;
 
-            return new CollisionPoints{ 
+            return new CollisionPoints{
                 A = A,
                 B = B, 
                 Normal = AtoB.normalized(), 
@@ -265,79 +262,197 @@ namespace SepM.Physics{
             return result;
         }
 
-        public static bool Raycast(List<PhysObject> p_objs, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(List<PhysObject> p_objs, fp3 origin, fp3 dir, long layers){
             List<PhysObject> filetered_colls = p_objs.FindAll(p => !(p.Coll is null) && p.Coll.InLayers(layers));
             foreach(PhysObject p_obj in filetered_colls){
-                if(Raycast(p_obj, origin, dir, Constants.layer_all))
-                    return true;
+                CollisionPoints raycastResult = Raycast(p_obj, origin, dir, layers);
+                if(raycastResult.HasCollision)
+                    return raycastResult;
             }
-            return false;
+            return CollisionPoints.noCollision;
         }
 
-        public static bool Raycast(PhysObject p_obj, fp3 origin, fp3 dir){
+        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir){
             return Raycast(p_obj, origin, dir, Constants.layer_all);
         }
 
-        public static bool Raycast(PhysObject p_obj, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir, long layers){
             if(p_obj.Coll is null)
-                return false;
+                return CollisionPoints.noCollision;
             else
                 return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers);
         }
 
-        public static bool Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers){
             List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
             foreach (Collider coll in filetered_colls){
-                if(Raycast(coll, origin, dir, layers))
-                    return true;
+                CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
+                if(raycastResult.HasCollision)
+                    return raycastResult;
             }
-            return false;
+            return CollisionPoints.noCollision;
         }
 
-        public static bool Raycast(Collider coll, fp3 origin, fp3 dir){
+        public static List<CollisionPoints> RaycastAll(List<Collider> collList, fp3 origin, fp3 dir, long layers){
+            List<CollisionPoints> resultList = new List<CollisionPoints>();
+
+            List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
+            foreach (Collider coll in filetered_colls){
+                CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
+                if(raycastResult.HasCollision)
+                    resultList.Add(raycastResult);
+            }
+            return resultList;
+        }
+
+        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir){
             return Raycast(coll, origin, dir, Constants.layer_all);
         }
 
-        public static bool Raycast(Collider coll, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir, long layers){
             if(coll is AABBoxCollider)
                 return Raycast((AABBoxCollider) coll, origin, dir, layers);
             // TODO: Write for other collider types
             else
-                return false;
+                return CollisionPoints.noCollision;
         }
 
-        // TODO: Not an infinite ray
-        public static bool Raycast(AABBoxCollider coll, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(AABBoxCollider coll, fp3 origin, fp3 dir, long layers){
             if(!coll.InLayers(layers)){
-                return false;
+                return CollisionPoints.noCollision;
             }
 
+            // We'll return this huge number if no intersection
+            fp NoIntersection = fp.max_value;
+            fp3 collNormal = fp3.zero;
 
-            fp3 n_inv = new fp3(
-                dir.x == 0 ? fp.max_value : 1/dir.x,
-                dir.y == 0 ? fp.max_value : 1/dir.y,
-                dir.z == 0 ? fp.max_value : 1/dir.z
-            ); //The inverse of each component of the ray's slope
+            // Check for point inside box, trivial reject, and determine parametric distance to each front face
+            bool inside = true;
 
-            fp tx1 = (coll.MinValue.x - origin.x)*n_inv.x;
-            fp tx2 = (coll.MaxValue.x - origin.x)*n_inv.x;
+            fp xt, xn = 0;
+            if(origin.x < coll.MinValue.x){
+                xt = coll.MinValue.x - origin.x;
+                if(xt > dir.x) return CollisionPoints.noCollision;
+                xt /= dir.x;
+                inside = false;
+                xn = -1;
+            }
+            else if(origin.x > coll.MaxValue.x){
+                xt = coll.MaxValue.x - origin.x;
+                if(xt < dir.x) return CollisionPoints.noCollision;
+                xt /= dir.x;
+                inside = false;
+                xn = 1;
+            }
+            else{
+                xt = -1;
+            }
 
-            fp tmin = Utilities.min(tx1, tx2);
-            fp tmax = Utilities.max(tx1, tx2);
+            fp yt, yn = 0;
+            if(origin.y < coll.MinValue.y){
+                yt = coll.MinValue.y - origin.y;
+                if(yt > dir.y) return CollisionPoints.noCollision;
+                yt /= dir.y;
+                inside = false;
+                yn = -1;
+            }
+            else if(origin.y > coll.MaxValue.y){
+                yt = coll.MaxValue.y - origin.y;
+                if(yt < dir.y) return CollisionPoints.noCollision;
+                yt /= dir.y;
+                inside = false;
+                yn = 1;
+            }
+            else{
+                yt = -1;
+            }
 
-            fp ty1 = (coll.MinValue.y - origin.y)*n_inv.y;
-            fp ty2 = (coll.MaxValue.y - origin.y)*n_inv.y;
+            fp zt, zn = 0;
+            if(origin.z < coll.MinValue.z){
+                zt = coll.MinValue.z - origin.z;
+                if(zt > dir.z) return CollisionPoints.noCollision;
+                zt /= dir.z;
+                inside = false;
+                zn = -1;
+            }
+            else if(origin.z > coll.MaxValue.z){
+                zt = coll.MaxValue.z - origin.z;
+                if(zt < dir.z) return CollisionPoints.noCollision;
+                zt /= dir.z;
+                inside = false;
+                zn = 1;
+            }
+            else{
+                zt = -1;
+            }
 
-            tmin = Utilities.max(tmin, Utilities.min(ty1, ty2));
-            tmax = Utilities.min(tmax, Utilities.max(ty1, ty2));
+            // inside box?
+            if(inside){
+                collNormal = -dir.normalized();
+                fp3 B = coll.Center();
+                fp3 AtoB = B - origin;
+                return new CollisionPoints{
+                    A = origin,
+                    B = coll.Center(),
+                    Normal = collNormal,
+                    DepthSqrd = 0,
+                    HasCollision = true
+                };
+            }
 
-            fp tz1 = (coll.MinValue.z - origin.z)*n_inv.z;
-            fp tz2 = (coll.MaxValue.z - origin.z)*n_inv.z;
+            // select farthest plan - this is the plane of intersection
+            int which = 0;
+            fp t = xt;
+            if (yt > t){
+                which = 1;
+                t= yt;
+            }
+            if (zt > t){
+                which = 2;
+                t= zt;
+            }
 
-            tmin = Utilities.max(tmin, Utilities.min(tz1, tz2));
-            tmax = Utilities.min(tmax, Utilities.max(tz1, tz2));
+            switch(which){
+                case 0: // intersect with yz plane
+                {
+                    fp y = origin.y + dir.y*t;
+                    if(y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
+                    fp z = origin.z + dir.z*t;
+                    if(z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
 
-            return tmax >= Utilities.max(0, tmin) && tmin < fp.max_value;
+                    collNormal = new fp3(xn, 0, 0);
+                }   break;
+
+                case 1: // intersect with xz plane
+                {
+                    fp x = origin.x + dir.x*t;
+                    if(x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
+                    fp z = origin.z + dir.z*t;
+                    if(z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
+
+                    collNormal = new fp3(0, yn, 0);
+                    break;
+                }
+
+                case 2: // intersect with xy plane
+                {
+                    fp x = origin.x + dir.x*t;
+                    if(x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
+                    fp y = origin.y + dir.y*t;
+                    if(y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
+
+                    collNormal = new fp3(0, 0, zn);
+                    break;
+                }
+            }
+
+            return new CollisionPoints{
+                A = origin,
+                B = coll.Center(),
+                Normal = collNormal,
+                DepthSqrd = 0,
+                HasCollision = true
+            };
         }
     }
 }

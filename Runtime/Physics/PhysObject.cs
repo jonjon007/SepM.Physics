@@ -339,6 +339,10 @@ namespace SepM.Physics{
             Layer = l;
         }
 
+        public fp3 Center(){
+            return MinValue + (MaxValue - MinValue)/2;
+        }
+
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             Collider collider,

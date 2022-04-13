@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
 using SepM.Physics;
-using SepM.Utils;
 
 public class AlgoTests
 {
@@ -251,8 +250,8 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = true;
 
-        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -260,8 +259,8 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = true;
 
-        bool actual = algo.Raycast(coll, new fp3(1,1,0), new fp3(-1,0,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(1,1,0), new fp3(-1,0,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -269,8 +268,8 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = true;
 
-        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(1,-1,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -278,8 +277,17 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = false;
 
-        bool actual = algo.Raycast(coll, new fp3(2,2,0), new fp3(0,-1,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(2,2,0), new fp3(0,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void Raycast_AABB_Too_Short(){
+        AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        bool expected = false;
+
+        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2.5m,0), new fp3(0,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -289,8 +297,8 @@ public class AlgoTests
         p_obj.Coll = coll;
         bool expected = true;
 
-        bool actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -298,8 +306,8 @@ public class AlgoTests
         PhysObject p_obj = new PhysObject(new fp3(0,0,0));
         bool expected = false;
 
-        bool actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -307,8 +315,8 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
         bool expected = true;
 
-        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_ground);
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_ground);
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 
     [Test]
@@ -316,7 +324,7 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
         bool expected = false;
 
-        bool actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
-        Assert.AreEqual(expected, actual);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
+        Assert.AreEqual(expected, actual.HasCollision);
     }
 }
