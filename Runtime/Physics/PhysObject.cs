@@ -63,6 +63,19 @@ namespace SepM.Physics{
             m_parent = null;
             m_children = new List<PhysTransform>();
         }
+
+        public fp3 Right(){
+            return new fp3(1,0,0).multiply(Rotation);
+        }
+
+        public fp3 Forward(){
+            return new fp3(0,0,1).multiply(Rotation);
+        }
+
+        public fp3 Up(){
+            return new fp3(0,1,0).multiply(Rotation);
+        }
+
         /* TODO: Comment */
         public fp3 WorldPosition(){
             fp3 parentPos = fp3.zero;
