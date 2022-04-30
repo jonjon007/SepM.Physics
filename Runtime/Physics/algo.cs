@@ -233,6 +233,71 @@ namespace SepM.Physics{
             return CollisionPoints.noCollision;
         }
 
+        public static CollisionPoints FindAABBoxAABBoxCollisionPoints(
+            AABBoxCollider a, PhysTransform ta,
+            AABBoxCollider b, PhysTransform tb)
+        {
+            fp3 boxAPos = ta.WorldPosition();
+            fp3 boxBPos = tb.WorldPosition();
+
+            fp3 boxASize = a.Dimensions();
+            fp3 boxBSize = b.Dimensions();
+
+            bool overlap = AABBTest (boxAPos, boxBPos, boxASize, boxBSize);
+            if (overlap) {
+                fp3[] faces = {
+                    new fp3 (-1, 0, 0), new fp3 (1, 0, 0),
+                    new fp3 (0, -1, 0), new fp3 (0, 1, 0),
+                    new fp3 (0, 0, -1), new fp3 (0, 0, 1),
+                };
+
+                fp3 maxA = boxAPos + boxASize;
+                fp3 minA = boxAPos - boxASize;
+
+                fp3 maxB = boxBPos + boxBSize;
+                fp3 minB = boxBPos - boxBSize;
+
+                fp[] distances = {
+                    (maxB . x - minA . x ), // distance of box ’b ’ to ’ left ’ of ’a ’.
+                    (maxA . x - minB . x ), // distance of box ’b ’ to ’ right ’ of ’a ’.
+                    (maxB . y - minA . y ), // distance of box ’b ’ to ’ bottom ’ of ’a ’.
+                    (maxA . y - minB . y ), // distance of box ’b ’ to ’ top ’ of ’a ’.
+                    (maxB . z - minA . z ), // distance of box ’b ’ to ’ far ’ of ’a ’.
+                    (maxA . z - minB . z ) // distance of box ’b ’ to ’ near ’ of ’a ’.
+                };
+                fp penetration = fp.max_value;
+                fp3 bestAxis = fp3.zero;
+
+                for (int i = 0; i < 6; i ++){
+                    if (distances [ i ] < penetration ) {
+                        penetration = distances [ i ];
+                        bestAxis = faces [ i ];
+                    }
+                }
+                return new CollisionPoints{
+                    A = fp3.zero,
+                    B = fp3.zero,
+                    Normal = bestAxis,
+                    DepthSqrd = penetration.sqrd(),
+                    HasCollision = true
+                };
+            }
+            return CollisionPoints.noCollision;
+        }
+
+        static bool AABBTest (fp3 posA, fp3 posB, fp3 halfSizeA, fp3 halfSizeB) {
+            fp3 delta = posB - posA;
+            fp3 totalSize = halfSizeA + halfSizeB;
+
+            if (System.Math.Abs(delta.x) < totalSize.x
+                && System.Math.Abs(delta.y) < totalSize.y
+                && System.Math.Abs(delta.z) < totalSize.z){
+                    return true ;
+            }
+
+            return false;
+        }
+
         public static fp3 closestPointAABB(this AABBoxCollider box, fp3 point) // P131
         {
             // For each coordinate axis, if the point coordinate value is outside box,

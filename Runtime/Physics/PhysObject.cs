@@ -356,6 +356,11 @@ namespace SepM.Physics{
             return MinValue + (MaxValue - MinValue)/2;
         }
 
+        // TODO: Write tests (0 size, negatives, max > min, etc.)
+        public fp3 Dimensions(){
+            return MaxValue - MinValue;
+        }
+
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             Collider collider,
@@ -402,15 +407,11 @@ namespace SepM.Physics{
 
         public override CollisionPoints TestCollision(
             PhysTransform transform,
-            AABBoxCollider plane,
+            AABBoxCollider box,
             PhysTransform planeTransform){
-            // TODO: Make a aabbox version
-            // return algo.FindSphereAABBCollisionPoints(
-            //     this, transform, plane, planeTransform
-            // );
-
-            // TODO: Remove
-            return new CollisionPoints();
+            return algo.FindAABBoxAABBoxCollisionPoints(
+                this, transform, box, planeTransform
+            );
         }
     };
 

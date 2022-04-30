@@ -246,6 +246,54 @@ public class AlgoTests
     }
 
     [Test]
+    public void AABBoxAABoxCollision_SamePos(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void AABBoxAABoxCollision_Overlap(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        AABBoxCollider b = new AABBoxCollider(new fp3(-2,0,-1), new fp3(2,.5m,1));
+        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void AABBoxAABoxCollision_Edge(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(1,1,1), new fp3(2,2,2));
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(new fp3(0,2,0));
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void AABBoxAABox_NotTouching(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(2,2,2), new fp3(3,3,3));
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        PhysTransform ta = new PhysTransform(new fp3(3,0,0));
+        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
     public void Raycast_AABB_Touching(){
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = true;
