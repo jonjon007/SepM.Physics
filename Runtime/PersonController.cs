@@ -39,9 +39,15 @@ public class PersonController : MonoBehaviour
         PhysObjController sphereObjCont = sphereTuple.Item1.AddComponent<PhysObjController>();
         sphereObjCont.setPhysObject(sphereTuple.Item2);
 
+        // Create falling box
+        Tuple<GameObject, PhysObject> fboxTuple = physWorld.CreateAABBoxObject(
+            new fp3(10,-5,0), new fp3(1,1,1), true, true, Constants.GRAVITY);
+        PhysObjController fboxObjCont = fboxTuple.Item1.AddComponent<PhysObjController>();
+        fboxObjCont.setPhysObject(fboxTuple.Item2);
+        
         // Create stationary box
         Tuple<GameObject, PhysObject> boxTuple = physWorld.CreateAABBoxObject(
-            new fp3(10,-10,0), new fp3(5,2,3), true, false, fp3.zero);
+            new fp3(10,-10,0), new fp3(10,3,5), true, false, fp3.zero);
         PhysObjController boxObjCont = boxTuple.Item1.AddComponent<PhysObjController>();
         boxObjCont.setPhysObject(boxTuple.Item2);
 

@@ -247,8 +247,8 @@ public class AlgoTests
 
     [Test]
     public void AABBoxAABoxCollision_SamePos(){
-        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
         bool expected = true;
@@ -274,7 +274,7 @@ public class AlgoTests
         AABBoxCollider a = new AABBoxCollider(new fp3(1,1,1), new fp3(2,2,2));
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,2,0));
+        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -282,10 +282,10 @@ public class AlgoTests
     }
 
     [Test]
-    public void AABBoxAABox_NotTouching(){
-        AABBoxCollider a = new AABBoxCollider(new fp3(2,2,2), new fp3(3,3,3));
-        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(3,0,0));
+    public void AABBoxAABoxCollision_NotTouching(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(10,-8.150096m,0), new fp3(1,1,1), true);
+        AABBoxCollider b = new AABBoxCollider(new fp3(10,-10,0), new fp3(1,1,1), true);
+        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
         bool expected = false;
 

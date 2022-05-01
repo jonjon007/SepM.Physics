@@ -357,8 +357,8 @@ namespace SepM.Physics{
         }
 
         // TODO: Write tests (0 size, negatives, max > min, etc.)
-        public fp3 Dimensions(){
-            return MaxValue - MinValue;
+        public fp3 Size(){
+            return (MaxValue - MinValue)/2;
         }
 
         public override CollisionPoints TestCollision(
@@ -408,9 +408,9 @@ namespace SepM.Physics{
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             AABBoxCollider box,
-            PhysTransform planeTransform){
+            PhysTransform boxTransform){
             return algo.FindAABBoxAABBoxCollisionPoints(
-                this, transform, box, planeTransform
+                this, transform, box, boxTransform
             );
         }
     };

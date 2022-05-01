@@ -92,7 +92,7 @@ public class PhysWorld{
         GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
         // Destroy the default Unity collider
         GameObject.Destroy(g_obj.GetComponent<UnityEngine.BoxCollider>());
-        SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(center, scale, true, l);
+        SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(fp3.zero, scale, true, l);
         PhysObject p_obj = new PhysObject(center){
             IsDynamic = isDyn,
             IsKinematic = isKin,

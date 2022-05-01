@@ -197,7 +197,7 @@ namespace SepM.Physics{
             fp3 A = a.Center + ta.WorldPosition();
 
             // Find point (p) on AABB closest to Sphere center
-            fp3 p = b.closestPointAABB(A);
+            fp3 p = b.closestPointAABB(tb, A);
 
             // Sphere and AABB intersect if the (squared) distance from sphere center to point (p)
             // is less than the (squared) sphere radius
@@ -205,7 +205,7 @@ namespace SepM.Physics{
 
             if (v.dot(v) <= a.Radius * a.Radius)
             {
-                dist = b.SqDistPointAABB(A);
+                dist = b.SqDistPointAABB(tb, A);
 
                 // Calculate normal using sphere center a closest point on AABB
                 fp3 normal = (p - A).normalized();
@@ -237,11 +237,11 @@ namespace SepM.Physics{
             AABBoxCollider a, PhysTransform ta,
             AABBoxCollider b, PhysTransform tb)
         {
-            fp3 boxAPos = ta.WorldPosition();
-            fp3 boxBPos = tb.WorldPosition();
+            fp3 boxAPos = ta.WorldPosition() + a.Center();
+            fp3 boxBPos = tb.WorldPosition() + b.Center();
 
-            fp3 boxASize = a.Dimensions();
-            fp3 boxBSize = b.Dimensions();
+            fp3 boxASize = a.Size();
+            fp3 boxBSize = b.Size();
 
             bool overlap = AABBTest (boxAPos, boxBPos, boxASize, boxBSize);
             if (overlap) {
@@ -275,9 +275,9 @@ namespace SepM.Physics{
                     }
                 }
                 return new CollisionPoints{
-                    A = fp3.zero,
-                    B = fp3.zero,
-                    Normal = bestAxis,
+                    A = boxAPos,
+                    B = boxBPos,
+                    Normal = -bestAxis,
                     DepthSqrd = penetration.sqrd(),
                     HasCollision = true
                 };
@@ -285,25 +285,26 @@ namespace SepM.Physics{
             return CollisionPoints.noCollision;
         }
 
+        //tell us whether the objects are colliding
         static bool AABBTest (fp3 posA, fp3 posB, fp3 halfSizeA, fp3 halfSizeB) {
             fp3 delta = posB - posA;
             fp3 totalSize = halfSizeA + halfSizeB;
 
-            if (System.Math.Abs(delta.x) < totalSize.x
-                && System.Math.Abs(delta.y) < totalSize.y
-                && System.Math.Abs(delta.z) < totalSize.z){
+            if (System.Math.Abs(delta.x) <= totalSize.x
+                && System.Math.Abs(delta.y) <= totalSize.y
+                && System.Math.Abs(delta.z) <= totalSize.z){
                     return true ;
             }
 
             return false;
         }
 
-        public static fp3 closestPointAABB(this AABBoxCollider box, fp3 point) // P131
+        public static fp3 closestPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point) // P131
         {
             // For each coordinate axis, if the point coordinate value is outside box,
             // clamp it to the box, else keep it as is
-            fp3 min = box.MinValue;
-            fp3 max = box.MaxValue;
+            fp3 min = box.MinValue + boxTransform.WorldPosition();
+            fp3 max = box.MaxValue + boxTransform.WorldPosition();
             fp3 q = fp3.zero;
             fp v = 0;
             v = point.x;
@@ -322,8 +323,8 @@ namespace SepM.Physics{
             return q;
         }
 
-        public static fp SqDistPointAABB(this AABBoxCollider box, fp3 point){
-            fp result = (box.closestPointAABB(point) - point).lengthSqrd();
+        public static fp SqDistPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point){
+            fp result = (box.closestPointAABB(boxTransform, point) - point).lengthSqrd();
             return result;
         }
 
