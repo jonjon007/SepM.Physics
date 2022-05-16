@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
 using SepM.Math;
+using System;
 
 namespace SepM.Physics{
     public static class Constants{
@@ -493,6 +494,7 @@ namespace SepM.Physics{
         }
     };
 
+    [Serializable]
     /* Using as a class since it represents a combination of values and will be mutated often. */
     public class PhysObject {
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k

@@ -9,6 +9,7 @@ public class PersonController : MonoBehaviour
     Rigidbody rb;
     public int jumpPower = 400;
     public int moveSpeed = 500;
+    public PhysObject physObj;
     public PhysWorld physWorld;
     // Start is called before the first frame update
     void Awake(){
