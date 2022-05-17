@@ -22,10 +22,6 @@ namespace SepM.Physics{
         public static long layer_player = 1 << ((int)coll_layers.player);
         public static long layer_noPlayer = 1 << ((int)coll_layers.noPlayer);
         public static fp3 GRAVITY = new fp3(0,-9.81m, 0);
-
-        public static long GetCollisionLayerFromEnum(coll_layers layer){
-            return 1 << ((int)layer);
-        }
     }
     public struct PhysCollision{
         public PhysObject ObjA;
