@@ -111,6 +111,10 @@ namespace SepM.Utils{
             return result;
         }
 
+        public static fp roundToNearestQuarter(this float x){
+            return System.Math.Round((decimal)(x * 4), MidpointRounding.ToEven) / 4;
+        }
+
         /* Squares the passed FixedPoint number */
         public static fp sqrd(this fp x){
             return x*x;

@@ -260,6 +260,26 @@ public class UtilitiesTests
     }
 
     [Test]
+    public void TestRoundToNearestQuarterOnQuater(){
+        fp error = .0m;
+        float f = 0.75f;
+        fp expected = 0.75m;
+
+        fp actual = f.roundToNearestQuarter();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestRoundToNearestQuarterByQuater(){
+        fp error = .0m;
+        float f = 0.45f;
+        fp expected = 0.5m;
+
+        fp actual = f.roundToNearestQuarter();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
     public void TestSqrd(){
         fp num = 4;
         fp expected = 16;
