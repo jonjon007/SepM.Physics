@@ -114,29 +114,32 @@ public class PhysWorld{
         return result;
     }
 
+    /// <summary>
+    /// Adds the given PhysObject to the world
+    /// </summary>
     public void AddObject (PhysObject obj) {
-        GameObject u_obj;
-        if(obj.Coll is SepM.Physics.SphereCollider){
-            u_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            float sphRadius = (float)((SepM.Physics.SphereCollider)obj.Coll).Radius*2;
-            u_obj.transform.localScale = Vector3.one*sphRadius;
-        }
-        else if(obj.Coll is SepM.Physics.CapsuleCollider){
-            u_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            float capRadius = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Radius*2;
-            float capHeight = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Height;
-            u_obj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
-        }
-        else{
-            u_obj = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            PlaneCollider c = (PlaneCollider)obj.Coll;
-            Vector3 planeDir = c.Normal.toVector3();
-            float scale = (float)c.Distance/10;
-            u_obj.transform.Rotate(planeDir);
-            u_obj.transform.localScale = Vector3.one*scale;
-        }
-        PhysObjController u_objCont = u_obj.AddComponent<PhysObjController>();
-        u_objCont.setPhysObject(obj);
+        // GameObject u_obj;
+        // if(obj.Coll is SepM.Physics.SphereCollider){
+        //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //     float sphRadius = (float)((SepM.Physics.SphereCollider)obj.Coll).Radius*2;
+        //     u_obj.transform.localScale = Vector3.one*sphRadius;
+        // }
+        // else if(obj.Coll is SepM.Physics.CapsuleCollider){
+        //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        //     float capRadius = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Radius*2;
+        //     float capHeight = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Height;
+        //     u_obj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
+        // }
+        // else{
+        //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        //     PlaneCollider c = (PlaneCollider)obj.Coll;
+        //     Vector3 planeDir = c.Normal.toVector3();
+        //     float scale = (float)c.Distance/10;
+        //     u_obj.transform.Rotate(planeDir);
+        //     u_obj.transform.localScale = Vector3.one*scale;
+        // }
+        // PhysObjController u_objCont = u_obj.AddComponent<PhysObjController>();
+        // u_objCont.setPhysObject(obj);
         
         m_objects.Add(obj);
     }
