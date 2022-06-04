@@ -8,6 +8,7 @@ using SepM.Utils;
 public class PhysWorld{
 	private List<PhysObject> m_objects = new List<PhysObject>();
 	private List<Solver> m_solvers = new List<Solver>();
+    public List<PhysCollision> collisions = new List<PhysCollision>();
  
     // By default, create Impulse and SmoothPosition solvers
     public PhysWorld(){
@@ -170,7 +171,8 @@ public class PhysWorld{
 	}
 
     void ResolveCollisions(fp dt){
-		List<PhysCollision> collisions = new List<PhysCollision>();
+		// Reset collisions list
+        collisions = new List<PhysCollision>();
         // TODO: Work on that efficiency
 		foreach (PhysObject a in m_objects) {
 			foreach (PhysObject b in m_objects) {
