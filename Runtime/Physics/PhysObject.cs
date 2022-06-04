@@ -11,7 +11,9 @@ namespace SepM.Physics{
             ground = 1,
             wall = 2,
             player = 3,
-            noPlayer = 4, // Collides with ground and such, but no players
+            noPlayer = 4, // Collides with ground and such, but no players,
+            danger = 5,
+            win = 6,
         };
         // Bitwise for collision layers
         public static long layer_none = 0;
