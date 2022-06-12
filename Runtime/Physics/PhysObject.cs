@@ -44,6 +44,11 @@ namespace SepM.Physics{
             HasCollision = false
         };
     };
+
+    // TODO: Come up with a better name
+    public interface ICollider {
+        public void OnCollision(PhysCollision c);
+    }
     
     public class PhysTransform { // Describes an objects location
         public fp3 Position;
