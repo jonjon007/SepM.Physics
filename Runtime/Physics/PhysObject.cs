@@ -47,6 +47,7 @@ namespace SepM.Physics{
 
     // TODO: Come up with a better name
     public interface ICollider {
+        // TODO: May be a good idea to return an int or something. May not be necessary
         public void OnCollision(PhysCollision c);
     }
     
@@ -516,6 +517,7 @@ namespace SepM.Physics{
         public fp StaticFriction = 0.5m; // Static friction coefficient
         public Collider Coll = null;
         public bool IsDynamic = false;
+        public ICollider IColl = null;
         
         public PhysObject(){
             Transform = new PhysTransform();
@@ -556,6 +558,13 @@ namespace SepM.Physics{
 
         public fp GetMass(){
             return 1m/InverseMass;
+        }
+
+        /* If it's assigned, calls the ICollider's OnCollision method. */
+        public void OnCollision(PhysCollision c){
+            if(!(IColl is null)){
+                IColl.OnCollision(c);
+            }
         }
 
         public void SetVelocity(fp3 v){
