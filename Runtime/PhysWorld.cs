@@ -203,5 +203,11 @@ public class PhysWorld{
 		foreach(Solver solver in m_solvers) {
 			solver.Solve(collisions, dt);
 		}
+
+        //Run on collision for each pair
+        foreach(PhysCollision cp in collisions){
+            cp.ObjA.OnCollision(cp);
+            cp.ObjB.OnCollision(cp);
+        }
  	}
 }
