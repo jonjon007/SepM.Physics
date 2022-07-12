@@ -25,11 +25,15 @@ namespace SepM.Physics{
         public static long layer_noPlayer = 1 << ((int)coll_layers.noPlayer);
         public static fp3 GRAVITY = new fp3(0,-9.81m, 0);
     }
+
+    [Serializable]
     public struct PhysCollision{
         public PhysObject ObjA;
         public PhysObject ObjB;
         public CollisionPoints Points;
     }
+
+    [Serializable]
     public struct CollisionPoints {
         public fp3 A; // Furthest point of A into B
         public fp3 B; // Furthest point of B into A
@@ -50,7 +54,8 @@ namespace SepM.Physics{
         // TODO: May be a good idea to return an int or something. May not be necessary
         public void OnCollision(PhysCollision c);
     }
-    
+
+    [Serializable]
     public class PhysTransform { // Describes an objects location
         public fp3 Position;
         public fp3 Scale;
@@ -116,6 +121,7 @@ namespace SepM.Physics{
         }
     };
 
+    [Serializable]
     public abstract class Collider {
         public Constants.coll_layers Layer;
         public abstract CollisionPoints TestCollision(
@@ -153,6 +159,7 @@ namespace SepM.Physics{
         }
     };
 
+    [Serializable]
     public class SphereCollider : Collider{
         public fp3 Center;
         public fp Radius;
@@ -214,6 +221,7 @@ namespace SepM.Physics{
         }
     };
 
+    [Serializable]
     public class CapsuleCollider : Collider{
         public fp3 Center;
         public fp Radius;
@@ -332,6 +340,7 @@ namespace SepM.Physics{
     };
 
     // Axis-Aligned Bounding Box
+    [Serializable]
     public class AABBoxCollider : Collider{
         public fp3 MinValue;
         public fp3 MaxValue;
@@ -424,6 +433,7 @@ namespace SepM.Physics{
         }
     };
 
+    [Serializable]
     public struct CapsuleStats{
         public fp3 a_Normal;
         public fp3 a_LineEndOffset;
@@ -431,6 +441,7 @@ namespace SepM.Physics{
         public fp3 B;
     }
 
+    [Serializable]
     public class PlaneCollider : Collider{
         public fp3 Normal;
         public fp Distance;
@@ -503,7 +514,7 @@ namespace SepM.Physics{
     };
 
     [Serializable]
-    /* Using as a class since it represents a combination of values and will be mutated often. */
+    /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
     public class PhysObject {
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k
         public fp3 Velocity;

@@ -8,6 +8,7 @@ namespace SepM.Physics{
         public abstract void Solve(List<PhysCollision> collisions, fp deltaTime);
     }
 
+    [Serializable]
     public class SmoothPositionSolver : Solver{
         public void Solve(List<PhysCollision> collisions, fp deltaTime){
             List<Tuple<fp3, fp3>> deltas = new List<Tuple<fp3, fp3>>();
@@ -56,6 +57,7 @@ namespace SepM.Physics{
         }
     }
 
+    [Serializable]
     public class ImpulseSolver : Solver{
         public void Solve(List<PhysCollision> collisions, fp deltaTime){
             foreach (PhysCollision collision in collisions) {
