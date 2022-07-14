@@ -2,6 +2,7 @@ using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
 using SepM.Math;
 using System;
+using System.IO;
 
 namespace SepM.Physics{
     public static class Constants{
@@ -123,6 +124,11 @@ namespace SepM.Physics{
     [Serializable]
     public abstract class Collider {
         public Constants.coll_layers Layer;
+
+        public abstract void Serialize(BinaryWriter bw);
+
+        public abstract void Deserialize(BinaryReader br);
+
         public abstract CollisionPoints TestCollision(
             PhysTransform transform,
             Collider collider,
@@ -162,7 +168,29 @@ namespace SepM.Physics{
     public class SphereCollider : Collider{
         public fp3 Center;
         public fp Radius;
-    
+
+        public override void Serialize(BinaryWriter bw) {
+        //Layer (read as an int)
+            bw.Write((int)Layer);
+        //Center
+            bw.Write(Center.x);
+            bw.Write(Center.y);
+            bw.Write(Center.z);
+        //Radius
+            bw.Write(Radius);
+        }
+
+        public override void Deserialize(BinaryReader br) {
+        //Layer (write as an int)
+            Layer = (Constants.coll_layers)br.ReadInt32();
+        //Center
+            Center.x = br.ReadDecimal();
+            Center.y = br.ReadDecimal();
+            Center.z = br.ReadDecimal();
+            //Radius
+            Radius = br.ReadDecimal();
+        }
+
         public SphereCollider(fp r){
             Center = fp3.zero;
             Radius = r;
@@ -218,8 +246,7 @@ namespace SepM.Physics{
                 this, transform, box, planeTransform
             );
         }
-    };
-
+    }
     [Serializable]
     public class CapsuleCollider : Collider{
         public fp3 Center;
@@ -525,10 +552,78 @@ namespace SepM.Physics{
         public fp Restitution = 0.5m; // Elasticity of collisions (bounciness)
         public fp DynamicFriction = 0.5m; // Dynamic friction coefficient
         public fp StaticFriction = 0.5m; // Static friction coefficient
-        public Collider Coll = null;
+        public Collider Coll = null; // Collider attached to PhysObject
         public bool IsDynamic = false;
-        public ICollider IColl = null;
-        
+        public ICollider IColl = null; // Attached script with OnCollision callbacks
+
+        public void Serialize(BinaryWriter bw) {
+        //Velocity
+            bw.Write(Velocity.x);
+            bw.Write(Velocity.y);
+            bw.Write(Velocity.z);
+         //Gravity
+            bw.Write(Gravity.x);
+            bw.Write(Gravity.y);
+            bw.Write(Gravity.z);
+        //Force
+            bw.Write(Force.x);
+            bw.Write(Force.y);
+            bw.Write(Force.z);
+        //InverseMass
+            bw.Write(InverseMass);
+        //IsKinematic
+            bw.Write(IsKinematic);
+        //Restitution
+            bw.Write(Restitution);
+        //DynamicFriction
+            bw.Write(DynamicFriction);
+        //StaticFriction
+            bw.Write(StaticFriction);
+        // TODO: Figure out how to safely do this
+        //Coll
+            if(!(Coll is null))
+                Coll.Serialize(bw);
+        //IsDynamic
+            bw.Write(IsDynamic);
+            //IColl
+            if (!(IColl is null))
+                IColl.Serialize(bw);
+        }
+
+        public void Deserialize(BinaryReader br) {
+        //Velocity
+            Velocity.x = br.ReadDecimal();
+            Velocity.y = br.ReadDecimal();
+            Velocity.z = br.ReadDecimal();
+        //Gravity
+            Gravity.x = br.ReadDecimal();
+            Gravity.y = br.ReadDecimal();
+            Gravity.z = br.ReadDecimal();
+        //Force
+            Force.x = br.ReadDecimal();
+            Force.y = br.ReadDecimal();
+            Force.z = br.ReadDecimal();
+        //InverseMass
+            InverseMass = br.ReadDecimal();
+        //IsKinematic
+            IsKinematic = br.ReadBoolean();
+        //Restitution
+            Restitution = br.ReadDecimal();
+        //DynamicFriction
+            DynamicFriction = br.ReadDecimal();
+        //StaticFriction
+            StaticFriction = br.ReadDecimal();
+        //Coll
+            if (!(Coll is null))
+                Coll.Deserialize(br);
+        //IsDynamic
+            IsDynamic = br.ReadBoolean();
+        //IColl
+            if (!(IColl is null))
+                IColl.Deserialize(br);
+            }
+        }
+
         public PhysObject(){
             Transform = new PhysTransform();
             Velocity = new fp3();
