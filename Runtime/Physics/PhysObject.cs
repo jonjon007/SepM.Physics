@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
 using SepM.Math;
@@ -61,21 +60,21 @@ namespace SepM.Physics{
         public fp3 Scale;
         public fpq Rotation;
         private PhysTransform m_parent;
-        private List<PhysTransform> m_children;
-        // private PhysTransform t_parent;
+        // TODO: Find a way to serialize this without depth limit issues!
+        // private List<PhysTransform> m_children;
         public PhysTransform(){
             Position = fp3.zero;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
             m_parent = null;
-            m_children = new List<PhysTransform>();
+            //m_children = new List<PhysTransform>();
         }
         public PhysTransform(fp3 p){
             Position = p;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
             m_parent = null;
-            m_children = new List<PhysTransform>();
+            //m_children = new List<PhysTransform>();
         }
 
         public fp3 Right(){
@@ -119,7 +118,7 @@ namespace SepM.Physics{
 
             return Scale * parentScale;
         }
-    };
+    }
 
     [Serializable]
     public abstract class Collider {
