@@ -53,6 +53,8 @@ namespace SepM.Physics{
     public interface ICollider {
         // TODO: May be a good idea to return an int or something. May not be necessary
         public void OnCollision(PhysCollision c);
+        public void Serialize(BinaryWriter bw);
+        public void Deserialize(BinaryReader br);
     }
 
     [Serializable]
@@ -61,6 +63,41 @@ namespace SepM.Physics{
         public fp3 Scale;
         public fpq Rotation;
         private PhysTransform m_parent;
+
+        public void Serialize(BinaryWriter bw) {
+        //Position
+            bw.Write(Position.x);
+            bw.Write(Position.y);
+            bw.Write(Position.z);
+        //Scale
+            bw.Write(Scale.x);
+            bw.Write(Scale.y);
+            bw.Write(Scale.z);
+        //Rotation
+            bw.Write(Rotation.x);
+            bw.Write(Rotation.y);
+            bw.Write(Rotation.z);
+        //m_parent
+            //TODO: Parent reference?
+        }
+
+        public void Deserialize(BinaryReader br) {
+        //Position
+            Position.x = br.ReadDecimal();
+            Position.y = br.ReadDecimal();
+            Position.z = br.ReadDecimal();
+        //Scale
+            Scale.x = br.ReadDecimal();
+            Scale.y = br.ReadDecimal();
+            Scale.z = br.ReadDecimal();
+        //Rotation
+            Rotation.x = br.ReadDecimal();
+            Rotation.y = br.ReadDecimal();
+            Rotation.z = br.ReadDecimal();
+        //m_parent
+            //TODO: Parent reference?
+        }
+
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
         public PhysTransform(){
@@ -254,6 +291,40 @@ namespace SepM.Physics{
         public fp Height;
         public fp3 Direction;
 
+        public override void Serialize(BinaryWriter bw) {
+        //Layer (read as an int)
+            bw.Write((int)Layer);
+        //Center
+            bw.Write(Center.x);
+            bw.Write(Center.y);
+            bw.Write(Center.z);
+        //Radius
+            bw.Write(Radius);
+        //Height
+            bw.Write(Height);
+        //Direction
+            bw.Write(Direction.x);
+            bw.Write(Direction.y);
+            bw.Write(Direction.z);
+        }
+
+        public override void Deserialize(BinaryReader br) {
+        //Layer (write as an int)
+            Layer = (Constants.coll_layers)br.ReadInt32();
+        //Center
+            Center.x = br.ReadDecimal();
+            Center.y = br.ReadDecimal();
+            Center.z = br.ReadDecimal();
+        //Radius
+            Radius = br.ReadDecimal();
+        //Height
+            Height = br.ReadDecimal();
+        //Direction
+            Direction.x = br.ReadDecimal();
+            Direction.y = br.ReadDecimal();
+            Direction.z = br.ReadDecimal();
+        }
+
         public CapsuleCollider(){
 			Center = fp3.zero;
 			Radius = 0.5m;
@@ -370,7 +441,32 @@ namespace SepM.Physics{
     public class AABBoxCollider : Collider{
         public fp3 MinValue;
         public fp3 MaxValue;
-    
+
+        public override void Serialize(BinaryWriter bw) {
+        //Layer (read as an int)
+            bw.Write((int)Layer);
+        //MinValue
+            bw.Write(MinValue.x);
+            bw.Write(MinValue.y);
+            bw.Write(MinValue.z);
+        //MaxValue
+            bw.Write(MaxValue.x);
+            bw.Write(MaxValue.y);
+            bw.Write(MaxValue.z);
+        }
+
+        public override void Deserialize(BinaryReader br) {
+        //Layer (write as an int)
+            Layer = (Constants.coll_layers)br.ReadInt32();
+        //MinValue
+            MinValue.x = br.ReadDecimal();
+            MinValue.y = br.ReadDecimal();
+            MinValue.z = br.ReadDecimal();
+        //MaxValue
+            MaxValue.x = br.ReadDecimal();
+            MaxValue.y = br.ReadDecimal();
+            MaxValue.z = br.ReadDecimal();
+        }
         public AABBoxCollider(fp3 minVal, fp3 maxVal){
             MinValue = minVal;
             MaxValue = maxVal;
@@ -471,7 +567,29 @@ namespace SepM.Physics{
     public class PlaneCollider : Collider{
         public fp3 Normal;
         public fp Distance;
-    
+
+        public override void Serialize(BinaryWriter bw) {
+        //Layer (read as an int)
+            bw.Write((int)Layer);
+        //Normal
+            bw.Write(Normal.x);
+            bw.Write(Normal.y);
+            bw.Write(Normal.z);
+        //Distance
+            bw.Write(Distance);
+        }
+
+        public override void Deserialize(BinaryReader br) {
+        //Layer (write as an int)
+            Layer = (Constants.coll_layers)br.ReadInt32();
+        //Normal
+            Normal.x = br.ReadDecimal();
+            Normal.y = br.ReadDecimal();
+            Normal.z = br.ReadDecimal();
+        //Distance
+            Distance = br.ReadDecimal();
+        }
+
         public PlaneCollider(fp3 n, fp d){
             Normal = n;
             Distance = d;
@@ -557,6 +675,8 @@ namespace SepM.Physics{
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
         public void Serialize(BinaryWriter bw) {
+        //PhysTransform
+            Transform.Serialize(bw);
         //Velocity
             bw.Write(Velocity.x);
             bw.Write(Velocity.y);
@@ -585,12 +705,14 @@ namespace SepM.Physics{
                 Coll.Serialize(bw);
         //IsDynamic
             bw.Write(IsDynamic);
-            //IColl
+        //IColl
             if (!(IColl is null))
                 IColl.Serialize(bw);
         }
 
         public void Deserialize(BinaryReader br) {
+        //PhysTransform
+            Transform.Deserialize(br);
         //Velocity
             Velocity.x = br.ReadDecimal();
             Velocity.y = br.ReadDecimal();
@@ -621,7 +743,6 @@ namespace SepM.Physics{
         //IColl
             if (!(IColl is null))
                 IColl.Deserialize(br);
-            }
         }
 
         public PhysObject(){
