@@ -7,8 +7,11 @@ using SepM.Utils;
 namespace SepM.Physics {
     [Serializable]
     public class PhysWorld {
+        // TODO: Serialize
         private List<PhysObject> m_objects = new List<PhysObject>();
+        // TODO: Be wary of finding solvers Create new ones on reload?
         private List<Solver> m_solvers = new List<Solver>();
+        // TODO: Serialize
         public List<PhysCollision> collisions = new List<PhysCollision>();
 
         // By default, create Impulse and SmoothPosition solvers
