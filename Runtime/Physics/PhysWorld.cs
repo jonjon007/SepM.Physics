@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
@@ -13,6 +14,26 @@ namespace SepM.Physics {
         private List<Solver> m_solvers = new List<Solver>();
         // TODO: Serialize
         public List<PhysCollision> collisions = new List<PhysCollision>();
+
+        public void Serialize(BinaryWriter bw) {
+        //m_objects
+            for(int i = 0; i < m_objects.Count; i++)
+                m_objects[i].Serialize(bw);
+        //m_objects
+            // TODO: Serialize?
+        //m_objects
+            // TODO: Serialize?
+        }
+
+        public void Deserialize(BinaryReader br) {
+        //m_objects
+            for(int i = 0; i < m_objects.Count; i++)
+                m_objects[i].Deserialize(br);
+        //m_objects
+            // TODO: Serialize?
+        //m_objects
+            // TODO: Serialize?
+        }
 
         // By default, create Impulse and SmoothPosition solvers
         public PhysWorld() {
