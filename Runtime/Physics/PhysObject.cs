@@ -98,6 +98,14 @@ namespace SepM.Physics{
             //TODO: Parent reference?
         }
 
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Position.GetHashCode();
+            hashCode = hashCode * -1521134295 + Scale.GetHashCode();
+            hashCode = hashCode * -1521134295 + Rotation.GetHashCode();
+            return hashCode;
+        }
+
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
         public PhysTransform(){
@@ -224,8 +232,16 @@ namespace SepM.Physics{
             Center.x = br.ReadDecimal();
             Center.y = br.ReadDecimal();
             Center.z = br.ReadDecimal();
-            //Radius
+        //Radius
             Radius = br.ReadDecimal();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Center.GetHashCode();
+            hashCode = hashCode * -1521134295 + Radius.GetHashCode();
+            return hashCode;
         }
 
         public SphereCollider(fp r){
@@ -323,6 +339,16 @@ namespace SepM.Physics{
             Direction.x = br.ReadDecimal();
             Direction.y = br.ReadDecimal();
             Direction.z = br.ReadDecimal();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Center.GetHashCode();
+            hashCode = hashCode * -1521134295 + Radius.GetHashCode();
+            hashCode = hashCode * -1521134295 + Height.GetHashCode();
+            hashCode = hashCode * -1521134295 + Direction.GetHashCode();
+            return hashCode;
         }
 
         public CapsuleCollider(){
@@ -473,6 +499,14 @@ namespace SepM.Physics{
             Layer = Constants.coll_layers.normal;
         }
 
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + MinValue.GetHashCode();
+            hashCode = hashCode * -1521134295 + MaxValue.GetHashCode();
+            return hashCode;
+        }
+
         public AABBoxCollider(fp3 minVal, fp3 maxVal, Constants.coll_layers l){
             MinValue = minVal;
             MaxValue = maxVal;
@@ -588,6 +622,14 @@ namespace SepM.Physics{
             Normal.z = br.ReadDecimal();
         //Distance
             Distance = br.ReadDecimal();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Normal.GetHashCode();
+            hashCode = hashCode * -1521134295 + Distance.GetHashCode();
+            return hashCode;
         }
 
         public PlaneCollider(fp3 n, fp d){
@@ -711,7 +753,7 @@ namespace SepM.Physics{
         }
 
         public void Deserialize(BinaryReader br) {
-        //PhysTransform
+        //Transform
             Transform.Deserialize(br);
         //Velocity
             Velocity.x = br.ReadDecimal();
@@ -743,6 +785,23 @@ namespace SepM.Physics{
         //IColl
             if (!(IColl is null))
                 IColl.Deserialize(br);
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Transform.GetHashCode();
+            hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Gravity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Force.GetHashCode();
+            hashCode = hashCode * -1521134295 + InverseMass.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsKinematic.GetHashCode();
+            hashCode = hashCode * -1521134295 + Restitution.GetHashCode();
+            hashCode = hashCode * -1521134295 + DynamicFriction.GetHashCode();
+            hashCode = hashCode * -1521134295 + StaticFriction.GetHashCode();
+            hashCode = hashCode * -1521134295 + Coll.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsDynamic.GetHashCode();
+            hashCode = hashCode * -1521134295 + IColl.GetHashCode();
+            return hashCode;
         }
 
         public PhysObject(){

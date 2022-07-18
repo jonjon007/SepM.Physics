@@ -20,7 +20,7 @@ namespace SepM.Physics {
             for(int i = 0; i < m_objects.Count; i++)
                 m_objects[i].Serialize(bw);
         //m_objects
-            // TODO: Serialize?
+            // TODO: Serialize? How should we handle serialization of references?
         //m_objects
             // TODO: Serialize?
         }
@@ -33,6 +33,14 @@ namespace SepM.Physics {
             // TODO: Serialize?
         //m_objects
             // TODO: Serialize?
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + m_objects.GetHashCode();
+            hashCode = hashCode * -1521134295 + m_solvers.GetHashCode();
+            hashCode = hashCode * -1521134295 + collisions.GetHashCode();
+            return hashCode;
         }
 
         // By default, create Impulse and SmoothPosition solvers
