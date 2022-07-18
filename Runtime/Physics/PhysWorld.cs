@@ -52,6 +52,13 @@ namespace SepM.Physics {
             AddSolver(new SmoothPositionSolver());
         }
 
+        public void CleanUp() {
+            objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
+            objectsMap.Clear();
+            m_objects.Clear();
+            m_solvers.Clear();
+        }
+
         public void AssignGameObject(GameObject g_o, PhysObject p_o) {
             int existingIndex = objectsMap.FindIndex(t => t.Item2 == p_o);
 
