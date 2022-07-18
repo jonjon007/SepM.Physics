@@ -37,6 +37,9 @@ namespace SepM.Physics {
                 );
                 physObj.Coll = coll;
             }
+            else {
+                Debug.LogWarningFormat("No SepObject implementation for type '{0}'!", colliderType.ToString());
+            }
 
             // Get the result
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(

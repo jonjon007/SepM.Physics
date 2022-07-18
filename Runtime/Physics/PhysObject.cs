@@ -38,7 +38,7 @@ namespace SepM.Physics{
         public fp3 A; // Furthest point of A into B
         public fp3 B; // Furthest point of B into A
         public fp3 Normal; // B – A normalized
-        public fp DepthSqrd;    // Length of B – A
+        public fp DepthSqrd; // Length of B – A
         public bool HasCollision;
         public static CollisionPoints noCollision = new CollisionPoints{ 
             A = fp3.zero,

@@ -59,6 +59,7 @@ namespace SepM.Physics {
             m_solvers.Clear();
         }
 
+        // TODO: Do we need both the tuples and the list?
         public void AssignGameObject(GameObject g_o, PhysObject p_o) {
             int existingIndex = objectsMap.FindIndex(t => t.Item2 == p_o);
 
@@ -69,6 +70,10 @@ namespace SepM.Physics {
             // If in the list, replace
             else {
                 objectsMap[existingIndex] = new Tuple<GameObject, PhysObject>(g_o, p_o);
+            }
+
+            if (!m_objects.Contains(p_o)) {
+                m_objects.Add(p_o);
             }
         }
 
