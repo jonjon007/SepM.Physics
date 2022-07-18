@@ -95,7 +95,6 @@ namespace SepM.Physics {
             // Add to list of the world's physics objects
             m_objects.Add(p_obj);
 
-
             // Add to the map
             AssignGameObject(g_obj, p_obj);
 
@@ -134,6 +133,9 @@ namespace SepM.Physics {
             // Add to list of the world's physics objects
             m_objects.Add(p_obj);
 
+            // Add to the map
+            AssignGameObject(g_obj, p_obj);
+
             return result;
         }
 
@@ -164,6 +166,9 @@ namespace SepM.Physics {
 
             // Add to list of the world's physics objects
             m_objects.Add(p_obj);
+
+            // Add to the map
+            AssignGameObject(g_obj, p_obj);
 
             return result;
         }
