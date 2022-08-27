@@ -36,13 +36,6 @@ namespace SepM.Utils{
         public static fp dot(this fp3 va, fp3 vb){
             return va.x * vb.x + va.y * vb.y + va.z * vb.z;
         }
-
-        public static bool equalsWError(this fp x, fp other, fp errorPercent){
-            int sign = x < 0 ? -1 : 1;
-            fp maxVal = x*(1+errorPercent*sign);
-            fp minVal = x*(1-errorPercent*sign);
-            return other >= minVal && other <= maxVal;
-        }
         
         /* Returns the 2D vector length squared, avoiding the slow operation */
         public static fp lengthSqrd(this fp2 vec){

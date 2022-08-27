@@ -65,33 +65,6 @@ public class UtilitiesTests
     }
 
     [Test]
-    public void TestEqualsWErrorOutOfRange()
-    {
-        fp answer = 100;
-        fp guesss = 110;
-        fp error = .08m;
-        bool expected = false;
-
-        bool actual = answer.equalsWError(guesss, error);
-
-        Assert.AreEqual(expected, actual);
-    }
-
-    [Test]
-    public void TestEqualsWErrorInRange()
-    {
-        fp answer = -100;
-        fp guesss = -105;
-        fp error = .08m;
-        bool expected = true;
-
-        bool actual = answer.equalsWError(guesss, error);
-
-        Assert.AreEqual(expected, actual);
-    }
-
-
-    [Test]
     public void Test2DLengthSqrd(){
         fp2 vec1 = new fp2(1,-2);
         fp expected = 5;
@@ -200,16 +173,17 @@ public class UtilitiesTests
     }
     [Test]
     public void TestMultiplyVQ(){
-        fp error = .01m;
         fpq q = new fpq(0.382683m,0,0,0.92388m);
         fp3 v = new fp3(0,0,1);
-        fp3 expected = new fp3(0, -0.7071063400800001m, 0.7071079759110002m);
+        long expectedRawX = 0L; // 0
+        long expectedRawY = -3036998604L; // -0.7071063397
+        long expectedRawZ = 3037003342L; // 0.7071074429
 
         fp3 actual = v.multiply(q);
         Assert.That(
-            expected.x.equalsWError(actual.x, error)
-            && expected.y.equalsWError(actual.y, error)
-            && expected.z.equalsWError(actual.z, error)
+            actual.x.RawValue == expectedRawX
+            && actual.y.RawValue == -expectedRawY
+            && actual.z.RawValue == expectedRawZ
         );
     }
     
@@ -224,15 +198,16 @@ public class UtilitiesTests
 
     [Test]
     public void TestNormalizedMultiDir(){
-        fp error = .01m;
         fp3 vec1 = new fp3(1,-2,3);
-        fp3 expected = new fp3(0.2672612419124244m, -0.5345224838248488m, 0.8017837257372732m);
+        long expectedRawX = 1147878294L; // 0.2672612418
+        long expectedRawY = -2295756587L; // -0.5345224838
+        long expectedRawZ = 3443634881L; // 3443634880
 
         fp3 actual = vec1.normalized();
         Assert.That(
-            expected.x.equalsWError(actual.x, error)
-            && expected.y.equalsWError(actual.y, error)
-            && expected.z.equalsWError(actual.z, error)
+            actual.x.RawValue == expectedRawX
+            && actual.y.RawValue == expectedRawY
+            && actual.z.RawValue == expectedRawZ
         );
     }
 
@@ -247,21 +222,21 @@ public class UtilitiesTests
 
     [Test]
     public void TestNormalize(){
-        fp error = .01m;
         fp3 vec = new fp3(1,-2,3);
-        fp3 expected = new fp3(0.2672612419124244m, -0.5345224838248488m, 0.8017837257372732m);
+        long expectedRawX = 1147878294L; // 0.267261242
+        long expectedRawY = -2295756587L; // -0.5345224838
+        long expectedRawZ = 3443634881L; //0.8017837259
 
         vec.normalize();
         Assert.That(
-            expected.x.equalsWError(vec.x, error)
-            && expected.y.equalsWError(vec.y, error)
-            && expected.z.equalsWError(vec.z, error)
+            vec.x.RawValue == expectedRawX
+            && vec.y.RawValue == expectedRawY
+            && vec.z.RawValue == expectedRawZ
         );
     }
 
     [Test]
     public void TestRoundToNearestQuarterOnQuater(){
-        fp error = .0m;
         float f = 0.75f;
         fp expected = 0.75m;
 
@@ -271,7 +246,6 @@ public class UtilitiesTests
 
     [Test]
     public void TestRoundToNearestQuarterByQuater(){
-        fp error = .0m;
         float f = 0.45f;
         fp expected = 0.5m;
 
