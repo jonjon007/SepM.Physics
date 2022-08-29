@@ -16,7 +16,8 @@ namespace SepM.Physics {
         public List<PhysCollision> collisions = new List<PhysCollision>();
 
         public void Serialize(BinaryWriter bw) {
-        //m_objects
+            //m_objects
+            bw.Write(m_objects.Count);
             for(int i = 0; i < m_objects.Count; i++)
                 m_objects[i].Serialize(bw);
         //m_objects
@@ -26,9 +27,17 @@ namespace SepM.Physics {
         }
 
         public void Deserialize(BinaryReader br) {
-        //m_objects
-            for(int i = 0; i < m_objects.Count; i++)
+            //m_objects
+            int m_objects_length = br.ReadInt32();
+            // Create a new list if the counts aren't the same
+            if (m_objects_length != m_objects.Count) {
+                m_objects = new List<PhysObject>(new PhysObject[m_objects_length]);
+            }
+            // Read down the data for each object
+            for(int i = 0; i < m_objects_length; i++){
+                if(m_objects[i] is null) m_objects[i] = new PhysObject();
                 m_objects[i].Deserialize(br);
+            }
         //m_objects
             // TODO: Serialize?
         //m_objects
@@ -49,7 +58,10 @@ namespace SepM.Physics {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             // Destroy the default Unity collider
-            GameObject.Destroy(g_obj.GetComponent<UnityEngine.SphereCollider>());
+            if (Application.isEditor)
+                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.SphereCollider>());
+            else
+                GameObject.Destroy(g_obj.GetComponent<UnityEngine.SphereCollider>());
             SepM.Physics.SphereCollider coll = new SepM.Physics.SphereCollider(r, l);
             PhysObject p_obj = new PhysObject(center) {
                 IsDynamic = isDyn,
@@ -82,7 +94,10 @@ namespace SepM.Physics {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             // Destroy the default Unity collider
-            GameObject.Destroy(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
+            if (Application.isEditor)
+                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
+            else
+                GameObject.Destroy(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
             SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h, l);
             PhysObject p_obj = new PhysObject(center) {
                 IsDynamic = isDyn,
@@ -117,7 +132,10 @@ namespace SepM.Physics {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             // Destroy the default Unity collider
-            GameObject.Destroy(g_obj.GetComponent<UnityEngine.BoxCollider>());
+            if (Application.isEditor)
+                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.BoxCollider>());
+            else
+                GameObject.Destroy(g_obj.GetComponent<UnityEngine.BoxCollider>());
             SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(fp3.zero, scale, true, l);
             PhysObject p_obj = new PhysObject(center) {
                 IsDynamic = isDyn,
@@ -234,6 +252,14 @@ namespace SepM.Physics {
                 cp.ObjA.OnCollision(cp);
                 cp.ObjB.OnCollision(cp);
             }
+        }
+
+        public override int GetHashCode() {
+            int hashCode = -1214587014;
+            foreach (var m_obj in m_objects) {
+                hashCode = hashCode * -1521134295 + m_obj.GetHashCode();
+            }
+            return hashCode;
         }
     }
 }

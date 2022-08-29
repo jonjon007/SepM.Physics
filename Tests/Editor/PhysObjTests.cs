@@ -1,14 +1,28 @@
+using System;
 using NUnit.Framework;
-using Unity.Mathematics.FixedPoint;
+using Unity.Collections;
 using SepM.Physics;
 
-public class PhysObjTests
+partial class PhysObjTests
 {
     [Test]
-    public void OnCollisionSuccess(){
-        // TODO: Write actually useful tests
+    public void TestWorldSerialize(){
+        bool sameHash = false;
 
-        PhysObject o = new PhysObject();
-        o.OnCollision(new PhysCollision());       
+        PhysWorld wStart = CreateSampleWorld();
+        NativeArray<byte> seriWorld = ToBytes(wStart);
+        try{
+            // Read what was written into a new world and copy it
+            PhysWorld wFinish = new PhysWorld();
+            FromBytes(seriWorld, wFinish);
+            sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
+        }
+        finally{
+            // Dispose of the NativeArray no matter when we're done with it
+            if(seriWorld.IsCreated)
+                seriWorld.Dispose();
+        }
+
+        Assert.IsTrue(sameHash);
     }
 }

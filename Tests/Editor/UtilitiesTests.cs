@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
+using Unity.Collections;
 using UnityEngine;
-using UnityEngine.TestTools;
 using SepM.Utils;
-using Unity.Mathematics;
 using Unity.Mathematics.FixedPoint;
 using SepM.Math;
 
@@ -32,6 +30,8 @@ public class UtilitiesTests
         fp actual = val.clamp(min, max);
         Assert.AreEqual(expected, actual);
     }
+
+    //TODO: Use rawvalue for all tests
 
     [Test]
     public void TestClampInBetween(){
@@ -182,7 +182,7 @@ public class UtilitiesTests
         fp3 actual = v.multiply(q);
         Assert.That(
             actual.x.RawValue == expectedRawX
-            && actual.y.RawValue == -expectedRawY
+            && actual.y.RawValue == expectedRawY
             && actual.z.RawValue == expectedRawZ
         );
     }
@@ -293,5 +293,29 @@ public class UtilitiesTests
 
         Vector3 actual = f3.toVector3();
         Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestSerializeFp(){
+        fp f1 = .2m;
+        fp f2;
+        NativeArray<byte> bytes;
+
+        // Write value to memory stream
+        using (var memoryStream = new MemoryStream()) {
+            using (var writer = new BinaryWriter(memoryStream)) {
+                writer.WriteFp(f1);
+            }
+            bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Persistent);
+        }
+
+        // Read value from memory stream
+        using (var memoryStream = new MemoryStream(bytes.ToArray())) {
+            using (var reader = new BinaryReader(memoryStream)) {
+                f2 = reader.ReadFp();
+            }
+        }
+
+        Assert.AreEqual(f1, f2);
     }
 }

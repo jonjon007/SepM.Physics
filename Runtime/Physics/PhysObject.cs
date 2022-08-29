@@ -1,3 +1,4 @@
+using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
 using SepM.Math;
@@ -14,6 +15,12 @@ namespace SepM.Physics{
             noPlayer = 4, // Collides with ground and such, but no players,
             danger = 5,
             win = 6,
+        };
+        public enum coll_types {
+            none = 0,
+            sphere = 1,
+            capsule = 2,
+            aabb = 3
         };
         // Bitwise for collision layers
         public static long layer_none = 0;
@@ -98,6 +105,14 @@ namespace SepM.Physics{
             //TODO: Parent reference?
         }
 
+        public override int GetHashCode() {
+            int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + Position.GetHashCode();
+            hashCode = hashCode * -1521134295 + Scale.GetHashCode();
+            hashCode = hashCode * -1521134295 + Rotation.GetHashCode();
+            return hashCode;
+        }
+
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
         public PhysTransform(){
@@ -161,10 +176,13 @@ namespace SepM.Physics{
     [Serializable]
     public abstract class Collider {
         public Constants.coll_layers Layer;
+        public Constants.coll_types Type = Constants.coll_types.none;
 
         public abstract void Serialize(BinaryWriter bw);
 
         public abstract void Deserialize(BinaryReader br);
+
+        public abstract override int GetHashCode();
 
         public abstract CollisionPoints TestCollision(
             PhysTransform transform,
@@ -209,35 +227,57 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
+        //Type (read as an int)
+            bw.Write((int)Type);
         //Center
-            bw.Write(Center.x);
-            bw.Write(Center.y);
-            bw.Write(Center.z);
+            bw.WriteFp(Center.x);
+            bw.WriteFp(Center.y);
+            bw.WriteFp(Center.z);
         //Radius
-            bw.Write(Radius);
+            bw.WriteFp(Radius);
         }
 
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
+        //Type (write as an int)
+            Type = (Constants.coll_types)br.ReadInt32();
         //Center
-            Center.x = br.ReadDecimal();
-            Center.y = br.ReadDecimal();
-            Center.z = br.ReadDecimal();
+            Center.x = br.ReadFp();
+            Center.y = br.ReadFp();
+            Center.z = br.ReadFp();
             //Radius
-            Radius = br.ReadDecimal();
+            Radius = br.ReadFp();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + Center.GetHashCode();
+            hashCode = hashCode * -1521134295 + Radius.GetHashCode();
+            return hashCode;
+        }
+
+        public SphereCollider(){
+            Center = fp3.zero;
+            Radius = 1;
+            Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.sphere;
         }
 
         public SphereCollider(fp r){
             Center = fp3.zero;
             Radius = r;
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.sphere;
         }
 
         public SphereCollider(fp r, Constants.coll_layers l){
             Center = fp3.zero;
             Radius = r;
             Layer = l;
+            Type = Constants.coll_types.sphere;
         }
 
         public override CollisionPoints TestCollision(
@@ -294,35 +334,50 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
+        //Type (read as an int)
+            bw.Write((int)Type);
         //Center
-            bw.Write(Center.x);
-            bw.Write(Center.y);
-            bw.Write(Center.z);
+            bw.WriteFp(Center.x);
+            bw.WriteFp(Center.y);
+            bw.WriteFp(Center.z);
         //Radius
-            bw.Write(Radius);
+            bw.WriteFp(Radius);
         //Height
-            bw.Write(Height);
+            bw.WriteFp(Height);
         //Direction
-            bw.Write(Direction.x);
-            bw.Write(Direction.y);
-            bw.Write(Direction.z);
+            bw.WriteFp(Direction.x);
+            bw.WriteFp(Direction.y);
+            bw.WriteFp(Direction.z);
         }
 
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
+        //Type (write as an int)
+            Type = (Constants.coll_types)br.ReadInt32();
         //Center
-            Center.x = br.ReadDecimal();
-            Center.y = br.ReadDecimal();
-            Center.z = br.ReadDecimal();
+            Center.x = br.ReadFp();
+            Center.y = br.ReadFp();
+            Center.z = br.ReadFp();
         //Radius
-            Radius = br.ReadDecimal();
+            Radius = br.ReadFp();
         //Height
-            Height = br.ReadDecimal();
+            Height = br.ReadFp();
         //Direction
-            Direction.x = br.ReadDecimal();
-            Direction.y = br.ReadDecimal();
-            Direction.z = br.ReadDecimal();
+            Direction.x = br.ReadFp();
+            Direction.y = br.ReadFp();
+            Direction.z = br.ReadFp();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + Center.GetHashCode();
+            hashCode = hashCode * -1521134295 + Radius.GetHashCode();
+            hashCode = hashCode * -1521134295 + Height.GetHashCode();
+            hashCode = hashCode * -1521134295 + Direction.GetHashCode();
+            return hashCode;
         }
 
         public CapsuleCollider(){
@@ -331,6 +386,7 @@ namespace SepM.Physics{
 			Height = 2;
             Direction = new fp3(0,1,0);
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.capsule;
         }
     
         public CapsuleCollider(fp r, fp h){
@@ -339,6 +395,7 @@ namespace SepM.Physics{
             Height = h;
             Direction = new fp3(0,1,0);
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.capsule;
         }
 
         public CapsuleCollider(fp r, fp h, Constants.coll_layers l){
@@ -347,6 +404,7 @@ namespace SepM.Physics{
             Height = h;
             Direction = new fp3(0,1,0);
             Layer = l;
+            Type = Constants.coll_types.capsule;
         }
         
         public CapsuleCollider(fp3 c, fp r, fp h){
@@ -355,6 +413,7 @@ namespace SepM.Physics{
             Height = h;
             Direction = new fp3(0,1,0);
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.capsule;
         }
 
         public CapsuleCollider(fp3 c, fp r, fp h, Constants.coll_layers l){
@@ -363,6 +422,7 @@ namespace SepM.Physics{
             Height = h;
             Direction = new fp3(0,1,0);
             Layer = l;
+            Type = Constants.coll_types.capsule;
         }
 
         public CapsuleStats GetStats(PhysTransform transform){
@@ -445,38 +505,61 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
+        //Type (read as an int)
+            bw.Write((int)Type);
         //MinValue
-            bw.Write(MinValue.x);
-            bw.Write(MinValue.y);
-            bw.Write(MinValue.z);
+            bw.WriteFp(MinValue.x);
+            bw.WriteFp(MinValue.y);
+            bw.WriteFp(MinValue.z);
         //MaxValue
-            bw.Write(MaxValue.x);
-            bw.Write(MaxValue.y);
-            bw.Write(MaxValue.z);
+            bw.WriteFp(MaxValue.x);
+            bw.WriteFp(MaxValue.y);
+            bw.WriteFp(MaxValue.z);
         }
 
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
+        //Type (write as an int)
+            Type = (Constants.coll_types)br.ReadInt32();
         //MinValue
-            MinValue.x = br.ReadDecimal();
-            MinValue.y = br.ReadDecimal();
-            MinValue.z = br.ReadDecimal();
+            MinValue.x = br.ReadFp();
+            MinValue.y = br.ReadFp();
+            MinValue.z = br.ReadFp();
         //MaxValue
-            MaxValue.x = br.ReadDecimal();
-            MaxValue.y = br.ReadDecimal();
-            MaxValue.z = br.ReadDecimal();
+            MaxValue.x = br.ReadFp();
+            MaxValue.y = br.ReadFp();
+            MaxValue.z = br.ReadFp();
         }
+
+        public override int GetHashCode() {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + MinValue.GetHashCode();
+            hashCode = hashCode * -1521134295 + MaxValue.GetHashCode();
+            return hashCode;
+        }
+
+        public AABBoxCollider(){
+            MinValue = fp3.zero;
+            MaxValue = fp3.zero;
+            Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.aabb;
+        }
+
         public AABBoxCollider(fp3 minVal, fp3 maxVal){
             MinValue = minVal;
             MaxValue = maxVal;
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.aabb;
         }
 
         public AABBoxCollider(fp3 minVal, fp3 maxVal, Constants.coll_layers l){
             MinValue = minVal;
             MaxValue = maxVal;
             Layer = l;
+            Type = Constants.coll_types.aabb;
         }
 
         // TODO: Consider getting rid of the minval max val constructor?
@@ -484,12 +567,14 @@ namespace SepM.Physics{
             MinValue = center - scale/2;
             MaxValue = center + scale/2;
             Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.aabb;
         }
 
         public AABBoxCollider(fp3 center, fp3 scale, bool isCenter, Constants.coll_layers l){
             MinValue = center - scale/2;
             MaxValue = center + scale/2;
             Layer = l;
+            Type = Constants.coll_types.aabb;
         }
 
         public fp3 Center(){
@@ -572,22 +657,30 @@ namespace SepM.Physics{
         //Layer (read as an int)
             bw.Write((int)Layer);
         //Normal
-            bw.Write(Normal.x);
-            bw.Write(Normal.y);
-            bw.Write(Normal.z);
+            bw.WriteFp(Normal.x);
+            bw.WriteFp(Normal.y);
+            bw.WriteFp(Normal.z);
         //Distance
-            bw.Write(Distance);
+            bw.WriteFp(Distance);
         }
 
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //Normal
-            Normal.x = br.ReadDecimal();
-            Normal.y = br.ReadDecimal();
-            Normal.z = br.ReadDecimal();
+            Normal.x = br.ReadFp();
+            Normal.y = br.ReadFp();
+            Normal.z = br.ReadFp();
         //Distance
-            Distance = br.ReadDecimal();
+            Distance = br.ReadFp();
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Normal.GetHashCode();
+            hashCode = hashCode * -1521134295 + Distance.GetHashCode();
+            return hashCode;
         }
 
         public PlaneCollider(fp3 n, fp d){
@@ -678,71 +771,108 @@ namespace SepM.Physics{
         //PhysTransform
             Transform.Serialize(bw);
         //Velocity
-            bw.Write(Velocity.x);
-            bw.Write(Velocity.y);
-            bw.Write(Velocity.z);
+            bw.WriteFp(Velocity.x);
+            bw.WriteFp(Velocity.y);
+            bw.WriteFp(Velocity.z);
          //Gravity
-            bw.Write(Gravity.x);
-            bw.Write(Gravity.y);
-            bw.Write(Gravity.z);
+            bw.WriteFp(Gravity.x);
+            bw.WriteFp(Gravity.y);
+            bw.WriteFp(Gravity.z);
         //Force
-            bw.Write(Force.x);
-            bw.Write(Force.y);
-            bw.Write(Force.z);
+            bw.WriteFp(Force.x);
+            bw.WriteFp(Force.y);
+            bw.WriteFp(Force.z);
         //InverseMass
-            bw.Write(InverseMass);
+            bw.WriteFp(InverseMass);
         //IsKinematic
             bw.Write(IsKinematic);
         //Restitution
-            bw.Write(Restitution);
+            bw.WriteFp(Restitution);
         //DynamicFriction
-            bw.Write(DynamicFriction);
+            bw.WriteFp(DynamicFriction);
         //StaticFriction
-            bw.Write(StaticFriction);
-        // TODO: Figure out how to safely do this
+            bw.WriteFp(StaticFriction);
         //Coll
-            if(!(Coll is null))
+            // Write the kind of collider, or none if one doesn't exist
+            if(Coll is null){
+                //Collider Type (read as an int)
+                bw.Write((int)Constants.coll_types.none);
+            }
+            else{
+                //Collider Type (read as an int)
+                bw.Write((int)Coll.Type);
+                // Then serialize the collider
                 Coll.Serialize(bw);
+            }
         //IsDynamic
             bw.Write(IsDynamic);
         //IColl
-            if (!(IColl is null))
-                IColl.Serialize(bw);
+            // TODO: Figure out references
+            // if (!(IColl is null))
+            //     IColl.Serialize(bw);
         }
 
         public void Deserialize(BinaryReader br) {
         //PhysTransform
             Transform.Deserialize(br);
         //Velocity
-            Velocity.x = br.ReadDecimal();
-            Velocity.y = br.ReadDecimal();
-            Velocity.z = br.ReadDecimal();
+            Velocity.x = br.ReadFp();
+            Velocity.y = br.ReadFp();
+            Velocity.z = br.ReadFp();
         //Gravity
-            Gravity.x = br.ReadDecimal();
-            Gravity.y = br.ReadDecimal();
-            Gravity.z = br.ReadDecimal();
+            Gravity.x = br.ReadFp();
+            Gravity.y = br.ReadFp();
+            Gravity.z = br.ReadFp();
         //Force
-            Force.x = br.ReadDecimal();
-            Force.y = br.ReadDecimal();
-            Force.z = br.ReadDecimal();
+            Force.x = br.ReadFp();
+            Force.y = br.ReadFp();
+            Force.z = br.ReadFp();
         //InverseMass
-            InverseMass = br.ReadDecimal();
+            InverseMass = br.ReadFp();
         //IsKinematic
             IsKinematic = br.ReadBoolean();
         //Restitution
-            Restitution = br.ReadDecimal();
+            Restitution = br.ReadFp();
         //DynamicFriction
-            DynamicFriction = br.ReadDecimal();
+            DynamicFriction = br.ReadFp();
         //StaticFriction
-            StaticFriction = br.ReadDecimal();
+            StaticFriction = br.ReadFp();
         //Coll
-            if (!(Coll is null))
+            // Get the kind of collider, or none if one didn't exist
+            Constants.coll_types collType = (Constants.coll_types)br.ReadInt32();
+            if(collType != Constants.coll_types.none){
+                // Create a new collider
+                if(collType == Constants.coll_types.sphere) Coll = new SphereCollider();
+                else if(collType == Constants.coll_types.capsule) Coll = new CapsuleCollider();
+                else if(collType == Constants.coll_types.aabb) Coll = new AABBoxCollider();
+                else{
+                    Debug.LogWarning("No valid collider type found! Defaulting to SphereCollider!");
+                     Coll = new SphereCollider();
+                }
+                // Then deserialize it
                 Coll.Deserialize(br);
+            }
         //IsDynamic
             IsDynamic = br.ReadBoolean();
         //IColl
-            if (!(IColl is null))
-                IColl.Deserialize(br);
+            // if (!(IColl is null))
+            //     IColl.Deserialize(br);
+        }
+
+        public override int GetHashCode() {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + Transform.GetHashCode();
+            hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Gravity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Force.GetHashCode();
+            hashCode = hashCode * -1521134295 + InverseMass.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsKinematic.GetHashCode();
+            hashCode = hashCode * -1521134295 + Restitution.GetHashCode();
+            hashCode = hashCode * -1521134295 + DynamicFriction.GetHashCode();
+            hashCode = hashCode * -1521134295 + StaticFriction.GetHashCode();
+            if (!(Coll is null)) hashCode = hashCode * -1521134295 + Coll.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsDynamic.GetHashCode();
+            return hashCode;
         }
 
         public PhysObject(){

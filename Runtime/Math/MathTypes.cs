@@ -15,5 +15,8 @@ namespace SepM.Math{
         public static fpq identity = new fpq(0,0,0,1);
         public static implicit operator Quaternion(fpq q)  { return new Quaternion((float)q.x, (float)q.y, (float)q.z, (float)q.w); }
         public static implicit operator fpq(Quaternion q)  { return new fpq((fp)q.x, (fp)q.y, (fp)q.z, (fp)q.w); }
+        public override string ToString(){
+            return string.Format("fpq({0}, {1}, {2}, {3})", w, x, y, z);
+        }
     }
 }

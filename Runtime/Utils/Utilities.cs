@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using System;
+using System.IO;
 using SepM.Math;
 
 namespace SepM.Utils{
@@ -194,6 +195,17 @@ namespace SepM.Utils{
                 ++result;
             }
             return fp.FromRaw((long)result);
+        }
+
+        // Reads raw value (long) from MemoryStream and converts to fp
+        public static fp ReadFp(this BinaryReader br){
+            fp f = fp.FromRaw(br.ReadInt64());
+            return f;
+        }
+
+        // Writes raw value (long) to MemoryStream
+        public static void WriteFp(this BinaryWriter bw, fp f){
+            bw.Write(f.RawValue);
         }
     }
 }
