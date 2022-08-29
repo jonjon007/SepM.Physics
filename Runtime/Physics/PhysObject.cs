@@ -45,7 +45,7 @@ namespace SepM.Physics{
         public fp3 A; // Furthest point of A into B
         public fp3 B; // Furthest point of B into A
         public fp3 Normal; // B – A normalized
-        public fp DepthSqrd;    // Length of B – A
+        public fp DepthSqrd; // Length of B – A
         public bool HasCollision;
         public static CollisionPoints noCollision = new CollisionPoints{ 
             A = fp3.zero,
@@ -678,6 +678,7 @@ namespace SepM.Physics{
         public override int GetHashCode() {
             int hashCode = 1858597544;
             hashCode = hashCode * -1521134295 + Layer.GetHashCode();
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
             hashCode = hashCode * -1521134295 + Normal.GetHashCode();
             hashCode = hashCode * -1521134295 + Distance.GetHashCode();
             return hashCode;
@@ -687,12 +688,14 @@ namespace SepM.Physics{
             Normal = n;
             Distance = d;
             Layer = Constants.coll_layers.normal;
+            // TODO: Add plane type?
         }
 
         public PlaneCollider(fp3 n, fp d, Constants.coll_layers l){
             Normal = n;
             Distance = d;
             Layer = l;
+            // TODO: Add plane type?
         }
 
         public override CollisionPoints TestCollision(
@@ -813,7 +816,7 @@ namespace SepM.Physics{
         }
 
         public void Deserialize(BinaryReader br) {
-        //PhysTransform
+        //Transform
             Transform.Deserialize(br);
         //Velocity
             Velocity.x = br.ReadFp();

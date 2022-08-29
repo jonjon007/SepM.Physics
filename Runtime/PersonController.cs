@@ -31,26 +31,26 @@ public class PersonController : MonoBehaviour
         Tuple<GameObject, PhysObject> capsuleTuple = physWorld.CreateCapsuleObject(
             fp3.zero, 5, 6, true, false, fp3.zero
         );
-        PhysObjController capsuleObjCont = capsuleTuple.Item1.AddComponent<PhysObjController>();
-        capsuleObjCont.setPhysObject(capsuleTuple.Item2);
+        //PhysObjController capsuleObjCont = capsuleTuple.Item1.AddComponent<PhysObjController>();
+        //capsuleObjCont.setPhysObject(capsuleTuple.Item2);
 
         // Create falling sphere
         Tuple<GameObject, PhysObject> sphereTuple = physWorld.CreateSphereObject(
             new fp3(5,10,0), 2, true, true, Constants.GRAVITY);
-        PhysObjController sphereObjCont = sphereTuple.Item1.AddComponent<PhysObjController>();
-        sphereObjCont.setPhysObject(sphereTuple.Item2);
+        //PhysObjController sphereObjCont = sphereTuple.Item1.AddComponent<PhysObjController>();
+        //sphereObjCont.setPhysObject(sphereTuple.Item2);
 
         // Create falling box
         Tuple<GameObject, PhysObject> fboxTuple = physWorld.CreateAABBoxObject(
             new fp3(10,-5,0), new fp3(1,1,1), true, true, Constants.GRAVITY);
-        PhysObjController fboxObjCont = fboxTuple.Item1.AddComponent<PhysObjController>();
-        fboxObjCont.setPhysObject(fboxTuple.Item2);
+        //PhysObjController fboxObjCont = fboxTuple.Item1.AddComponent<PhysObjController>();
+        //fboxObjCont.setPhysObject(fboxTuple.Item2);
         
         // Create stationary box
         Tuple<GameObject, PhysObject> boxTuple = physWorld.CreateAABBoxObject(
             new fp3(10,-10,0), new fp3(10,3,5), true, false, fp3.zero);
-        PhysObjController boxObjCont = boxTuple.Item1.AddComponent<PhysObjController>();
-        boxObjCont.setPhysObject(boxTuple.Item2);
+        //PhysObjController boxObjCont = boxTuple.Item1.AddComponent<PhysObjController>();
+        //boxObjCont.setPhysObject(boxTuple.Item2);
 
 
 
@@ -110,6 +110,8 @@ public class PersonController : MonoBehaviour
             Jump();
         
         physWorld.Step((fp)Time.deltaTime);
+
+        physWorld.UpdateGameObjects();
     }
 
     void Jump(){
