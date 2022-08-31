@@ -13,20 +13,26 @@ namespace SepM.Physics {
         private List<PhysObject> m_objects = new List<PhysObject>();
         // TODO: Be wary of finding solvers Create new ones on reload?
         private List<Solver> m_solvers = new List<Solver>();
-        // TODO: Serialize
         public List<PhysCollision> collisions = new List<PhysCollision>();
         // TODO: How to seriealize?
         public List<Tuple<GameObject, PhysObject>> objectsMap = new List<Tuple<GameObject, PhysObject>>();
 
         public void Serialize(BinaryWriter bw) {
-            //m_objects
+        //m_objects
             bw.Write(m_objects.Count);
             for(int i = 0; i < m_objects.Count; i++)
                 m_objects[i].Serialize(bw);
-        //m_objects
+        //m_solvers
             // TODO: Serialize? How should we handle serialization of references?
-        //m_objects
-            // TODO: Serialize?
+        //objectsMap
+            bw.Write(objectsMap.Count);
+            // Write each tuple's GameObject id and PhysObject id???
+            for(int i = 0; i < objectsMap.Count; i++){
+                // Write GameObject ID
+                bw.Write(objectsMap[i].Item1.GetInstanceID());
+                // Write PhysObject ID
+                bw.Write(objectsMap[i].Item2.InstanceId);
+            }
         }
 
         public void Deserialize(BinaryReader br) {
@@ -41,10 +47,59 @@ namespace SepM.Physics {
                 if(m_objects[i] is null) m_objects[i] = new PhysObject();
                 m_objects[i].Deserialize(br);
             }
-        //m_objects
+        //m_solvers
             // TODO: Serialize?
-        //m_objects
-            // TODO: Serialize?
+        //objectsMap
+            int objectsMapLength = br.ReadInt32();
+            // Create a new list if the counts aren't the same
+            if (objectsMapLength != objectsMap.Count) {
+                objectsMap = new List<Tuple<GameObject, PhysObject>>(new Tuple<GameObject, PhysObject>[objectsMapLength]);
+            }
+            // Read down the data for each object
+            for(int i = 0; i < objectsMapLength; i++){
+                if(objectsMap[i] is null) objectsMap[i] = new Tuple<GameObject, PhysObject>(new GameObject(), new PhysObject());
+                objectsMap[i] = DeserializeObjectTuple(br, objectsMap[i]);
+            }
+        }
+
+        private Tuple<GameObject,PhysObject> DeserializeObjectTuple(BinaryReader br, Tuple<GameObject,PhysObject> tup){
+            // Find/replace GameObject with ID
+            int goId = br.ReadInt32();
+            GameObject go = null;
+            // TODO: This could be incredibly slow...
+            // GameObject.FindObjects
+            go = FindGameObjectById(goId);
+            if(go is null){
+                Debug.LogWarning("Couldn't find GameObject. Creating a new one");
+                // TODO: Create the right kind of object
+                go = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cylinder));
+            }
+
+            // Find PhysObject ID
+            uint poId = br.ReadUInt32();
+            PhysObject po = null;
+            foreach(PhysObject p in m_objects)
+                if(p.InstanceId == poId){
+                    po = p;
+                    break;
+                }
+
+            // Return the result
+            Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(go, po);
+            return result;
+        }
+
+        private GameObject FindGameObjectById(int instanceId){
+            UnityEngine.GameObject[] all = GameObject.FindObjectsOfType<GameObject>();
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (all[i].GetInstanceID() == instanceId)
+                {
+                    return all[i];
+                }
+            }
+            Debug.LogError("Could not find an object or component in the scene with the entered ID.");
+            return null;
         }
 
         // By default, create Impulse and SmoothPosition solvers
@@ -303,9 +358,12 @@ namespace SepM.Physics {
 
         public override int GetHashCode() {
             int hashCode = -1214587014;
+            //m_objects
             foreach (var m_obj in m_objects) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();
             }
+            //objectsMap - only use length; better than nothing
+            hashCode = hashCode * -1521134295 + objectsMap.Count;
             return hashCode;
         }
     }

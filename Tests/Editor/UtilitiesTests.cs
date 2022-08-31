@@ -316,6 +316,10 @@ public class UtilitiesTests
             }
         }
 
+        // Dispose of the NativeArray when we're done with it
+        if(bytes.IsCreated)
+            bytes.Dispose();
+
         Assert.AreEqual(f1, f2);
     }
 }

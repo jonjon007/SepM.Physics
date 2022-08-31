@@ -227,8 +227,7 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
-        //Type (read as an int)
-            bw.Write((int)Type);
+        //No need to write type; redundant
         //Center
             bw.WriteFp(Center.x);
             bw.WriteFp(Center.y);
@@ -240,8 +239,7 @@ namespace SepM.Physics{
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
-        //Type (write as an int)
-            Type = (Constants.coll_types)br.ReadInt32();
+        //No need to read type; redundant
         //Center
             Center.x = br.ReadFp();
             Center.y = br.ReadFp();
@@ -334,8 +332,7 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
-        //Type (read as an int)
-            bw.Write((int)Type);
+        //No need to write type; redundant
         //Center
             bw.WriteFp(Center.x);
             bw.WriteFp(Center.y);
@@ -353,8 +350,7 @@ namespace SepM.Physics{
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
-        //Type (write as an int)
-            Type = (Constants.coll_types)br.ReadInt32();
+        //No need to read type; redundant
         //Center
             Center.x = br.ReadFp();
             Center.y = br.ReadFp();
@@ -505,8 +501,7 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
-        //Type (read as an int)
-            bw.Write((int)Type);
+        ///No need to write type; redundant
         //MinValue
             bw.WriteFp(MinValue.x);
             bw.WriteFp(MinValue.y);
@@ -520,8 +515,7 @@ namespace SepM.Physics{
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
-        //Type (write as an int)
-            Type = (Constants.coll_types)br.ReadInt32();
+        //No need to read type; redundant
         //MinValue
             MinValue.x = br.ReadFp();
             MinValue.y = br.ReadFp();
@@ -656,6 +650,7 @@ namespace SepM.Physics{
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
             bw.Write((int)Layer);
+        //No need to write type; redundant
         //Normal
             bw.WriteFp(Normal.x);
             bw.WriteFp(Normal.y);
@@ -667,6 +662,7 @@ namespace SepM.Physics{
         public override void Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
+        //No need to read type; redundant
         //Normal
             Normal.x = br.ReadFp();
             Normal.y = br.ReadFp();
@@ -756,6 +752,8 @@ namespace SepM.Physics{
     [Serializable]
     /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
     public class PhysObject {
+        public static uint CurrentInstanceId = 0; //Incrementing static PhysObject counter
+        public uint InstanceId; // UUID for object
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k
         public fp3 Velocity;
         public fp3 Gravity; // Gravitational acceleration
@@ -771,6 +769,8 @@ namespace SepM.Physics{
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
         public void Serialize(BinaryWriter bw) {
+        //InstanceId
+            bw.Write(InstanceId);
         //PhysTransform
             Transform.Serialize(bw);
         //Velocity
@@ -816,6 +816,8 @@ namespace SepM.Physics{
         }
 
         public void Deserialize(BinaryReader br) {
+        //InstanceId
+            InstanceId = br.ReadUInt32();
         //Transform
             Transform.Deserialize(br);
         //Velocity
@@ -864,6 +866,7 @@ namespace SepM.Physics{
 
         public override int GetHashCode() {
             int hashCode = 1858597544;
+            // Don't account for InstanceId, as this can change
             hashCode = hashCode * -1521134295 + Transform.GetHashCode();
             hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
             hashCode = hashCode * -1521134295 + Gravity.GetHashCode();
@@ -879,6 +882,7 @@ namespace SepM.Physics{
         }
 
         public PhysObject(){
+            InstanceId = PhysObject.CurrentInstanceId++;
             Transform = new PhysTransform();
             Velocity = new fp3();
             Force = new fp3();
@@ -887,6 +891,7 @@ namespace SepM.Physics{
         }
 
         public PhysObject(int m){
+            InstanceId = PhysObject.CurrentInstanceId++;
             Transform = new PhysTransform();
             Velocity = new fp3();
             Force = new fp3();
@@ -894,6 +899,7 @@ namespace SepM.Physics{
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
         public PhysObject(fp3 pos){
+            InstanceId = PhysObject.CurrentInstanceId++;
             PhysTransform newTransform = new PhysTransform();
             newTransform.Position = pos;
             
@@ -904,6 +910,7 @@ namespace SepM.Physics{
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
         public PhysObject(PhysTransform t, fp3 v, fp3 f, fp m){
+            InstanceId = PhysObject.CurrentInstanceId++;
             Transform = t;
             Velocity = v;
             Force = f;

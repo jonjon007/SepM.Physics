@@ -18,7 +18,7 @@ partial class PhysObjTests
             sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
         }
         finally{
-            // Dispose of the NativeArray no matter when we're done with it
+            // Dispose of the NativeArray when we're done with it
             if(seriWorld.IsCreated)
                 seriWorld.Dispose();
         }
