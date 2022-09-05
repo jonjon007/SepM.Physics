@@ -1,8 +1,8 @@
 using Unity.Collections;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 using System.IO;
 using SepM.Physics;
-using SepM.Utils;
 
 partial class PhysObjTests
 {
@@ -39,6 +39,7 @@ partial class PhysObjTests
     public void FromBytes(NativeArray<byte> bytes, PhysWorld w) {
         using (var memoryStream = new MemoryStream(bytes.ToArray())) {
             using (var reader = new BinaryReader(memoryStream)) {
+                Debug.Log($"Reading state size of {(float)(bytes.Length)/1000000} MBs");
                 w.Deserialize(reader);
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Unity.Collections;
+using UnityEngine;
 using SepM.Physics;
 
 partial class PhysObjTests
