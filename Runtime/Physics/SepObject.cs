@@ -16,6 +16,9 @@ namespace SepM.Physics {
 
         // Update is called once per frame
         public void Initialize(PhysWorld world) {
+            // Set the PhysObject's ID
+            physObj.InstanceId = PhysObject.CurrentInstanceId++;
+
             // Set the PhysObject's position
             physObj.Transform.Position = new fp3(
                 transform.position.x.roundToNearestQuarter(),
