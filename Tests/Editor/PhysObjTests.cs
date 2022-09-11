@@ -3,11 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Unity.Collections;
-using UnityEngine;
 using SepM.Physics;
 
 partial class PhysObjTests
 {
+    [Test]
+    public void TestCollisionMatrixDefault(){
+        CollisionMatrix matrix = new CollisionMatrix();
+        bool result = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.player);
+        Assert.IsTrue(result);
+    }
+
+    [Test]
+    public void TestCollisionMatrixAvoidOtherLayer(){
+        CollisionMatrix matrix = new CollisionMatrix();
+        matrix.SetLayerCollisions(Constants.coll_layers.player, Constants.coll_layers.noPlayer, false);
+        bool result1 = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.noPlayer);
+        bool result2 = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.player);
+        Assert.IsFalse(result1);
+        Assert.IsTrue(result2);
+    }
+
+    [Test]
+    public void TestCollisionMatrixAvoidSameLayer(){
+        CollisionMatrix matrix = new CollisionMatrix();
+        matrix.SetLayerCollisions(Constants.coll_layers.player, Constants.coll_layers.player, false);
+        bool result1 = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.player);
+        bool result2 = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.ground);
+        Assert.IsFalse(result1);
+        Assert.IsTrue(result2);
+    }
+
     [Test]
     public void TestWorldSerialize(){
         bool sameHash = false;

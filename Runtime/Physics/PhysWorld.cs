@@ -9,13 +9,12 @@ using SepM.Utils;
 namespace SepM.Physics {
     [Serializable]
     public class PhysWorld {
-        // TODO: Serialize
         private List<PhysObject> m_objects = new List<PhysObject>();
-        // TODO: Be wary of finding solvers Create new ones on reload?
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
-        // TODO: How to seriealize?
         public List<Tuple<GameObject, PhysObject>> objectsMap = new List<Tuple<GameObject, PhysObject>>();
+        // TODO: Serialize?
+        public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
         public void Serialize(BinaryWriter bw) {
         //m_objects
@@ -321,12 +320,12 @@ namespace SepM.Physics {
             // TODO: Work on that efficiency
             foreach (PhysObject a in m_objects) {
                 foreach (PhysObject b in m_objects) {
-                    if (a == b) break;
-
+                    // TODO: Should we be breaking or continuing?
+                    if (a == b) continue;
                     // Check if a collider is assigned
-                    if (a.Coll is null || b.Coll is null) {
-                        continue;
-                    }
+                    if (a.Coll is null || b.Coll is null) continue;
+                    // Check if the layers register collisions with each other
+                    collisionMatrix.CanLayersCollide(a.Coll.Layer, b.Coll.Layer);
 
                     CollisionPoints points = a.Coll.TestCollision(
                         a.Transform,
