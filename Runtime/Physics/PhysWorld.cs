@@ -111,7 +111,8 @@ namespace SepM.Physics {
             objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
             objectsMap.Clear();
             m_objects.Clear();
-            m_solvers.Clear();
+            // No need to clear solvers
+            // m_solvers.Clear();
         }
 
         // TODO: Do we need both the tuples and the list?
