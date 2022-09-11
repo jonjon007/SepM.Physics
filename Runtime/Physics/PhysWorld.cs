@@ -325,7 +325,7 @@ namespace SepM.Physics {
                     // Check if a collider is assigned
                     if (a.Coll is null || b.Coll is null) continue;
                     // Check if the layers register collisions with each other
-                    collisionMatrix.CanLayersCollide(a.Coll.Layer, b.Coll.Layer);
+                    if (!collisionMatrix.CanLayersCollide(a.Coll.Layer, b.Coll.Layer)) continue;
 
                     CollisionPoints points = a.Coll.TestCollision(
                         a.Transform,
