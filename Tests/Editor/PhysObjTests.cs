@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Unity.Collections;
+using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 using SepM.Physics;
 
 partial class PhysObjTests
@@ -63,5 +65,38 @@ partial class PhysObjTests
         Assert.AreEqual(0, objsMapIds[0].Item2);
         Assert.AreEqual(1, objsMapIds[1].Item2);
         Assert.AreEqual(2, objsMapIds[2].Item2);
+    }
+
+    [Test]
+    public void TestWorldSerializeDeleteObject(){
+        int preGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        // Create one world
+        PhysWorld world = CreateSampleWorld();
+        // Store game object count
+        int originalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        // Write it with binary writer
+        NativeArray<byte> seriWorld = ToBytes(world);
+        // Add a gameobject to the world
+        world.CreateSphereObject(
+            new fp3(0,10,0), 2, true, true, Constants.GRAVITY
+        );
+        // Assert that GO count went up by 1
+        Assert.AreEqual(originalGOCount+1, GameObject.FindObjectsOfType<GameObject>().Length);
+
+        int finalGOCount = -1;
+        // Read down the old one again
+        try{
+            // Read what was written into a new world and copy it
+            FromBytes(seriWorld, world);
+            finalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        }
+        finally{
+            // Dispose of the NativeArray when we're done with it
+            if(seriWorld.IsCreated)
+                seriWorld.Dispose();
+        }
+
+        // Assert GO count is the originial count
+        Assert.AreEqual(originalGOCount, finalGOCount);
     }
 }

@@ -35,7 +35,11 @@ namespace SepM.Physics {
         }
 
         public void Deserialize(BinaryReader br) {
-            //m_objects
+            // Get all of the existing game objects in the map
+            List<GameObject> old_gos = objectsMap.ConvertAll<GameObject>(t => t.Item1);
+            List<int> old_instance_ids = objectsMap.ConvertAll<int>(t => t.Item1.GetInstanceID());
+
+        //m_objects
             int m_objects_length = br.ReadInt32();
             // Create a new list if the counts aren't the same
             if (m_objects_length != m_objects.Count) {
@@ -56,9 +60,19 @@ namespace SepM.Physics {
             }
             // Read down the data for each object
             for(int i = 0; i < objectsMapLength; i++){
-                if(objectsMap[i] is null) objectsMap[i] = new Tuple<GameObject, PhysObject>(new GameObject(), new PhysObject());
+                // Deserialize object first; don't create a blank one needlessly
                 objectsMap[i] = DeserializeObjectTuple(br, objectsMap[i]);
+                // Find in list
+                int objIndex = objectsMap.FindIndex(t => old_instance_ids.Contains(objectsMap[i].Item1.GetInstanceID()));
+                // We can confirm that this object still exists, so we won't need to destroy it
+                if(objIndex != -1)
+                    old_gos.RemoveAt(objIndex);
             }
+
+            // Destroy any old game objects
+            foreach(GameObject go in old_gos)
+                if (Application.isEditor) GameObject.DestroyImmediate(go);
+                else GameObject.Destroy(go);
         }
 
         private Tuple<GameObject,PhysObject> DeserializeObjectTuple(BinaryReader br, Tuple<GameObject,PhysObject> tup){
@@ -108,7 +122,8 @@ namespace SepM.Physics {
         }
 
         public void CleanUp() {
-            objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
+            if (Application.isEditor) objectsMap.ForEach(t => GameObject.DestroyImmediate(t.Item1));
+            else objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
             objectsMap.Clear();
             m_objects.Clear();
             // No need to clear solvers
