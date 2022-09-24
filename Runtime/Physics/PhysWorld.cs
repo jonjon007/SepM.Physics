@@ -83,7 +83,6 @@ namespace SepM.Physics {
             // GameObject.FindObjects
             go = FindGameObjectById(goId);
             if(go is null){
-                Debug.LogWarning("Couldn't find GameObject. Creating a new one");
                 // TODO: Create the right kind of object
                 go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             }

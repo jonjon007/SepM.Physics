@@ -100,6 +100,7 @@ partial class PhysObjTests
 
         // Run a step without error to make sure the state is stable
         world.Step(fixedStep);
+        world.UpdateGameObjects();
     }
 
     [Test]
@@ -136,5 +137,6 @@ partial class PhysObjTests
 
         // Run a step without error to make sure the state is stable
         world.Step(fixedStep);
+        world.UpdateGameObjects();
     }
 }
