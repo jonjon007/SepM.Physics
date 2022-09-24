@@ -6,6 +6,8 @@ using SepM.Physics;
 
 partial class PhysObjTests
 {
+    fp fixedStep = 1m/60m;
+
     private PhysWorld CreateSampleWorld(){
         PhysWorld w = new PhysWorld();
 

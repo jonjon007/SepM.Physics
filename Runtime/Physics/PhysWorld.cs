@@ -85,7 +85,7 @@ namespace SepM.Physics {
             if(go is null){
                 Debug.LogWarning("Couldn't find GameObject. Creating a new one");
                 // TODO: Create the right kind of object
-                go = GameObject.Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cylinder));
+                go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             }
 
             // Find PhysObject ID
@@ -111,7 +111,7 @@ namespace SepM.Physics {
                     return all[i];
                 }
             }
-            Debug.LogError("Could not find an object or component in the scene with the entered ID.");
+            Debug.LogWarning($"Could not find an object or component in the scene with the ID: {instanceId}.");
             return null;
         }
 

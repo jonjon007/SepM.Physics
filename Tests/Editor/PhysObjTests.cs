@@ -68,6 +68,41 @@ partial class PhysObjTests
     }
 
     [Test]
+    public void TestWorldSerializeCreateObjects(){
+        int preGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        // Create one world
+        PhysWorld world = CreateSampleWorld();
+        // Store game object count
+        int originalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        // Write it with binary writer
+        NativeArray<byte> seriWorld = ToBytes(world);
+
+        //Clear the world
+        world.CleanUp();
+        // Assert that GO count is the same as it originally was
+        Assert.AreEqual(preGOCount, GameObject.FindObjectsOfType<GameObject>().Length);
+
+        int finalGOCount = -1;
+        // Read down the old one again
+        try{
+            // Read what was written into a new world and copy it
+            FromBytes(seriWorld, world);
+            finalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        }
+        finally{
+            // Dispose of the NativeArray when we're done with it
+            if(seriWorld.IsCreated)
+                seriWorld.Dispose();
+        }
+
+        // Assert GO count is the originial count
+        Assert.AreEqual(originalGOCount, finalGOCount);
+
+        // Run a step without error to make sure the state is stable
+        world.Step(fixedStep);
+    }
+
+    [Test]
     public void TestWorldSerializeDeleteObject(){
         int preGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
         // Create one world
@@ -98,5 +133,8 @@ partial class PhysObjTests
 
         // Assert GO count is the originial count
         Assert.AreEqual(originalGOCount, finalGOCount);
+
+        // Run a step without error to make sure the state is stable
+        world.Step(fixedStep);
     }
 }
