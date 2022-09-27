@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
@@ -35,11 +34,10 @@ namespace SepM.Physics {
         }
 
         public void Deserialize(BinaryReader br) {
-            // Get all of the existing game objects in the map
-            List<GameObject> old_gos = objectsMap.ConvertAll<GameObject>(t => t.Item1);
-            List<int> old_instance_ids = objectsMap.ConvertAll<int>(t => t.Item1.GetInstanceID());
-
         //m_objects
+            // Get all the existing physObject ids
+            List<uint> old_po_instance_ids = objectsMap.ConvertAll<uint>(t => t.Item2.InstanceId);
+
             int m_objects_length = br.ReadInt32();
             // Create a new list if the counts aren't the same
             if (m_objects_length != m_objects.Count) {
@@ -53,6 +51,10 @@ namespace SepM.Physics {
         //m_solvers
             // TODO: Serialize?
         //objectsMap
+            // Get all of the existing game objects in the map
+            List<GameObject> old_gos = objectsMap.ConvertAll<GameObject>(t => t.Item1);
+            List<int> old_instance_ids = objectsMap.ConvertAll<int>(t => t.Item1.GetInstanceID());
+
             int objectsMapLength = br.ReadInt32();
             // Create a new list if the counts aren't the same
             if (objectsMapLength != objectsMap.Count) {
@@ -89,16 +91,40 @@ namespace SepM.Physics {
 
             // Find PhysObject ID
             uint poId = br.ReadUInt32();
-            PhysObject po = null;
-            foreach(PhysObject p in m_objects)
-                if(p.InstanceId == poId){
-                    po = p;
-                    break;
-                }
+            PhysObject po = FindPhysObjectById(poId);
 
             // Return the result
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(go, po);
             return result;
+        }
+
+        public PhysObject FindPhysObjectById(uint instanceId){
+            foreach(PhysObject p in m_objects)
+                if(p.InstanceId == instanceId){
+                    return p;
+                }
+
+            Debug.LogWarning($"Could not find PhysObject with instanceId: {instanceId}");
+            return null;
+        }
+
+        public PhysObject GetPhysObjectByIndex(int i){
+            if(m_objects.Count <= i)
+                Debug.LogWarning($"Could not find PhysObject at index: {i}");
+
+            return m_objects[i];
+        }
+
+        public int GetPhysObjectIndexById(uint instanceId){
+            for(int i = 0; i < m_objects.Count; i++){
+                PhysObject p = m_objects[i];
+                if(p.InstanceId == instanceId){
+                    return i;
+                }
+            }
+
+            Debug.LogWarning($"Could not find PhysObject with instanceId: {instanceId}");
+            return -1;
         }
 
         private GameObject FindGameObjectById(int instanceId){
