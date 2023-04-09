@@ -480,15 +480,11 @@ namespace SepM.Physics{
 
         public override CollisionPoints TestCollision(
             PhysTransform transform,
-            AABBoxCollider plane,
-            PhysTransform planeTransform){
-            // TODO: Make a aabbox version
-            // return algo.FindCapsuleAABBCollisionPoints(
-            //     this, transform, plane, planeTransform
-            // );
-
-            // TODO: Remove
-            return new CollisionPoints();
+            AABBoxCollider box,
+            PhysTransform boxTransform){
+            return algo.FindCapsuleAABBCollisionPoints(
+                this, transform, box, boxTransform
+            );
         }
     };
 
@@ -615,13 +611,9 @@ namespace SepM.Physics{
             PhysTransform transform,
             CapsuleCollider capsule,
             PhysTransform capsuleTransform){
-            // TODO: Make a aabbox version
-            // return algo.FindCapsuleAABBCollisionPoints(
-            //     this, transform, capsule, planeTransform
-            // );
-
-            // TODO: Remove
-            return new CollisionPoints();
+            return algo.FindCapsuleAABBCollisionPoints(
+                capsule, capsuleTransform, this, transform
+            );
         }
 
         public override CollisionPoints TestCollision(

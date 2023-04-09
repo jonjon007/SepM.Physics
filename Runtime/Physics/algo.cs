@@ -188,6 +188,15 @@ namespace SepM.Physics{
             return CollisionPoints.noCollision;
         }
 
+        public static CollisionPoints FindCapsuleAABBCollisionPoints(
+            CapsuleCollider a, PhysTransform ta,
+            AABBoxCollider b, PhysTransform tb)
+        {
+            // TODO: Decide is we really need to do a capsule or can just compare AABBs
+            AABBoxCollider tempBox = new AABBoxCollider(a.Center, new fp3(a.Radius*2, a.Height, a.Radius*2), true);
+            return FindAABBoxAABBoxCollisionPoints(tempBox, ta, b, tb);
+        }
+
         public static CollisionPoints FindSphereAABBCollisionPoints(
             SphereCollider a, PhysTransform ta,
             AABBoxCollider b, PhysTransform tb)
