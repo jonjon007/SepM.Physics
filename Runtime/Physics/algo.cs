@@ -170,7 +170,10 @@ namespace SepM.Physics{
 
             if(!penetration_normal.Equals(fp3.zero)){
                 len = penetration_normal.lengthSqrd().sqrt();
-                penetration_normal /= len;  // normalize
+                if(len == 0)
+                    penetration_normal = fp3.zero;
+                else
+                    penetration_normal /= len;  // normalize
             }
             fp penetration_depth = a.Radius + b.Radius - len;
             intersects = penetration_depth >= 0;
@@ -189,6 +192,74 @@ namespace SepM.Physics{
         }
 
         public static CollisionPoints FindCapsuleAABBCollisionPoints(
+            CapsuleCollider a, PhysTransform ta,
+            AABBoxCollider b, PhysTransform tb)
+        {
+            AABBoxCollider tempBox = new AABBoxCollider(
+                a.Center, new fp3(a.Radius*2, a.Height*2, a.Radius*2), true);
+            return FindAABBoxAABBoxCollisionPoints(
+                tempBox,
+                ta,
+                b,
+                tb
+            );
+
+            // TODO: Make an accurate calculation instead of subbing for another box
+            /*
+            CapsuleStats aStats = a.GetStats(ta);
+
+            // Find point (p) on AABB closest to Sphere center
+            fp3 pA = b.closestPointAABB(tb, aStats.A);
+            fp3 pB = b.closestPointAABB(tb, aStats.B);
+
+            fp dA = (pA-aStats.A).dot(pA-aStats.A);
+            fp dB = (pB-aStats.B).dot(pB-aStats.B);
+
+            // If the two clamped points are equal, test capsule-point intersection to that point
+            // Sphere w/ radius 0
+            if(pA.Equals(pB)){
+                SphereCollider tempPoint = new SphereCollider(0);
+                // TODO: Should I copy the PhysTransform and alter or just create a new one?
+                PhysTransform tempTransform = new PhysTransform(dA < dB ? pA : pB);
+                return FindSphereCapsuleCollisionPoints(
+                    tempPoint,
+                    ta,
+                    a,
+                    tempTransform
+                );
+            }
+            // If the two clamped poitns are different, test capsule-line sesgment intersection
+            // Capsule w/ radius 0
+            else{
+                fp3 lineNormal = Raycast(
+                    b,
+                    dA < dB ? aStats.A : aStats.B,
+                    dA < dB ? (pA - aStats.A).normalized() : (pB - aStats.B).normalized()
+                    ).Normal;
+                fp height;
+                if(lineNormal.x > 0){
+                    height = b.Size().x*2;
+                }
+                else if(lineNormal.y > 0){
+                    height = b.Size().y*2;
+                }
+                else{
+                    height = b.Size().z*2;
+                }
+                CapsuleCollider tempLine = new CapsuleCollider(0, height, lineNormal);
+                // TODO: Should I copy the PhysTransform and alter or just create a new one?
+                PhysTransform tempTransform = new PhysTransform(dA < dB ? pA : pB);
+                return FindCapsuleCapsuleCollisionPoints(
+                    tempLine,
+                    ta,
+                    a,
+                    tempTransform
+                );
+            }
+            */
+        }
+
+        public static CollisionPoints FindCapsuleAABBsCollisionPoints(
             CapsuleCollider a, PhysTransform ta,
             AABBoxCollider b, PhysTransform tb)
         {

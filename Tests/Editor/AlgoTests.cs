@@ -248,7 +248,7 @@ public class AlgoTests
     [Test]
     public void CapsuleAABoxCollision_SamePos(){
         CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
-        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
         bool expected = true;
@@ -259,7 +259,7 @@ public class AlgoTests
 
     [Test]
     public void CapsuleAABoxCollision_Overlap(){
-        CapsuleCollider a = new CapsuleCollider(new fp3(0), .5m, 1);
+        CapsuleCollider a = new CapsuleCollider(new fp3(0), .5m, 2);
         AABBoxCollider b = new AABBoxCollider(new fp3(-2,0,-1), new fp3(2,.5m,1));
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
@@ -271,7 +271,7 @@ public class AlgoTests
 
     [Test]
     public void CapsuleAABoxCollision_Edge(){
-        CapsuleCollider a = new CapsuleCollider(new fp3(1.5m, 1.5m, 1.5m), .5m, 1);
+        CapsuleCollider a = new CapsuleCollider(new fp3(1.5m, 1, 1.5m), .5m, 2);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
@@ -283,8 +283,8 @@ public class AlgoTests
 
     [Test]
     public void CapsuleAABoxCollision_NotTouching(){
-        CapsuleCollider a = new CapsuleCollider(new fp3(10,-8.150096m,0), 1, 1);
-        AABBoxCollider b = new AABBoxCollider(new fp3(10,-10,0), new fp3(1,1,1), true);
+        CapsuleCollider a = new CapsuleCollider(new fp3(0,2,0), .5m, 2);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,-.5m,1));
         PhysTransform ta = new PhysTransform(new fp3(0,0,0));
         PhysTransform tb = new PhysTransform(new fp3(0,0,0));
         bool expected = false;

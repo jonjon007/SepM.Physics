@@ -316,9 +316,9 @@ namespace SepM.Physics{
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             AABBoxCollider box,
-            PhysTransform planeTransform){
+            PhysTransform boxTransform){
             return algo.FindSphereAABBCollisionPoints(
-                this, transform, box, planeTransform
+                this, transform, box, boxTransform
             );
         }
     }
@@ -394,6 +394,15 @@ namespace SepM.Physics{
             Type = Constants.coll_types.capsule;
         }
 
+        public CapsuleCollider(fp r, fp h, fp3 d){
+            Center = fp3.zero;
+            Radius = r;
+            Height = h;
+            Direction = d;
+            Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.capsule;
+        }
+
         public CapsuleCollider(fp r, fp h, Constants.coll_layers l){
             Center = fp3.zero;
             Radius = r;
@@ -422,6 +431,7 @@ namespace SepM.Physics{
         }
 
         public CapsuleStats GetStats(PhysTransform transform){
+            // TODO: World position?
             fp3 tip = transform.Position + Center + Direction *(Height/2m);
             fp3 bse = transform.Position + Center - Direction *(Height/2m);
             fp3 a_Normal = Direction.normalized(); 
@@ -552,7 +562,7 @@ namespace SepM.Physics{
             Type = Constants.coll_types.aabb;
         }
 
-        // TODO: Consider getting rid of the minval max val constructor?
+        // TODO: Come up with nicer-looking overload?
         public AABBoxCollider(fp3 center, fp3 scale, bool isCenter){
             MinValue = center - scale/2;
             MaxValue = center + scale/2;
@@ -587,8 +597,7 @@ namespace SepM.Physics{
         public override CollisionPoints TestCollision(
             PhysTransform transform,
             SphereCollider sphere,
-            PhysTransform sphereTransform)
-        {
+            PhysTransform sphereTransform){
             return algo.FindSphereAABBCollisionPoints(
                 sphere, transform, this, sphereTransform
             );
@@ -612,7 +621,7 @@ namespace SepM.Physics{
             CapsuleCollider capsule,
             PhysTransform capsuleTransform){
             return algo.FindCapsuleAABBCollisionPoints(
-                capsule, capsuleTransform, this, transform
+                capsule, transform, this, capsuleTransform
             );
         }
 

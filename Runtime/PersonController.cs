@@ -37,8 +37,9 @@ public class PersonController : MonoBehaviour
         // Create falling sphere
         Tuple<GameObject, PhysObject> sphereTuple = physWorld.CreateSphereObject(
             new fp3(5,10,0), 2, true, true, Constants.GRAVITY);
-        //PhysObjController sphereObjCont = sphereTuple.Item1.AddComponent<PhysObjController>();
-        //sphereObjCont.setPhysObject(sphereTuple.Item2);
+        // Create falling capsule
+        Tuple<GameObject, PhysObject> fcapTuple = physWorld.CreateCapsuleObject(
+            new fp3(5,8,0), 2m, 2, true, true, Constants.GRAVITY);
 
         // Create falling box
         Tuple<GameObject, PhysObject> fboxTuple = physWorld.CreateAABBoxObject(
