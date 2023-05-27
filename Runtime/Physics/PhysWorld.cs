@@ -352,6 +352,7 @@ namespace SepM.Physics {
                 GameObject gameObject = mapTuple.Item1;
                 PhysObject physObject = mapTuple.Item2;
                 gameObject.transform.position = physObject.Transform.Position.toVector3();
+                gameObject.transform.rotation = physObject.Transform.Rotation;
             }
         }
 

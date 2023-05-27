@@ -7,7 +7,11 @@ using SepM.Math;
 namespace SepM.Utils{
     public static class Utilities
     {
-        // TODO: Move to math library and make a general static function (not extension)
+        /* Returns the arccosine of the given value in radians. */
+        public static fp acos(fp x){
+               return (-0.69813170079773212m * x * x - 0.87266462599716477m) * x + 1.5707963267948966m;
+        }
+
         public static fp clamp(this fp x, fp min, fp max){
             if (min > x) return min;
             if (max < x) return max;
@@ -25,6 +29,18 @@ namespace SepM.Utils{
 
             fp t = (Point - A).dot(AB) / AB.dot(AB);
             return A + clamp(t, 0, 1) * AB;
+        }
+
+        public static fpq createFromAxisAngle(fp3 axis, fp angle)
+        {
+            fp halfAngle = angle * .5m;
+            fp s = fpmath.sin(halfAngle);
+            fpq q;
+            q.x = axis.x * s;
+            q.y = axis.y * s;
+            q.z = axis.z * s;
+            q.w = fpmath.cos(halfAngle);
+            return q;
         }
 
         public static fp3 cross(this fp3 va, fp3 vb){
@@ -46,6 +62,44 @@ namespace SepM.Utils{
         /* Returns the 3D vector length squared, avoiding the slow operation */
         public static fp lengthSqrd(this fp3 vec){
             return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+        }
+
+        /// <summary>
+        /// Evaluates a rotation needed to be applied to an object positioned at sourcePoint to face destPoint
+        /// </summary>
+        /// <param name="sourcePoint">Coordinates of source point</param>
+        /// <param name="destPoint">Coordinates of destionation point</param>
+        /// <returns></returns>
+        // https://stackoverflow.com/questions/12435671/quaternion-lookat-function
+        public static fpq lookAt(fp3 sourcePoint, fp3 destPoint)
+        {
+            fp3 forwardVector = (destPoint - sourcePoint).normalized();
+
+            // TODO: World forward or local forward?
+            fp dot = new fp3(0,0,1).dot(forwardVector);
+
+            if (System.Math.Abs(dot - (-1.0m)) < 0.000001m)
+            {
+                // TODO: World up or local up?
+                return new fpq(new fp3(0,1,0).x, new fp3(0,1,0).y, new fp3(0,0,1).z, 3.1415926535897932m);
+            }
+            if (System.Math.Abs(dot - 1) < 0.000001m)
+            {
+                return fpq.identity;
+            }
+
+            fp rotAngle = acos(dot);
+            // TODO: World forward or local forward?
+            fp3 rotAxis = new fp3(0,0,1).cross(forwardVector).normalized();
+            return createFromAxisAngle(rotAxis, rotAngle);
+        }
+
+        public static fpq lookAtLateral(fp3 sourcePoint, fp3 destPoint)
+        {
+            return lookAt(
+                new fp3(sourcePoint.x, 0, sourcePoint.z),
+                new fp3(destPoint.x, 0, destPoint.z)
+            );
         }
         
         public static fp major(this fp2 vec){

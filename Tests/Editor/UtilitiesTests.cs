@@ -10,6 +10,28 @@ using SepM.Math;
 public class UtilitiesTests
 {
     [Test]
+    public void TestACos(){
+        long expectedRaw;
+        fp actual;
+
+        actual = Utilities.acos(1);
+        expectedRaw = 0; //0
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+
+        actual = Utilities.acos(0.00000000179489673696541m);
+        expectedRaw = 6746518845L; //~1.570796325 rad or 90 deg
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+
+        actual = Utilities.acos(-1);
+        expectedRaw = 13493037704L; //~3.1415926535 rad or 180 deg
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+
+        actual = Utilities.acos(-0.00000000538468932271781m);
+        expectedRaw = 6746518872L; //~1.57079633 rad or 90 degrees
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+    }
+
+    [Test]
     public void TestClampMin(){
         fp min = -1;
         fp max = 1;
@@ -80,6 +102,46 @@ public class UtilitiesTests
 
         fp actual = vec1.lengthSqrd();
         Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestLookAtAbove(){
+        fp3 posSelf = fp3.zero;
+        fp3 posTarget = new fp3(0,1,0);
+        fpq expected = new fpq(fp.FromRaw(-3037000498),0,0,fp.FromRaw(3037000499));
+
+        fpq actual = Utilities.lookAt(posSelf, posTarget);
+        Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
+    }
+
+    [Test]
+    public void TestLookAtBeside(){
+        fp3 posSelf = fp3.zero;
+        fp3 posTarget = new fp3(0,0,1);
+        fpq expected = new fpq(0,0,0,1);
+
+        fpq actual = Utilities.lookAt(posSelf, posTarget);
+        Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
+    }
+
+    [Test]
+    public void TestLookAtLateralAbove(){
+        fp3 posSelf = fp3.zero;
+        fp3 posTarget = new fp3(0,1,0);
+        fpq expected = new fpq(0,0,0,fp.FromRaw(3037000499)); //0.707106781
+
+        fpq actual = Utilities.lookAtLateral(posSelf, posTarget);
+        Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
+    }
+
+    [Test]
+    public void TestLookAtLateralBeside(){
+        fp3 posSelf = fp3.zero;
+        fp3 posTarget = new fp3(0,1,1);
+        fpq expected = new fpq(0,0,0,1);
+
+        fpq actual = Utilities.lookAtLateral(posSelf, posTarget);
+        Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
     }
 
     [Test]

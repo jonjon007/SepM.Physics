@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
+using SepM.Math;
 using SepM.Physics;
 
 public class PersonController : MonoBehaviour
@@ -11,6 +12,7 @@ public class PersonController : MonoBehaviour
     public int moveSpeed = 500;
     public PhysObject physObj;
     public PhysWorld physWorld;
+    PhysObject looker;
     // Start is called before the first frame update
     void Awake(){
         rb = GetComponent<Rigidbody>();
@@ -40,6 +42,7 @@ public class PersonController : MonoBehaviour
         // Create falling capsule
         Tuple<GameObject, PhysObject> fcapTuple = physWorld.CreateCapsuleObject(
             new fp3(5,8,0), 2m, 2, true, true, Constants.GRAVITY);
+        looker = fcapTuple.Item2;
 
         // Create falling box
         Tuple<GameObject, PhysObject> fboxTuple = physWorld.CreateAABBoxObject(
@@ -111,6 +114,8 @@ public class PersonController : MonoBehaviour
             Jump();
         
         physWorld.Step((fp)Time.deltaTime);
+
+        looker.Transform.Rotation = SepM.Utils.Utilities.lookAtLateral(looker.Transform.Position, fp3.zero);
 
         physWorld.UpdateGameObjects();
     }
