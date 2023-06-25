@@ -96,42 +96,73 @@ namespace SepM.Utils{
             return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
         }
 
-        /// <summary>
-        /// Evaluates a rotation needed to be applied to an object positioned at sourcePoint to face destPoint
-        /// </summary>
-        /// <param name="sourcePoint">Coordinates of source point</param>
-        /// <param name="destPoint">Coordinates of destionation point</param>
-        /// <returns></returns>
-        // https://stackoverflow.com/questions/12435671/quaternion-lookat-function
-        public static fpq lookAt(fp3 sourcePoint, fp3 destPoint)
+        public static fpq LookRotation(fp3 forward)
         {
-            fp3 forwardVector = (destPoint - sourcePoint).normalized();
-
-            // TODO: World forward or local forward?
-            fp dot = new fp3(0,0,1).dot(forwardVector);
-
-            if (System.Math.Abs(dot - (-1.0m)) < 0.000001m)
-            {
-                // TODO: World up or local up?
-                return new fpq(new fp3(0,1,0).x, new fp3(0,1,0).y, new fp3(0,0,1).z, 3.1415926535897932m);
-            }
-            if (System.Math.Abs(dot - 1) < 0.000001m)
-            {
-                return fpq.identity;
-            }
-
-            fp rotAngle = acos(dot);
-            // TODO: World forward or local forward?
-            fp3 rotAxis = new fp3(0,0,1).cross(forwardVector).normalized();
-            return createFromAxisAngle(rotAxis, rotAngle);
+            fp3 up = new fp3(0,1,0); //Up
+            return LookRotation(ref forward, ref up);
         }
 
-        public static fpq lookAtLateral(fp3 sourcePoint, fp3 destPoint)
+        // from http://answers.unity3d.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
+        private static fpq LookRotation(ref fp3 forward, ref fp3 up)
         {
-            return lookAt(
-                new fp3(sourcePoint.x, 0, sourcePoint.z),
-                new fp3(destPoint.x, 0, destPoint.z)
-            );
+            forward = forward.normalized();
+            fp3 right = up.cross(forward).normalized();
+            up = forward.cross(right);
+            fp m00 = right.x;
+            fp m01 = right.y;
+            fp m02 = right.z;
+            fp m10 = up.x;
+            fp m11 = up.y;
+            fp m12 = up.z;
+            fp m20 = forward.x;
+            fp m21 = forward.y;
+            fp m22 = forward.z;
+
+
+            fp num8 = (m00 + m11) + m22;
+            fpq quaternion = new fpq();
+            if (num8 > 0m)
+            {
+                fp num = (num8 + 1m).sqrt();
+                quaternion.w = num * 0.5m;
+                num = 0.5m / num;
+                quaternion.x = (m12 - m21) * num;
+                quaternion.y = (m20 - m02) * num;
+                quaternion.z = (m01 - m10) * num;
+                return quaternion;
+            }
+            if ((m00 >= m11) && (m00 >= m22))
+            {
+                fp num7 = (((1m + m00) - m11) - m22).sqrt();
+                fp num4 = 0.5m / num7;
+                quaternion.x = 0.5m * num7;
+                quaternion.y = (m01 + m10) * num4;
+                quaternion.z = (m02 + m20) * num4;
+                quaternion.w = (m12 - m21) * num4;
+                return quaternion;
+            }
+            if (m11 > m22)
+            {
+                fp num6 = (((1m + m11) - m00) - m22).sqrt();
+                fp num3 = 0.5m / num6;
+                quaternion.x = (m10 + m01) * num3;
+                quaternion.y = 0.5m * num6;
+                quaternion.z = (m21 + m12) * num3;
+                quaternion.w = (m20 - m02) * num3;
+                return quaternion;
+            }
+            fp num5 = (((1m + m22) - m00) - m11).sqrt();
+            fp num2 = 0.5m / num5;
+            quaternion.x = (m20 + m02) * num2;
+            quaternion.y = (m21 + m12) * num2;
+            quaternion.z = 0.5m * num5;
+            quaternion.w = (m01 - m10) * num2;
+            return quaternion;
+        }
+
+        public static fpq LookRotationLateral(fp3 forward)
+        {
+            return LookRotation(new fp3(forward.x, 0, forward.z));
         }
         
         public static fp major(this fp2 vec){

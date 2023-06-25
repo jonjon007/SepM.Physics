@@ -115,7 +115,7 @@ public class PersonController : MonoBehaviour
         
         physWorld.Step((fp)Time.deltaTime);
 
-        looker.Transform.Rotation = SepM.Utils.Utilities.lookAtLateral(looker.Transform.Position, fp3.zero);
+        looker.Transform.Rotation = SepM.Utils.Utilities.LookRotationLateral(fp3.zero - looker.Transform.Position);
 
         physWorld.UpdateGameObjects();
     }

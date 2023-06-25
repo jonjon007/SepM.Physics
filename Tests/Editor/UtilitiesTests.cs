@@ -6,6 +6,7 @@ using UnityEngine;
 using SepM.Utils;
 using Unity.Mathematics.FixedPoint;
 using SepM.Math;
+using SepM.Physics;
 
 public class UtilitiesTests
 {
@@ -130,23 +131,44 @@ public class UtilitiesTests
     }
 
     [Test]
-    public void TestLookAtAbove(){
+    public void TestLookRotationAbove(){
         fp3 posSelf = fp3.zero;
         fp3 posTarget = new fp3(0,1,0);
         fpq expected = new fpq(fp.FromRaw(-3037000498),0,0,fp.FromRaw(3037000499));
 
-        fpq actual = Utilities.lookAt(posSelf, posTarget);
+        fpq actual = Utilities.LookRotation(posTarget - posSelf);
         Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
     }
 
     [Test]
-    public void TestLookAtBeside(){
+    public void TestLookRotationBeside(){
         fp3 posSelf = fp3.zero;
         fp3 posTarget = new fp3(0,0,1);
         fpq expected = new fpq(0,0,0,1);
 
-        fpq actual = Utilities.lookAt(posSelf, posTarget);
+        fpq actual = Utilities.LookRotation(posTarget - posSelf);
         Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
+    }
+
+    [Test]
+    public void TestLookRotationDiagonal(){
+        PhysTransform t = new PhysTransform();
+        t.Position = new fp3(6,3,7);
+        t.Rotation = fpq.identity;
+        fp3 posTarget = new fp3(0,0,1);
+        long expectedRawX = -277938182; //~-0.06471253
+        long expectedRawY = 3910886996; //~0.9105744
+        long expectedRawZ = -671002127; //~-0.1562299
+        long expectedRawW = -1619942435L; //~-0.3771723
+
+        fpq actual = Utilities.LookRotation(posTarget - t.Position);// t.Position.(posTarget, t.Right(), t.Up());
+        Assert.That(
+            expectedRawX == actual.x.RawValue
+            && expectedRawY == actual.y.RawValue
+            && expectedRawZ == actual.z.RawValue
+            && expectedRawW == actual.w.RawValue,
+            "Quaternion values are not equal."
+        );
     }
 
     [Test]
@@ -155,7 +177,7 @@ public class UtilitiesTests
         fp3 posTarget = new fp3(0,1,0);
         fpq expected = new fpq(0,0,0,fp.FromRaw(3037000499)); //0.707106781
 
-        fpq actual = Utilities.lookAtLateral(posSelf, posTarget);
+        fpq actual = Utilities.LookRotation(posTarget - posSelf);
         Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
     }
 
@@ -165,7 +187,7 @@ public class UtilitiesTests
         fp3 posTarget = new fp3(0,1,1);
         fpq expected = new fpq(0,0,0,1);
 
-        fpq actual = Utilities.lookAtLateral(posSelf, posTarget);
+        fpq actual = Utilities.LookRotationLateral(posTarget - posSelf);
         Assert.AreEqual(expected, actual, "Quaternion values are not equal.");
     }
 
