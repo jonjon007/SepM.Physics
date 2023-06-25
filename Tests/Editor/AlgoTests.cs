@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
+using SepM.Math;
 using SepM.Physics;
+using SepM.Utils;
 
 public class AlgoTests
 {
@@ -422,5 +424,63 @@ public class AlgoTests
 
         CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
         Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void InverseTransformPoint(){
+        UnityEngine.GameObject go = UnityEngine.GameObject.CreatePrimitive(UnityEngine.PrimitiveType.Cube);
+        go.transform.position = new UnityEngine.Vector3(1,0,0);
+        UnityEngine.Vector3 otherV3 = new UnityEngine.Vector3(0,1,0);
+        UnityEngine.Vector3 tp = go.transform.InverseTransformPoint(new UnityEngine.Vector3(0,1,0));
+
+        long expectedRawX;
+        long expectedRawY;
+        long expectedRawZ;
+        fp3 actual;
+        PhysObject po = new PhysObject(fp3.zero);
+        fp3 otherPos;
+
+        po.Transform.Position = new fp3(1,0,0);
+        otherPos = new fp3(0,1,0);
+        expectedRawX = -4294967296L; //-1
+        expectedRawY = 4294967296L; //1
+        expectedRawZ = 0; //0
+        actual = po.Transform.inverseTransformPoint(otherPos);
+
+        Assert.That(
+            expectedRawX == actual.x.RawValue
+            && expectedRawY == actual.y.RawValue
+            && expectedRawZ == actual.z.RawValue
+        );
+    }
+
+    [Test]
+    public void InverseTransformPointRotated(){
+        UnityEngine.GameObject go = UnityEngine.GameObject.CreatePrimitive(UnityEngine.PrimitiveType.Cube);
+        go.transform.position = new UnityEngine.Vector3(1,0,0);
+        go.transform.Rotate(0,90,0);
+        UnityEngine.Vector3 otherV3 = new UnityEngine.Vector3(0,1,0);
+        UnityEngine.Vector3 tp = go.transform.InverseTransformPoint(new UnityEngine.Vector3(0,1,0));
+
+        long expectedRawX;
+        long expectedRawY;
+        long expectedRawZ;
+        fp3 actual;
+        PhysObject po = new PhysObject(fp3.zero);
+        fp3 otherPos;
+
+        po.Transform.Position = new fp3(1,0,0);
+        po.Transform.Rotate(0,90,0);
+        otherPos = new fp3(0,1,0);
+        expectedRawX = -58L; //~0
+        expectedRawY = 4294967296L; //~1
+        expectedRawZ = -4294967292L; //~-1
+        actual = po.Transform.inverseTransformPoint(otherPos);
+
+        Assert.That(
+            expectedRawX == actual.x.RawValue
+            && expectedRawY == actual.y.RawValue
+            && expectedRawZ == actual.z.RawValue
+        );
     }
 }

@@ -31,6 +31,10 @@ namespace SepM.Utils{
             return A + clamp(t, 0, 1) * AB;
         }
 
+        public static fpq conjugate(this fpq q){
+            return new fpq(-q.x, -q.y, -q.z, q.w);
+        }
+
         public static fpq createFromAxisAngle(fp3 axis, fp angle)
         {
             fp halfAngle = angle * .5m;
@@ -52,6 +56,34 @@ namespace SepM.Utils{
 
         public static fp dot(this fp3 va, fp3 vb){
             return va.x * vb.x + va.y * vb.y + va.z * vb.z;
+        }
+
+        /* Converts the given rotation fp3 in radians into a quaternion */
+        public static fpq toQuaternionFromRadians(this fp3 f3){
+            fp roll = f3.x;
+            fp pitch = f3.y;
+            fp yaw = f3.z;
+
+            fp cr = fpmath.cos(roll * 0.5m);
+            fp sr = fpmath.sin(roll * 0.5m);
+            fp cp = fpmath.cos(pitch * 0.5m);
+            fp sp = fpmath.sin(pitch * 0.5m);
+            fp cy = fpmath.cos(yaw * 0.5m);
+            fp sy = fpmath.sin(yaw * 0.5m);
+
+            fpq q;
+            q.w = cr * cp * cy + sr * sp * sy;
+            q.x = sr * cp * cy - cr * sp * sy;
+            q.y = cr * sp * cy + sr * cp * sy;
+            q.z = cr * cp * sy - sr * sp * cy;
+
+            return q;
+        }
+
+        /* Converts the given rotation fp3 in degrees into a quaternion */
+        public static fpq toQuaternionFromDegrees(this fp3 f3){
+            fp3 vectorInRadians = fpmath.radians(f3);
+            return vectorInRadians.toQuaternionFromRadians();
         }
         
         /* Returns the 2D vector length squared, avoiding the slow operation */
@@ -159,8 +191,20 @@ namespace SepM.Utils{
             return result;
         }
 
+        public static fp norm(this fpq q){
+            return fpmath.sqrt(
+                q.w*q.w +
+                q.x*q.x +
+                q.y*q.y +
+                q.z*q.z);
+        }
+
         public static fp roundToNearestQuarter(this float x){
             return System.Math.Round((decimal)(x * 4), MidpointRounding.ToEven) / 4;
+        }
+
+        public static fp3 scale(fp3 a, fp3 b){
+            return new fp3(a.x*b.x, a.y*b.y, a.z*b.z);
         }
 
         /* Squares the passed FixedPoint number */

@@ -65,6 +65,31 @@ public class UtilitiesTests
         fp actual = val.clamp(min, max);
         Assert.AreEqual(expected, actual);
     }
+
+    [Test]
+    public void TestConjugate(){
+        fpq q = new fpq(1,2,3,4);
+        fpq expected = new fpq(-1,-2,-3,4);
+
+        fpq actual = q.conjugate();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestConjugateNormalized(){
+        fpq q = new fpq(0.29242m, 0.29242m, 0.24369m, 0.87727m); // A normalized quaternion
+        fpq qConj = q.conjugate();
+        long expectedRawXYZ = -1; //~0
+        long expectedRawW = 4294994704; //~1
+
+        fpq actual = q.multiply(qConj);
+        Assert.That(
+            expectedRawXYZ == actual.x.RawValue
+            && expectedRawXYZ == actual.y.RawValue
+            && expectedRawXYZ == actual.z.RawValue
+            && expectedRawW == actual.w.RawValue
+        );
+    }
     
     [Test]
     public void TestCross(){
@@ -248,6 +273,16 @@ public class UtilitiesTests
             && actual.z.RawValue == expectedRawZ
         );
     }
+
+    [Test]
+    public void TestNorm(){
+        fpq q = new fpq(1,2,3,4);
+        long expectedRaw = 23524504718L; //~5.4772;
+
+        fp actual = q.norm();
+        long actualRaw = actual.RawValue;
+        Assert.AreEqual(expectedRaw, actualRaw);
+    }
     
     [Test]
     public void TestNormalizedOneDir(){
@@ -346,6 +381,26 @@ public class UtilitiesTests
     public void TestSqrtZero(){
         fp num = -1;
         Assert.Throws<ArgumentOutOfRangeException>(() => num.sqrt());
+    }
+
+    [Test]
+    public void TestToQuaternionFromDegrees(){
+        UnityEngine.Vector3 v3 = new Vector3(0, -90, 0);
+        Quaternion q = Quaternion.Euler(v3);
+
+        fp3 f3 = new fp3(0, -90, 0);
+        long expectedRawX = 0; //0
+        long expectedRawY = -3037000480; //~-0.7
+        long expectedRawZ = 0; //0
+        long expectedRawW = 3037000517; //~0.7
+
+        fpq actual = f3.toQuaternionFromDegrees();
+        Assert.That(
+            expectedRawX == actual.x.RawValue
+            && expectedRawY == actual.y.RawValue
+            && expectedRawZ == actual.z.RawValue
+            && expectedRawW == actual.w.RawValue
+        );
     }
 
     [Test]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
+using SepM.Math;
 using SepM.Utils;
 
 namespace SepM.Physics{
@@ -401,6 +402,14 @@ namespace SepM.Physics{
             q.z = v;
             
             return q;
+        }
+
+        public static fp3 inverseTransformPoint(this PhysTransform ta, fp3 point){
+            fp3 result = Utilities.scale(
+                new fp3(1/ta.Scale.x, 1/ta.Scale.y, 1/ta.Scale.z),
+                (point - ta.Position).multiply(ta.Rotation.conjugate())
+                );
+            return result;
         }
 
         public static fp SqDistPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point){

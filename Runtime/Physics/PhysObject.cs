@@ -171,6 +171,15 @@ namespace SepM.Physics{
 
             return Scale * parentScale;
         }
+
+        public void Rotate(fp3 eulers){
+            fpq eulerRot = eulers.toQuaternionFromDegrees();
+            Rotation = Rotation.multiply(eulerRot);
+        }
+
+        public void Rotate(fp x, fp y, fp z){
+            Rotate(new fp3(x,y,z));
+        }
     }
 
     [Serializable]

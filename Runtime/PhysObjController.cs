@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Physics;
+using SepM.Utils;
 
 public class PhysObjController : MonoBehaviour
 {
@@ -14,12 +15,7 @@ public class PhysObjController : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        // TODO: Turn into a Utilities method
-        Vector3 newPos = new Vector3(
-            (float)this.physObject.Transform.Position.x,
-            (float)this.physObject.Transform.Position.y,
-            (float)this.physObject.Transform.Position.z
-        );
+        Vector3 newPos = this.physObject.Transform.Position.toVector3();
         this.gameObject.transform.position = newPos;
     }
 
