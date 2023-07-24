@@ -12,17 +12,19 @@ partial class PhysObjTests
         PhysWorld w = new PhysWorld();
 
         // Sphere
-        w.CreateSphereObject(
+        var sphereTuple = w.CreateSphereObject(
             new fp3(5,10,0), 2, true, true, Constants.GRAVITY
         );
         // Capsule
-        w.CreateCapsuleObject(
+        var capsuleTuple = w.CreateCapsuleObject(
             fp3.zero, 5, 6, true, false, fp3.zero
         );
         // AABB
         w.CreateAABBoxObject(
             new fp3(0, 10, 0), new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.player
         );
+
+        capsuleTuple.Item2.Transform.SetParent(sphereTuple.Item2.Transform);
 
         return w;
 

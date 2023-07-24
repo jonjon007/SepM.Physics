@@ -115,18 +115,18 @@ namespace SepM.Physics{
 
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
-        public PhysTransform(){
+        public PhysTransform(PhysTransform parent = null){
             Position = fp3.zero;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
-            m_parent = null;
+            m_parent = parent;
             //m_children = new List<PhysTransform>();
         }
-        public PhysTransform(fp3 p){
+        public PhysTransform(fp3 p, PhysTransform parent = null){
             Position = p;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
-            m_parent = null;
+            m_parent = parent;
             //m_children = new List<PhysTransform>();
         }
 
@@ -179,6 +179,10 @@ namespace SepM.Physics{
 
         public void Rotate(fp x, fp y, fp z){
             Rotate(new fp3(x,y,z));
+        }
+
+        public void SetParent(PhysTransform t){
+            m_parent = t;
         }
     }
 
