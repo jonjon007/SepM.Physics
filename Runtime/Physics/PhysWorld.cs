@@ -173,11 +173,11 @@ namespace SepM.Physics {
             }
         }
 
-        public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g) {
-            return CreateSphereObject(center, r, isDyn, isKin, g, Constants.coll_layers.normal);
+        public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g, PhysTransform parent = null) {
+            return CreateSphereObject(center, r, isDyn, isKin, g, Constants.coll_layers.normal, parent);
         }
 
-        public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l) {
+        public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             // Destroy the default Unity collider
@@ -192,6 +192,7 @@ namespace SepM.Physics {
                 Gravity = g,
                 Coll = coll
             };
+            p_obj.Transform.SetParent(parent);
 
             // Update the GameObject
             float sphRadius = (float)coll.Radius * 2;
@@ -212,11 +213,11 @@ namespace SepM.Physics {
             return result;
         }
 
-        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g) {
-            return CreateCapsuleObject(center, r, h, isDyn, isKin, g, Constants.coll_layers.normal);
+        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, PhysTransform parent = null){
+            return CreateCapsuleObject(center, r, h, isDyn, isKin, g, Constants.coll_layers.normal, parent);
         }
 
-        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l) {
+        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             // Destroy the default Unity collider
@@ -231,6 +232,7 @@ namespace SepM.Physics {
                 Gravity = g,
                 Coll = coll
             };
+            p_obj.Transform.SetParent(parent);
 
             // Update the GameObject
             float capRadius = (float)coll.Radius * 2;
@@ -253,11 +255,11 @@ namespace SepM.Physics {
             return result;
         }
 
-        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g) {
-            return CreateAABBoxObject(center, scale, isDyn, isKin, g, Constants.coll_layers.normal);
+        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, PhysTransform parent = null) {
+            return CreateAABBoxObject(center, scale, isDyn, isKin, g, Constants.coll_layers.normal, parent);
         }
 
-        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l) {
+        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
             // Set up the collider, the physics object, and the game object
             GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             // Destroy the default Unity collider
@@ -272,6 +274,7 @@ namespace SepM.Physics {
                 Gravity = g,
                 Coll = coll
             };
+            p_obj.Transform.SetParent(parent);
 
             // Update the GameObject
             g_obj.transform.localPosition = center.toVector3();
@@ -351,8 +354,8 @@ namespace SepM.Physics {
             foreach (Tuple<GameObject, PhysObject> mapTuple in objectsMap) {
                 GameObject gameObject = mapTuple.Item1;
                 PhysObject physObject = mapTuple.Item2;
-                gameObject.transform.position = physObject.Transform.Position.toVector3();
-                gameObject.transform.rotation = physObject.Transform.Rotation;
+                gameObject.transform.position = physObject.Transform.WorldPosition().toVector3();
+                gameObject.transform.rotation = physObject.Transform.WorldRotation();
             }
         }
 
