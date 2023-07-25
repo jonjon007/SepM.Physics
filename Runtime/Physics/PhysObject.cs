@@ -15,6 +15,7 @@ namespace SepM.Physics{
             noPlayer = 4, // Collides with ground and such, but no players,
             danger = 5,
             win = 6,
+            hitbox = 7,
         };
         public enum coll_types {
             none = 0,
