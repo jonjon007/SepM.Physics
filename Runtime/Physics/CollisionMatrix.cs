@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace SepM.Physics{
@@ -7,7 +8,7 @@ public class CollisionMatrix
 
         // Every layer is defaulted to collide to every layer
         public CollisionMatrix(){
-            int enumLen = 7; // TODO: Remove hardcoded number
+            int enumLen = Enum.GetNames(typeof(Constants.coll_layers)).Length;
             matrix = new bool[enumLen][]; //Constants.coll_layers length
             for(int i = 0; i < enumLen; i++)
                 matrix[i] = Enumerable.Repeat(true, enumLen).ToArray();
