@@ -55,6 +55,38 @@ public class AlgoTests
     }
 
     [Test]
+    public void SphereSphereCollision_ChildrenTouching(){
+        SphereCollider a = new SphereCollider(1);
+        SphereCollider b = new SphereCollider(2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void SphereSphereCollision_ChildrenNotTouching(){
+        SphereCollider a = new SphereCollider(1);
+        SphereCollider b = new SphereCollider(2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
     public void SpherePlaneCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
         PlaneCollider b = new PlaneCollider(new fp3(0,1,0), 2);
@@ -102,7 +134,7 @@ public class AlgoTests
         CollisionPoints cp = a.TestCollision(ta, b, tb);
         Assert.AreEqual(expected, cp.HasCollision);
     }
-    
+
     [Test]
     public void SphereCapsuleCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
@@ -148,6 +180,38 @@ public class AlgoTests
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void SphereCapsuleCollision_ChildrenTouching(){
+        SphereCollider a = new SphereCollider(1);
+        CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void SphereCapsuleCollision_ChildrenNotTouching(){
+        SphereCollider a = new SphereCollider(1);
+        CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
         Assert.AreEqual(expected, cp.HasCollision);
     }
 
@@ -200,6 +264,38 @@ public class AlgoTests
     }
 
     [Test]
+    public void SphereAABoxCollision_ChildrenTouching(){
+        SphereCollider a = new SphereCollider(1);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void SphereAABoxCollision_ChildrenNotTouching(){
+        SphereCollider a = new SphereCollider(1);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
     public void CapsuleCapsuleCollision_SamePos(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
@@ -244,6 +340,38 @@ public class AlgoTests
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void CapsuleCapsuleCollision_ChildrenTouching(){
+        CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
+        CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void CapsuleCapsuleCollision_ChildrenNotTouching(){
+        CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
+        CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
         Assert.AreEqual(expected, cp.HasCollision);
     }
 
@@ -296,6 +424,38 @@ public class AlgoTests
     }
 
     [Test]
+    public void CapsuleAABoxCollision_ChildrenTouching(){
+        CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void CapsuleAABoxCollision_ChildrenNotTouching(){
+        CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
     public void AABBoxAABoxCollision_SamePos(){
         AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
@@ -340,6 +500,38 @@ public class AlgoTests
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void AABBoxAABoxCollision_ChildrenTouching(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = true;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
+        Assert.AreEqual(expected, cp.HasCollision);
+    }
+
+    [Test]
+    public void AABBoxAABoxCollision_ChildrenNotTouching(){
+        AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
+        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        child_ta.SetParent(parent_ta);
+        child_tb.SetParent(parent_tb);
+        bool expected = false;
+
+        CollisionPoints cp = a.TestCollision(child_ta, b, child_tb);
         Assert.AreEqual(expected, cp.HasCollision);
     }
 
