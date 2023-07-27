@@ -67,12 +67,17 @@ namespace SepM.Physics{
 
     [Serializable]
     public class PhysTransform { // Describes an objects location
+        public static uint CurrentInstanceId = 1; //Incrementing static PhysTransform counter
+        public uint InstanceId; // UUID for object
         public fp3 Position;
         public fp3 Scale;
         public fpq Rotation;
         private PhysTransform m_parent;
+        public uint m_parent_id = 0;
 
         public void Serialize(BinaryWriter bw) {
+        //InstanceId
+            bw.Write(InstanceId);
         //Position
             bw.Write(Position.x);
             bw.Write(Position.y);
@@ -86,10 +91,12 @@ namespace SepM.Physics{
             bw.Write(Rotation.y);
             bw.Write(Rotation.z);
         //m_parent
-            //TODO: Parent reference?
+            bw.Write(m_parent_id);
         }
 
         public void Deserialize(BinaryReader br) {
+        //InstanceId
+            InstanceId = br.ReadUInt32();
         //Position
             Position.x = br.ReadDecimal();
             Position.y = br.ReadDecimal();
@@ -103,31 +110,35 @@ namespace SepM.Physics{
             Rotation.y = br.ReadDecimal();
             Rotation.z = br.ReadDecimal();
         //m_parent
-            //TODO: Parent reference?
+            m_parent_id = br.ReadUInt32(); // Used in PhysWorld deserialization to tie to parent
         }
 
         public override int GetHashCode() {
             int hashCode = 1858537542;
+            hashCode = hashCode * -1521134295 + InstanceId.GetHashCode();
             hashCode = hashCode * -1521134295 + Position.GetHashCode();
             hashCode = hashCode * -1521134295 + Scale.GetHashCode();
             hashCode = hashCode * -1521134295 + Rotation.GetHashCode();
+            hashCode = hashCode * -1521134295 + m_parent_id.GetHashCode();
             return hashCode;
         }
 
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
         public PhysTransform(PhysTransform parent = null){
+            InstanceId = PhysTransform.CurrentInstanceId++;
             Position = fp3.zero;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
-            m_parent = parent;
+            SetParent(parent);
             //m_children = new List<PhysTransform>();
         }
         public PhysTransform(fp3 p, PhysTransform parent = null){
+            InstanceId = PhysTransform.CurrentInstanceId++;
             Position = p;
             Scale = new fp3(1,1,1);
             Rotation = fpq.identity;
-            m_parent = parent;
+            SetParent(parent);
             //m_children = new List<PhysTransform>();
         }
 
@@ -184,6 +195,8 @@ namespace SepM.Physics{
 
         public void SetParent(PhysTransform t){
             m_parent = t;
+            if(t != null)
+                m_parent_id = t.InstanceId;
         }
     }
 
