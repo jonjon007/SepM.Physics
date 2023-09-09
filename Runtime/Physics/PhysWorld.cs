@@ -167,7 +167,7 @@ namespace SepM.Physics {
 
         // TODO: Write test
         public void CleanUp(PhysObject[] p = null) {
-            if(p == null || p.Length == 0){
+            if(p == null){
                 // Clear everything
                 if (Application.isEditor) objectsMap.ForEach(t => GameObject.DestroyImmediate(t.Item1));
                 else objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
@@ -175,7 +175,7 @@ namespace SepM.Physics {
                 objectsMap.Clear();
                 m_objects.Clear();
             }
-            else{
+            else if(p.Length > 0){
                 // Clear the given physObjects
                 List<Tuple<GameObject, PhysObject>> tuplesToClean = objectsMap.Where(o => p.Contains(o.Item2)).ToList();
 
@@ -186,7 +186,6 @@ namespace SepM.Physics {
                     objectsMap.Remove(t);
                     m_objects.Remove(t.Item2);
                     });
-
             }
 
             // No need to clear solvers
@@ -360,7 +359,6 @@ namespace SepM.Physics {
 
             m_objects.Add(obj);
         }
-        public void RemoveObject(PhysObject obj) { /* TODO */ }
 
         public void AddSolver(Solver solver) { m_solvers.Add(solver); }
         public void RemoveSolver(Solver solver) { /* TODO */ }
