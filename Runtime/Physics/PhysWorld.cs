@@ -49,6 +49,19 @@ namespace SepM.Physics {
                 if(m_objects[i] is null) m_objects[i] = new PhysObject();
                 m_objects[i].Deserialize(br);
             }
+            // Assign each object's Transform's parents; may be a bit slow
+            {
+                PhysTransform[] transforms = m_objects.Select(o => o.Transform).ToArray();
+                foreach(PhysTransform t in transforms){
+                    if(t.m_parent_id != 0){
+                        PhysTransform parentFound = transforms.FirstOrDefault(other => other.InstanceId == t.m_parent_id);
+                        if(parentFound != null)
+                            t.SetParent(parentFound);
+                        else
+                            Debug.LogError($"Can't find PhysTransform parent with ID: {t.InstanceId}!");
+                    }
+                }
+            }
         //m_solvers
             // TODO: Serialize?
         //objectsMap
