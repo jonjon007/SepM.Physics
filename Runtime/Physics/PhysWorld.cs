@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
@@ -146,11 +147,35 @@ namespace SepM.Physics {
             AddSolver(new SmoothPositionSolver());
         }
 
-        public void CleanUp() {
-            if (Application.isEditor) objectsMap.ForEach(t => GameObject.DestroyImmediate(t.Item1));
-            else objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
-            objectsMap.Clear();
-            m_objects.Clear();
+        public void CleanUp(PhysObject p)
+        {
+            CleanUp(new PhysObject[] {p});
+        }
+
+        // TODO: Write test
+        public void CleanUp(PhysObject[] p = null) {
+            if(p == null || p.Length == 0){
+                // Clear everything
+                if (Application.isEditor) objectsMap.ForEach(t => GameObject.DestroyImmediate(t.Item1));
+                else objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
+
+                objectsMap.Clear();
+                m_objects.Clear();
+            }
+            else{
+                // Clear the given physObjects
+                List<Tuple<GameObject, PhysObject>> tuplesToClean = objectsMap.Where(o => p.Contains(o.Item2)).ToList();
+
+                if (Application.isEditor) tuplesToClean.ForEach(t => GameObject.DestroyImmediate(t.Item1));
+                else tuplesToClean.ForEach(t => GameObject.Destroy(t.Item1));
+
+                tuplesToClean.ForEach(t => {
+                    objectsMap.Remove(t);
+                    m_objects.Remove(t.Item2);
+                    });
+
+            }
+
             // No need to clear solvers
             // m_solvers.Clear();
         }
