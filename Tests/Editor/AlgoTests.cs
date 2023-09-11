@@ -1,8 +1,6 @@
 using NUnit.Framework;
 using Unity.Mathematics.FixedPoint;
-using SepM.Math;
 using SepM.Physics;
-using SepM.Utils;
 
 public class AlgoTests
 {

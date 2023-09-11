@@ -156,13 +156,13 @@ namespace SepM.Physics{
 
         /* TODO: Comment */
         public fp3 WorldPosition(){
-            fp3 parentPos = fp3.zero;
-
             if (!(m_parent is null)) {
-                parentPos = m_parent.WorldPosition();
+                return m_parent.WorldPosition() + Position.multiply(m_parent.Rotation);
             }
 
-            return Position + parentPos;
+            return Position;
+
+
         }
         public fpq WorldRotation(){            
             fpq parentRot = fpq.identity;

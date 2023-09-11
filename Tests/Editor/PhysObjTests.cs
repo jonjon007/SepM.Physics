@@ -37,6 +37,25 @@ partial class PhysObjTests
     }
 
     [Test]
+    public void TestWorldPosition()
+    {
+        fp3 expected;
+        fp3 actual;
+
+        PhysTransform parent_t = new PhysTransform(fp3.zero);
+        PhysTransform child_t = new PhysTransform(new fp3(0,0,10));
+        child_t.SetParent(parent_t);
+        expected = new fp3(0, 0, fp.FromRaw(42949672960L)); // 0,0,10
+        actual = child_t.WorldPosition();
+        Assert.AreEqual(expected, actual);
+
+        parent_t.Rotate(new fp3(0, 90, 0));
+        expected = new fp3(fp.FromRaw(42949672918L), 0, fp.FromRaw(566L)); // ~10,0,0
+        actual = child_t.WorldPosition();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
     public void TestWorldSerialize(){
         bool sameHash = false;
         List<Tuple<int, uint>> objsMapIds = new List<Tuple<int, uint>>();

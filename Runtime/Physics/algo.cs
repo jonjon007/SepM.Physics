@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
-using SepM.Math;
 using SepM.Utils;
 
 namespace SepM.Physics{
