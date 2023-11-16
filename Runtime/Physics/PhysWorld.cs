@@ -429,10 +429,9 @@ namespace SepM.Physics {
                 solver.Solve(collisions, dt);
             }
 
-            //Run on collision for each pair
+            // Since each pair will be coming twice in opposite order, just run the first OnCollision
             foreach (PhysCollision cp in collisions) {
                 cp.ObjA.OnCollision(cp);
-                cp.ObjB.OnCollision(cp);
             }
         }
 
