@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace SepM.Physics
+namespace SepM.Serialization
 {
     public interface Serial
     {
