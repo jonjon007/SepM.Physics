@@ -58,15 +58,13 @@ namespace SepM.Physics{
     };
 
     // TODO: Come up with a better name
-    public interface ICollider {
+    public interface ICollider : Serial {
         // TODO: May be a good idea to return an int or something. May not be necessary
         public void OnCollision(PhysCollision c);
-        public void Serialize(BinaryWriter bw);
-        public void Deserialize(BinaryReader br);
     }
 
     [Serializable]
-    public class PhysTransform { // Describes an objects location
+    public class PhysTransform : Serial { // Describes an objects location
         public static uint CurrentInstanceId = 1; //Incrementing static PhysTransform counter
         public uint InstanceId; // UUID for object
         public fp3 Position;
@@ -201,7 +199,7 @@ namespace SepM.Physics{
     }
 
     [Serializable]
-    public abstract class Collider {
+    public abstract class Collider : Serial {
         public Constants.coll_layers Layer;
         public Constants.coll_types Type = Constants.coll_types.none;
 
@@ -778,7 +776,7 @@ namespace SepM.Physics{
 
     [Serializable]
     /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
-    public class PhysObject {
+    public class PhysObject : Serial {
         public static uint CurrentInstanceId = 0; //Incrementing static PhysObject counter
         public uint InstanceId; // UUID for object
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k

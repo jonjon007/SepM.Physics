@@ -8,7 +8,7 @@ using SepM.Utils;
 
 namespace SepM.Physics {
     [Serializable]
-    public class PhysWorld {
+    public class PhysWorld : Serial {
         private List<PhysObject> m_objects = new List<PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
