@@ -159,17 +159,18 @@ namespace SepM.Physics{
         //InstanceId
             bw.Write(InstanceId);
         //Position
-            bw.Write(Position.x);
-            bw.Write(Position.y);
-            bw.Write(Position.z);
+            bw.WriteFp(Position.x);
+            bw.WriteFp(Position.y);
+            bw.WriteFp(Position.z);
         //Scale
-            bw.Write(Scale.x);
-            bw.Write(Scale.y);
-            bw.Write(Scale.z);
+            bw.WriteFp(Scale.x);
+            bw.WriteFp(Scale.y);
+            bw.WriteFp(Scale.z);
         //Rotation
-            bw.Write(Rotation.x);
-            bw.Write(Rotation.y);
-            bw.Write(Rotation.z);
+            bw.WriteFp(Rotation.x);
+            bw.WriteFp(Rotation.y);
+            bw.WriteFp(Rotation.z);
+            bw.WriteFp(Rotation.w);
         //m_parent
             bw.Write(m_parent_id);
         }
@@ -178,17 +179,18 @@ namespace SepM.Physics{
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Position
-            Position.x = br.ReadDecimal();
-            Position.y = br.ReadDecimal();
-            Position.z = br.ReadDecimal();
+            Position.x = br.ReadFp();
+            Position.y = br.ReadFp();
+            Position.z = br.ReadFp();
         //Scale
-            Scale.x = br.ReadDecimal();
-            Scale.y = br.ReadDecimal();
-            Scale.z = br.ReadDecimal();
+            Scale.x = br.ReadFp();
+            Scale.y = br.ReadFp();
+            Scale.z = br.ReadFp();
         //Rotation
-            Rotation.x = br.ReadDecimal();
-            Rotation.y = br.ReadDecimal();
-            Rotation.z = br.ReadDecimal();
+            Rotation.x = br.ReadFp();
+            Rotation.y = br.ReadFp();
+            Rotation.z = br.ReadFp();
+            Rotation.w = br.ReadFp();
         //m_parent
             m_parent_id = br.ReadUInt32(); // Used in PhysWorld deserialization to tie to parent
         }

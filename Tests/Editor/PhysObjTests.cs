@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Unity.Collections;
 using Unity.Mathematics.FixedPoint;
 using UnityEngine;
+using SepM.Math;
 using SepM.Physics;
 
 partial class PhysObjTests
@@ -63,6 +64,40 @@ partial class PhysObjTests
         {
             CollisionPoints finish = new CollisionPoints();
             finish = (CollisionPoints)TestUtils.FromBytes(serialized, finish);
+            sameHash = start.GetHashCode() == finish.GetHashCode();
+        }
+        finally
+        {
+            // Dispose of the NativeArray when we're done with it
+            if (serialized.IsCreated)
+                serialized.Dispose();
+        }
+
+        // Check hash
+        Assert.IsTrue(sameHash);
+    }
+
+    [Test]
+    public void TestPhysTransformSerialize()
+    {
+        bool sameHash = false;
+
+        PhysTransform parent = new PhysTransform();
+
+        PhysTransform start = new PhysTransform(new fp3(1,2,3), parent);
+        start.Scale = new fp3(6, 5, 4);
+        start.Rotation = new fpq(
+            fp.FromRaw(2765320905L),
+            fp.FromRaw(48809278L),
+            fp.FromRaw(-41079300L),
+            fp.FromRaw(3285677180L));
+
+        NativeArray<byte> serialized = TestUtils.ToBytes(start);
+
+        try
+        {
+            PhysTransform finish = new PhysTransform();
+            finish = (PhysTransform)TestUtils.FromBytes(serialized, finish);
             sameHash = start.GetHashCode() == finish.GetHashCode();
         }
         finally
