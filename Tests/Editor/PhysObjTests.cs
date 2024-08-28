@@ -9,6 +9,14 @@ using SepM.Physics;
 
 partial class PhysObjTests
 {
+    PhysWorld world;
+
+    [SetUp]
+    public void Init()
+    {
+        world = new PhysWorld();
+    }
+
     [Test]
     public void TestCollisionMatrixDefault(){
         CollisionMatrix matrix = new CollisionMatrix();
@@ -34,6 +42,83 @@ partial class PhysObjTests
         bool result2 = matrix.CanLayersCollide(Constants.coll_layers.player, Constants.coll_layers.ground);
         Assert.IsFalse(result1);
         Assert.IsTrue(result2);
+    }
+
+    [Test]
+    public void TestCollisionPointsSerialize()
+    {
+        bool sameHash = false;
+
+        CollisionPoints start = new CollisionPoints()
+        {
+            A = new fp3(1,2,3),
+            B = new fp3(3,1,2),
+            Normal = new fp3(2,1,3),
+            DepthSqrd = 30,
+            HasCollision = true
+        };
+        NativeArray<byte> serialized = TestUtils.ToBytes(start);
+
+        try
+        {
+            CollisionPoints finish = new CollisionPoints();
+            finish = (CollisionPoints)TestUtils.FromBytes(serialized, finish);
+            sameHash = start.GetHashCode() == finish.GetHashCode();
+        }
+        finally
+        {
+            // Dispose of the NativeArray when we're done with it
+            if (serialized.IsCreated)
+                serialized.Dispose();
+        }
+
+        // Check hash
+        Assert.IsTrue(sameHash);
+    }
+
+    [Test]
+    public void TestPhysCollisionSerialize()
+    {
+        bool sameHash = false;
+
+        var tuple1 = world.CreateAABBoxObject(
+            new fp3(0, 10, 0), new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.player
+        );
+        var tuple2 = world.CreateAABBoxObject(
+            new fp3(10, 0, 10), new fp3(1, 2, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.player
+        );
+        CollisionPoints points = new CollisionPoints()
+        {
+            A = new fp3(1, 2, 3),
+            B = new fp3(3, 1, 2),
+            Normal = new fp3(2, 1, 3),
+            DepthSqrd = 30,
+            HasCollision = true
+        };
+
+        PhysCollision start = new PhysCollision()
+        {
+            ObjIdA = tuple1.Item2.InstanceId,
+            ObjIdB = tuple2.Item2.InstanceId,
+            Points = points,
+        };
+        NativeArray<byte> serialized = TestUtils.ToBytes(start);
+
+        try
+        {
+            PhysCollision finish = new PhysCollision();
+            finish = (PhysCollision)TestUtils.FromBytes(serialized, finish);
+            sameHash = start.GetHashCode() == finish.GetHashCode();
+        }
+        finally
+        {
+            // Dispose of the NativeArray when we're done with it
+            if (serialized.IsCreated)
+                serialized.Dispose();
+        }
+
+        // Check hash
+        Assert.IsTrue(sameHash);
     }
 
     [Test]

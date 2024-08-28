@@ -5,17 +5,20 @@ using SepM.Utils;
 
 namespace SepM.Physics{
     public interface Solver{
-        public abstract void Solve(List<PhysCollision> collisions, fp deltaTime);
+        public abstract void Solve(List<PhysCollision> collisions, fp deltaTime, PhysWorld world);
     }
 
     [Serializable]
     public class SmoothPositionSolver : Solver{
-        public void Solve(List<PhysCollision> collisions, fp deltaTime){
+        public void Solve(List<PhysCollision> collisions, fp deltaTime, PhysWorld world){
             List<Tuple<fp3, fp3>> deltas = new List<Tuple<fp3, fp3>>();
 
             foreach (PhysCollision collision in collisions) {
-                PhysObject aBody = collision.ObjA.IsDynamic ? collision.ObjA : null;
-                PhysObject bBody = collision.ObjB.IsDynamic ? collision.ObjB : null;
+                PhysObject aBody = world.FindPhysObjectById(collision.ObjIdA);
+                PhysObject bBody = world.FindPhysObjectById(collision.ObjIdA);
+
+                aBody = aBody.IsDynamic ? aBody : null;
+                bBody = bBody.IsDynamic ? bBody : null;
 
                 // TODO: Handle when they're both 0
                 fp aInvMass = !(aBody is null) ? aBody.InverseMass : 0;
@@ -43,8 +46,11 @@ namespace SepM.Physics{
             }
 
             for (int i = 0; i < collisions.Count; i++) {
-                PhysObject aBody = collisions[i].ObjA.IsDynamic ? collisions[i].ObjA : null;
-                PhysObject bBody = collisions[i].ObjB.IsDynamic ? collisions[i].ObjB : null;
+                PhysObject aBody = world.FindPhysObjectById(collisions[i].ObjIdA);
+                PhysObject bBody = world.FindPhysObjectById(collisions[i].ObjIdA);
+
+                aBody = aBody.IsDynamic ? aBody : null;
+                bBody = bBody.IsDynamic ? bBody : null;
 
                 if (!(aBody is null) ? aBody.IsKinematic : false) {
                     aBody.Transform.Position -= deltas[i].Item1;
@@ -59,12 +65,14 @@ namespace SepM.Physics{
 
     [Serializable]
     public class ImpulseSolver : Solver{
-        public void Solve(List<PhysCollision> collisions, fp deltaTime){
+        public void Solve(List<PhysCollision> collisions, fp deltaTime, PhysWorld world){
             foreach (PhysCollision collision in collisions) {
                 // Replaces non dynamic objects with default values.
+                PhysObject aBody = world.FindPhysObjectById(collision.ObjIdA);
+                PhysObject bBody = world.FindPhysObjectById(collision.ObjIdA);
 
-                PhysObject aBody = collision.ObjA.IsDynamic ? collision.ObjA : null;
-                PhysObject bBody = collision.ObjB.IsDynamic ? collision.ObjB : null;
+                aBody = aBody.IsDynamic ? aBody : null;
+                bBody = bBody.IsDynamic ? bBody : null;
 
                 fp3 aVel = !(aBody is null) ? aBody.Velocity : fp3.zero;
                 fp3 bVel = !(bBody is null) ? bBody.Velocity : fp3.zero;

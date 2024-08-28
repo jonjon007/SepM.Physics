@@ -36,19 +36,50 @@ namespace SepM.Physics{
     }
 
     [Serializable]
-    public struct PhysCollision{
-        public PhysObject ObjA;
-        public PhysObject ObjB;
+    public struct PhysCollision : Serial{
+        public uint ObjIdA;
+        public uint ObjIdB;
         public CollisionPoints Points;
+
+        public void Serialize(BinaryWriter bw)
+        {
+        //ObjIdA
+            bw.Write(ObjIdA);
+        //ObjIdB
+            bw.Write(ObjIdB);
+        //Points
+            Points.Serialize(bw);
+        }
+
+        public void Deserialize(BinaryReader br)
+        {
+        //ObjIdA
+            ObjIdA = br.ReadUInt32();
+        //ObjIdB
+            ObjIdB = br.ReadUInt32();
+        //Points
+            Points.Deserialize(br);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1214587014;
+            hashCode = hashCode * -1521134295 + ObjIdA.GetHashCode();
+            hashCode = hashCode * -1521134295 + ObjIdB.GetHashCode();
+            hashCode = hashCode * -1521134295 + Points.GetHashCode();
+
+            return hashCode;
+        }
     }
 
     [Serializable]
-    public struct CollisionPoints {
+    public struct CollisionPoints : Serial {
         public fp3 A; // Furthest point of A into B
         public fp3 B; // Furthest point of B into A
         public fp3 Normal; // B – A normalized
         public fp DepthSqrd; // Length of B – A
         public bool HasCollision;
+
         public static CollisionPoints noCollision = new CollisionPoints{ 
             A = fp3.zero,
             B = fp3.zero, 
@@ -56,11 +87,61 @@ namespace SepM.Physics{
             DepthSqrd = 0,
             HasCollision = false
         };
+
+        public void Serialize(BinaryWriter bw)
+        {
+        //A
+            bw.WriteFp(A.x);
+            bw.WriteFp(A.y);
+            bw.WriteFp(A.z);
+        //B
+            bw.WriteFp(B.x);
+            bw.WriteFp(B.y);
+            bw.WriteFp(B.z);
+        //Normal
+            bw.WriteFp(Normal.x);
+            bw.WriteFp(Normal.y);
+            bw.WriteFp(Normal.z);
+        //DepthSqrd
+            bw.WriteFp(DepthSqrd);
+        //HasCollision
+            bw.Write(HasCollision);
+        }
+
+        public void Deserialize(BinaryReader br)
+        {
+        //A
+            A.x = br.ReadFp();
+            A.y = br.ReadFp();
+            A.z = br.ReadFp();
+        //B
+            B.x = br.ReadFp();
+            B.y = br.ReadFp();
+            B.z = br.ReadFp();
+        //Normal
+            Normal.x = br.ReadFp();
+            Normal.y = br.ReadFp();
+            Normal.z = br.ReadFp();
+        //DepthSqrd
+            DepthSqrd = br.ReadFp();
+        //HasCollision
+            HasCollision = br.ReadBoolean();
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -1214587014;
+            hashCode = hashCode * -1521134295 + A.GetHashCode();
+            hashCode = hashCode * -1521134295 + B.GetHashCode();
+            hashCode = hashCode * -1521134295 + Normal.GetHashCode();
+            hashCode = hashCode * -1521134295 + DepthSqrd.GetHashCode();
+            hashCode = hashCode * -1521134295 + HasCollision.GetHashCode();
+
+            return hashCode;
+        }
     };
 
-    // TODO: Come up with a better name
     public interface ICollider : Serial {
-        // TODO: May be a good idea to return an int or something. May not be necessary
         public void OnCollision(PhysCollision c);
     }
 

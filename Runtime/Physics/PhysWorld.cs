@@ -14,7 +14,6 @@ namespace SepM.Physics {
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
         public List<Tuple<GameObject, PhysObject>> objectsMap = new List<Tuple<GameObject, PhysObject>>();
-        // TODO: Serialize?
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
         public void Serialize(BinaryWriter bw) {
@@ -23,7 +22,11 @@ namespace SepM.Physics {
             for(int i = 0; i < m_objects.Count; i++)
                 m_objects[i].Serialize(bw);
         //m_solvers
-            // TODO: Serialize? How should we handle serialization of references?
+            // No need to serialize
+        //collisions
+            bw.Write(collisions.Count);
+            for (int i = 0; i < collisions.Count; i++)
+                collisions[i].Serialize(bw);
         //objectsMap
             bw.Write(objectsMap.Count);
             // Write each tuple's GameObject id and PhysObject id???
@@ -33,6 +36,8 @@ namespace SepM.Physics {
                 // Write PhysObject ID
                 bw.Write(objectsMap[i].Item2.InstanceId);
             }
+        //collisionMatrix
+            collisionMatrix.Serialize(bw);
         }
 
         public void Deserialize(BinaryReader br) {
@@ -64,7 +69,20 @@ namespace SepM.Physics {
                 }
             }
         //m_solvers
-            // TODO: Serialize?
+            // Don't serialize
+        //collisions
+            int collisions_count = br.ReadInt32();
+            // Create a new list if the counts aren't the same
+            if (collisions_count != collisions.Count)
+            {
+                collisions = new List<PhysCollision>(new PhysCollision[collisions_count]);
+            }
+            // Read down the data for each object
+            for (int i = 0; i < collisions_count; i++)
+            {
+                collisions[i] = new PhysCollision();
+                collisions[i].Deserialize(br);
+            }
         //objectsMap
             // Get all of the existing game objects in the map
             List<GameObject> old_gos = objectsMap.ConvertAll<GameObject>(t => t.Item1);
@@ -90,6 +108,8 @@ namespace SepM.Physics {
             foreach(GameObject go in old_gos)
                 if (Application.isEditor) GameObject.DestroyImmediate(go);
                 else GameObject.Destroy(go);
+        //collisionMatrix
+            collisionMatrix.Deserialize(br);
         }
 
         private Tuple<GameObject,PhysObject> DeserializeObjectTuple(BinaryReader br, Tuple<GameObject,PhysObject> tup){
@@ -417,8 +437,8 @@ namespace SepM.Physics {
                     if (points.HasCollision) {
                         collisions.Add(
                             new PhysCollision {
-                                ObjA = a,
-                                ObjB = b,
+                                ObjIdA = a.InstanceId,
+                                ObjIdB = b.InstanceId,
                                 Points = points
                             }
                         );
@@ -427,23 +447,34 @@ namespace SepM.Physics {
             }
 
             foreach (Solver solver in m_solvers) {
-                solver.Solve(collisions, dt);
+                solver.Solve(collisions, dt, this);
             }
 
             // Since each pair will be coming twice in opposite order, just run the first OnCollision
             foreach (PhysCollision cp in collisions) {
-                cp.ObjA.OnCollision(cp);
+                PhysObject po = this.FindPhysObjectById(cp.ObjIdA);
+                po.OnCollision(cp);
             }
         }
 
         public override int GetHashCode() {
             int hashCode = -1214587014;
-            //m_objects
+        //m_objects
             foreach (var m_obj in m_objects) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();
             }
-            //objectsMap - only use length; better than nothing
-            hashCode = hashCode * -1521134295 + objectsMap.Count;
+        //collisions
+            foreach (var c in collisions)
+            {
+                hashCode = hashCode * -1521134295 + c.GetHashCode();
+            }
+        //objectsMap
+            foreach (var pair in objectsMap)
+            {
+                hashCode = hashCode * -1521134295 + pair.Item2.GetHashCode();
+            }
+        //collisionMatrix
+            hashCode = hashCode * -1521134295 + collisionMatrix.GetHashCode();
             return hashCode;
         }
     }
