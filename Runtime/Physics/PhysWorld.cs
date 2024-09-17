@@ -202,9 +202,9 @@ namespace SepM.Physics {
         public void AssignGameObject(GameObject gameObj, PhysObject physObj) {
             objectsMap[physObj.InstanceId] = gameObj;
 
-            // TODO: When would this ever happen?
+            // If you're seeing this, find a cleaner way to create your objects.
             if (!m_objects.Contains(physObj)) {
-                Debug.LogError($"m_objects is somehow missing PhysObject from objectsMap with ID of {physObj.InstanceId}!!!");
+                Debug.LogWarning($"m_objects missing PhysObject from objectsMap with ID of {physObj.InstanceId}!\nCreating a new one.");
                 m_objects.Add(physObj);
             }
         }
@@ -253,40 +253,44 @@ namespace SepM.Physics {
             return CreateCapsuleObject(center, r, h, isDyn, isKin, g, Constants.coll_layers.normal, parent);
         }
 
-        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
+        public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null, PhysObject physObj = null) {
             // Set up the collider, the physics object, and the game object
-            GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             // Destroy the default Unity collider
             if (Application.isEditor)
-                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
+                GameObject.DestroyImmediate(gameObj.GetComponent<UnityEngine.CapsuleCollider>());
             else
-                GameObject.Destroy(g_obj.GetComponent<UnityEngine.CapsuleCollider>());
+                GameObject.Destroy(gameObj.GetComponent<UnityEngine.CapsuleCollider>());
             SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h, l);
-            PhysObject p_obj = new PhysObject(center) {
-                IsDynamic = isDyn,
-                IsKinematic = isKin,
-                Gravity = g,
-                Coll = coll
-            };
-            p_obj.Transform.SetParent(parent);
+            if (physObj == null)
+            {
+                physObj = new PhysObject(center)
+                {
+                    IsDynamic = isDyn,
+                    IsKinematic = isKin,
+                    Gravity = g,
+                    Coll = coll
+                };
+
+                // Add to list of the world's physics objects
+                m_objects.Add(physObj);
+            }
+            physObj.Transform.SetParent(parent);
 
             // Update the GameObject
             float capRadius = (float)coll.Radius * 2;
             float capHeight = (float)coll.Height;
 
-            g_obj.transform.localPosition = center.toVector3();
-            g_obj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
+            gameObj.transform.localPosition = center.toVector3();
+            gameObj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
 
 
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(
-                g_obj, p_obj
+                gameObj, physObj
             );
 
-            // Add to list of the world's physics objects
-            m_objects.Add(p_obj);
-
             // Add to the map
-            AssignGameObject(g_obj, p_obj);
+            AssignGameObject(gameObj, physObj);
 
             return result;
         }
@@ -295,36 +299,40 @@ namespace SepM.Physics {
             return CreateAABBoxObject(center, scale, isDyn, isKin, g, Constants.coll_layers.normal, parent);
         }
 
-        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
+        public Tuple<GameObject, PhysObject> CreateAABBoxObject(fp3 center, fp3 scale, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null, PhysObject physObj = null) {
             // Set up the collider, the physics object, and the game object
-            GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             // Destroy the default Unity collider
             if (Application.isEditor)
-                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.BoxCollider>());
+                GameObject.DestroyImmediate(gameObj.GetComponent<UnityEngine.BoxCollider>());
             else
-                GameObject.Destroy(g_obj.GetComponent<UnityEngine.BoxCollider>());
+                GameObject.Destroy(gameObj.GetComponent<UnityEngine.BoxCollider>());
             SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(fp3.zero, scale, true, l);
-            PhysObject p_obj = new PhysObject(center) {
-                IsDynamic = isDyn,
-                IsKinematic = isKin,
-                Gravity = g,
-                Coll = coll
-            };
-            p_obj.Transform.SetParent(parent);
+            if (physObj == null)
+            {
+                physObj = new PhysObject(center)
+                {
+                    IsDynamic = isDyn,
+                    IsKinematic = isKin,
+                    Gravity = g,
+                    Coll = coll
+                };
+
+                // Add to list of the world's physics objects
+                m_objects.Add(physObj);
+            }
+            physObj.Transform.SetParent(parent);
 
             // Update the GameObject
-            g_obj.transform.localPosition = center.toVector3();
-            g_obj.transform.localScale = scale.toVector3();
+            gameObj.transform.localPosition = center.toVector3();
+            gameObj.transform.localScale = scale.toVector3();
 
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(
-                g_obj, p_obj
+                gameObj, physObj
             );
 
-            // Add to list of the world's physics objects
-            m_objects.Add(p_obj);
-
             // Add to the map
-            AssignGameObject(g_obj, p_obj);
+            AssignGameObject(gameObj, physObj);
 
             return result;
         }
