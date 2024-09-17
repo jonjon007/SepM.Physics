@@ -51,14 +51,16 @@ namespace SepM.Physics{
             Points.Serialize(bw);
         }
 
-        public void Deserialize(BinaryReader br)
+        public Serial Deserialize(BinaryReader br)
         {
         //ObjIdA
             ObjIdA = br.ReadUInt32();
         //ObjIdB
             ObjIdB = br.ReadUInt32();
         //Points
-            Points.Deserialize(br);
+            Points = (CollisionPoints)Points.Deserialize(br);
+
+            return this;
         }
 
         public override int GetHashCode()
@@ -108,7 +110,7 @@ namespace SepM.Physics{
             bw.Write(HasCollision);
         }
 
-        public void Deserialize(BinaryReader br)
+        public Serial Deserialize(BinaryReader br)
         {
         //A
             A.x = br.ReadFp();
@@ -126,6 +128,8 @@ namespace SepM.Physics{
             DepthSqrd = br.ReadFp();
         //HasCollision
             HasCollision = br.ReadBoolean();
+
+            return this;
         }
 
         public override int GetHashCode()
@@ -175,7 +179,7 @@ namespace SepM.Physics{
             bw.Write(m_parent_id);
         }
 
-        public void Deserialize(BinaryReader br) {
+        public Serial Deserialize(BinaryReader br) {
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Position
@@ -193,6 +197,8 @@ namespace SepM.Physics{
             Rotation.w = br.ReadFp();
         //m_parent
             m_parent_id = br.ReadUInt32(); // Used in PhysWorld deserialization to tie to parent
+
+            return this;
         }
 
         public override int GetHashCode() {
@@ -289,7 +295,7 @@ namespace SepM.Physics{
 
         public abstract void Serialize(BinaryWriter bw);
 
-        public abstract void Deserialize(BinaryReader br);
+        public abstract Serial Deserialize(BinaryReader br);
 
         public abstract override int GetHashCode();
 
@@ -345,7 +351,7 @@ namespace SepM.Physics{
             bw.WriteFp(Radius);
         }
 
-        public override void Deserialize(BinaryReader br) {
+        public override Serial Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -355,6 +361,8 @@ namespace SepM.Physics{
             Center.z = br.ReadFp();
             //Radius
             Radius = br.ReadFp();
+
+            return this;
         }
 
         public override int GetHashCode() {
@@ -456,7 +464,7 @@ namespace SepM.Physics{
             bw.WriteFp(Direction.z);
         }
 
-        public override void Deserialize(BinaryReader br) {
+        public override Serial Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -472,6 +480,8 @@ namespace SepM.Physics{
             Direction.x = br.ReadFp();
             Direction.y = br.ReadFp();
             Direction.z = br.ReadFp();
+
+            return this;
         }
 
         public override int GetHashCode() {
@@ -626,7 +636,7 @@ namespace SepM.Physics{
             bw.WriteFp(MaxValue.z);
         }
 
-        public override void Deserialize(BinaryReader br) {
+        public override Serial Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -638,6 +648,8 @@ namespace SepM.Physics{
             MaxValue.x = br.ReadFp();
             MaxValue.y = br.ReadFp();
             MaxValue.z = br.ReadFp();
+
+            return this;
         }
 
         public override int GetHashCode() {
@@ -768,7 +780,7 @@ namespace SepM.Physics{
             bw.WriteFp(Distance);
         }
 
-        public override void Deserialize(BinaryReader br) {
+        public override Serial Deserialize(BinaryReader br) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -778,6 +790,8 @@ namespace SepM.Physics{
             Normal.z = br.ReadFp();
         //Distance
             Distance = br.ReadFp();
+
+            return this;
         }
 
         public override int GetHashCode() {
@@ -924,7 +938,7 @@ namespace SepM.Physics{
             //     IColl.Serialize(bw);
         }
 
-        public void Deserialize(BinaryReader br) {
+        public Serial Deserialize(BinaryReader br) {
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Transform
@@ -971,6 +985,8 @@ namespace SepM.Physics{
         //IColl
             // if (!(IColl is null))
             //     IColl.Deserialize(br);
+
+            return this;
         }
 
         public override int GetHashCode() {

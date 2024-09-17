@@ -14,8 +14,8 @@ namespace SepM.Physics{
             List<Tuple<fp3, fp3>> deltas = new List<Tuple<fp3, fp3>>();
 
             foreach (PhysCollision collision in collisions) {
-                PhysObject aBody = world.FindPhysObjectById(collision.ObjIdA);
-                PhysObject bBody = world.FindPhysObjectById(collision.ObjIdA);
+                PhysObject aBody = world.GetPhysObjectById(collision.ObjIdA);
+                PhysObject bBody = world.GetPhysObjectById(collision.ObjIdA);
 
                 aBody = aBody.IsDynamic ? aBody : null;
                 bBody = bBody.IsDynamic ? bBody : null;
@@ -46,8 +46,8 @@ namespace SepM.Physics{
             }
 
             for (int i = 0; i < collisions.Count; i++) {
-                PhysObject aBody = world.FindPhysObjectById(collisions[i].ObjIdA);
-                PhysObject bBody = world.FindPhysObjectById(collisions[i].ObjIdA);
+                PhysObject aBody = world.GetPhysObjectById(collisions[i].ObjIdA);
+                PhysObject bBody = world.GetPhysObjectById(collisions[i].ObjIdB);
 
                 aBody = aBody.IsDynamic ? aBody : null;
                 bBody = bBody.IsDynamic ? bBody : null;
@@ -68,8 +68,8 @@ namespace SepM.Physics{
         public void Solve(List<PhysCollision> collisions, fp deltaTime, PhysWorld world){
             foreach (PhysCollision collision in collisions) {
                 // Replaces non dynamic objects with default values.
-                PhysObject aBody = world.FindPhysObjectById(collision.ObjIdA);
-                PhysObject bBody = world.FindPhysObjectById(collision.ObjIdA);
+                PhysObject aBody = world.GetPhysObjectById(collision.ObjIdA);
+                PhysObject bBody = world.GetPhysObjectById(collision.ObjIdB);
 
                 aBody = aBody.IsDynamic ? aBody : null;
                 bBody = bBody.IsDynamic ? bBody : null;

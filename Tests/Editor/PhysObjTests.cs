@@ -178,8 +178,6 @@ partial class PhysObjTests
     [Test]
     public void TestWorldSerialize(){
         bool sameHash = false;
-        List<Tuple<int, uint>> objsMapIds = new List<Tuple<int, uint>>();
-        List<PhysTransform> wFinishTransforms = new List<PhysTransform>();
 
         PhysObject.CurrentInstanceId = 0; // Reset instance id sequence
         PhysTransform.CurrentInstanceId = 1; // Reset instance id sequence
@@ -190,10 +188,6 @@ partial class PhysObjTests
             PhysWorld wFinish = new PhysWorld();
             FromBytes(seriWorld, wFinish);
             sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
-            objsMapIds = wFinish.objectsMap.Select(t =>
-                new Tuple<int, uint>(t.Item1.GetInstanceID(), t.Item2.InstanceId)
-            ).ToList();
-            wFinishTransforms = wFinish.objectsMap.Select(t => t.Item2.Transform).ToList();
         }
         finally{
             // Dispose of the NativeArray when we're done with it
@@ -203,13 +197,6 @@ partial class PhysObjTests
 
         // Check hash
         Assert.IsTrue(sameHash);
-        // Check instance ids
-        Assert.AreEqual(0, objsMapIds[0].Item2);
-        Assert.AreEqual(1, objsMapIds[1].Item2);
-        Assert.AreEqual(2, objsMapIds[2].Item2);
-        Assert.AreEqual(0, wFinishTransforms[0].m_parent_id);
-        Assert.AreEqual(1, wFinishTransforms[1].m_parent_id);
-        Assert.AreEqual(0, wFinishTransforms[2].m_parent_id);
     }
 
     [Test]

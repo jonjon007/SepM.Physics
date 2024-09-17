@@ -13,7 +13,7 @@ namespace SepM.Physics {
         private List<PhysObject> m_objects = new List<PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
-        public List<Tuple<GameObject, PhysObject>> objectsMap = new List<Tuple<GameObject, PhysObject>>();
+        public Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
         public void Serialize(BinaryWriter bw) {
@@ -29,30 +29,31 @@ namespace SepM.Physics {
                 collisions[i].Serialize(bw);
         //objectsMap
             bw.Write(objectsMap.Count);
-            // Write each tuple's GameObject id and PhysObject id???
-            for(int i = 0; i < objectsMap.Count; i++){
-                // Write GameObject ID
-                bw.Write(objectsMap[i].Item1.GetInstanceID());
+            // Write each tuple's PhysObject id and GameObject id
+            List<uint> mapKeys = objectsMap.Keys.ToList();
+            // Sort for deterministic ordering
+            mapKeys.Sort();
+            foreach(uint id in mapKeys){
                 // Write PhysObject ID
-                bw.Write(objectsMap[i].Item2.InstanceId);
+                bw.Write(id);
+                // Write GameObject ID
+                bw.Write(objectsMap[id].GetInstanceID());
             }
         //collisionMatrix
             collisionMatrix.Serialize(bw);
         }
 
-        public void Deserialize(BinaryReader br) {
+        public Serial Deserialize(BinaryReader br) {
         //m_objects
-            // Get all the existing physObject ids
-            List<uint> old_po_instance_ids = objectsMap.ConvertAll<uint>(t => t.Item2.InstanceId);
-
             int m_objects_length = br.ReadInt32();
-            // Create a new list if the counts aren't the same
             if (m_objects_length != m_objects.Count) {
+            // Create a new list if the counts aren't the same
                 m_objects = new List<PhysObject>(new PhysObject[m_objects_length]);
+                for (int i = 0; i < m_objects_length; i++)
+                    m_objects[i] = new PhysObject();
             }
             // Read down the data for each object
             for(int i = 0; i < m_objects_length; i++){
-                if(m_objects[i] is null) m_objects[i] = new PhysObject();
                 m_objects[i].Deserialize(br);
             }
             // Assign each object's Transform's parents; may be a bit slow
@@ -80,60 +81,43 @@ namespace SepM.Physics {
             // Read down the data for each object
             for (int i = 0; i < collisions_count; i++)
             {
-                collisions[i] = new PhysCollision();
-                collisions[i].Deserialize(br);
+                collisions[i] = (PhysCollision)collisions[i].Deserialize(br);
             }
         //objectsMap
-            // Get all of the existing game objects in the map
-            List<GameObject> old_gos = objectsMap.ConvertAll<GameObject>(t => t.Item1);
-            List<int> old_instance_ids = objectsMap.ConvertAll<int>(t => t.Item1.GetInstanceID());
-
             int objectsMapLength = br.ReadInt32();
-            // Create a new list if the counts aren't the same
-            if (objectsMapLength != objectsMap.Count) {
-                objectsMap = new List<Tuple<GameObject, PhysObject>>(new Tuple<GameObject, PhysObject>[objectsMapLength]);
-            }
+            // Keep track of current GameObjects
+            var oldGameObjects = objectsMap.Values;
+            // Create a new map to populate
+            objectsMap = new Dictionary<uint, GameObject>();
             // Read down the data for each object
-            for(int i = 0; i < objectsMapLength; i++){
-                // Deserialize object first; don't create a blank one needlessly
-                objectsMap[i] = DeserializeObjectTuple(br, objectsMap[i]);
-                // Find in list
-                int objIndex = objectsMap.FindIndex(t => old_instance_ids.Contains(objectsMap[i].Item1.GetInstanceID()));
-                // We can confirm that this object still exists, so we won't need to destroy it
-                if(objIndex != -1)
-                    old_gos.RemoveAt(objIndex);
+            for (int i = 0; i < objectsMapLength; i++) {
+                uint poId = br.ReadUInt32();
+                int goId = br.ReadInt32();
+                GameObject go = FindGameObjectById(goId);
+                if (go is null)
+                {
+                    // TODO: Create the right kind of object
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                }
+                objectsMap.Add(poId, go);
             }
+
+            var orphanedGameObjects = oldGameObjects.Except(objectsMap.Values);
 
             // Destroy any old game objects
-            foreach(GameObject go in old_gos)
+            foreach (GameObject go in orphanedGameObjects)
+            {
+                Debug.LogWarning($"Found orphaned GameObject with ID {go.GetInstanceID()}");
                 if (Application.isEditor) GameObject.DestroyImmediate(go);
                 else GameObject.Destroy(go);
+            }
         //collisionMatrix
             collisionMatrix.Deserialize(br);
+
+            return this;
         }
 
-        private Tuple<GameObject,PhysObject> DeserializeObjectTuple(BinaryReader br, Tuple<GameObject,PhysObject> tup){
-            // Find/replace GameObject with ID
-            int goId = br.ReadInt32();
-            GameObject go = null;
-            // TODO: This could be incredibly slow...
-            // GameObject.FindObjects
-            go = FindGameObjectById(goId);
-            if(go is null){
-                // TODO: Create the right kind of object
-                go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            }
-
-            // Find PhysObject ID
-            uint poId = br.ReadUInt32();
-            PhysObject po = FindPhysObjectById(poId);
-
-            // Return the result
-            Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(go, po);
-            return result;
-        }
-
-        public PhysObject FindPhysObjectById(uint instanceId){
+        public PhysObject GetPhysObjectById(uint instanceId){
             foreach(PhysObject p in m_objects)
                 if(p.InstanceId == instanceId){
                     return p;
@@ -190,22 +174,24 @@ namespace SepM.Physics {
         public void CleanUp(PhysObject[] p = null) {
             if(p == null){
                 // Clear everything
-                if (Application.isEditor) objectsMap.ForEach(t => GameObject.DestroyImmediate(t.Item1));
-                else objectsMap.ForEach(t => GameObject.Destroy(t.Item1));
+                if (Application.isEditor) objectsMap.Values.ToList().ForEach(go => GameObject.DestroyImmediate(go));
+                else objectsMap.Values.ToList().ForEach(go => GameObject.Destroy(go));
 
                 objectsMap.Clear();
                 m_objects.Clear();
             }
             else if(p.Length > 0){
                 // Clear the given physObjects
-                List<Tuple<GameObject, PhysObject>> tuplesToClean = objectsMap.Where(o => p.Contains(o.Item2)).ToList();
+                var physObjectIds = p.Select(p => p.InstanceId);
+                var kvpsToClean = objectsMap.Where(kvp => physObjectIds.Contains(kvp.Key)).ToList();
 
-                if (Application.isEditor) tuplesToClean.ForEach(t => GameObject.DestroyImmediate(t.Item1));
-                else tuplesToClean.ForEach(t => GameObject.Destroy(t.Item1));
+                if (Application.isEditor) kvpsToClean.ForEach(kvp => GameObject.DestroyImmediate(kvp.Value));
+                else kvpsToClean.ForEach(kvp => GameObject.Destroy(kvp.Value));
 
-                tuplesToClean.ForEach(t => {
-                    objectsMap.Remove(t);
-                    m_objects.Remove(t.Item2);
+                kvpsToClean.ForEach(kvp => {
+                    objectsMap.Remove(kvp.Key);
+                    var physObjToRemove = m_objects.First(k => k.InstanceId == kvp.Key);
+                    m_objects.Remove(physObjToRemove);
                     });
             }
 
@@ -213,21 +199,13 @@ namespace SepM.Physics {
             // m_solvers.Clear();
         }
 
-        // TODO: Do we need both the tuples and the list?
-        public void AssignGameObject(GameObject g_o, PhysObject p_o) {
-            int existingIndex = objectsMap.FindIndex(t => t.Item2 == p_o);
+        public void AssignGameObject(GameObject gameObj, PhysObject physObj) {
+            objectsMap[physObj.InstanceId] = gameObj;
 
-            // If not in the list, create a new value
-            if (existingIndex == -1) {
-                objectsMap.Add(new Tuple<GameObject, PhysObject>(g_o, p_o));
-            }
-            // If in the list, replace
-            else {
-                objectsMap[existingIndex] = new Tuple<GameObject, PhysObject>(g_o, p_o);
-            }
-
-            if (!m_objects.Contains(p_o)) {
-                m_objects.Add(p_o);
+            // TODO: When would this ever happen?
+            if (!m_objects.Contains(physObj)) {
+                Debug.LogError($"m_objects is somehow missing PhysObject from objectsMap with ID of {physObj.InstanceId}!!!");
+                m_objects.Add(physObj);
             }
         }
 
@@ -408,9 +386,9 @@ namespace SepM.Physics {
         // Call with regular Unity Update()
         public void UpdateGameObjects() {
             // Update GameObjects
-            foreach (Tuple<GameObject, PhysObject> mapTuple in objectsMap) {
-                GameObject gameObject = mapTuple.Item1;
-                PhysObject physObject = mapTuple.Item2;
+            foreach (var k in objectsMap.Keys) {
+                PhysObject physObject = GetPhysObjectById(k);
+                GameObject gameObject = objectsMap[k];
                 gameObject.transform.position = physObject.Transform.WorldPosition().toVector3();
                 gameObject.transform.rotation = physObject.Transform.WorldRotation();
             }
@@ -422,7 +400,6 @@ namespace SepM.Physics {
             // TODO: Work on that efficiency
             foreach (PhysObject a in m_objects) {
                 foreach (PhysObject b in m_objects) {
-                    // TODO: Should we be breaking or continuing?
                     if (a == b) continue;
                     // Check if a collider is assigned
                     if (a.Coll is null || b.Coll is null) continue;
@@ -452,7 +429,7 @@ namespace SepM.Physics {
 
             // Since each pair will be coming twice in opposite order, just run the first OnCollision
             foreach (PhysCollision cp in collisions) {
-                PhysObject po = this.FindPhysObjectById(cp.ObjIdA);
+                PhysObject po = this.GetPhysObjectById(cp.ObjIdA);
                 po.OnCollision(cp);
             }
         }
@@ -469,9 +446,9 @@ namespace SepM.Physics {
                 hashCode = hashCode * -1521134295 + c.GetHashCode();
             }
         //objectsMap
-            foreach (var pair in objectsMap)
+            foreach (var k in objectsMap.Keys)
             {
-                hashCode = hashCode * -1521134295 + pair.Item2.GetHashCode();
+                hashCode = hashCode * -1521134295 + k.GetHashCode();
             }
         //collisionMatrix
             hashCode = hashCode * -1521134295 + collisionMatrix.GetHashCode();

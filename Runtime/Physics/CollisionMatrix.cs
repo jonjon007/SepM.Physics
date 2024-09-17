@@ -44,7 +44,7 @@ public class CollisionMatrix : Serial
             }
         }
 
-        public void Deserialize(BinaryReader br)
+        public Serial Deserialize(BinaryReader br)
         {
         //matrix
             int matrix_len = br.ReadInt32();
@@ -63,6 +63,8 @@ public class CollisionMatrix : Serial
                     matrix[i][j] = br.ReadBoolean();
                 }
             }
+
+            return this;
         }
 
         public override int GetHashCode()

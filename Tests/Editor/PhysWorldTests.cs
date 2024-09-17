@@ -40,6 +40,24 @@ public class PhysWorldTests : MonoBehaviour
         objTupleChildDisappear.Item2.Transform.SetParent(objTupleParent.Item2.Transform);
         objTupleChildDisappear.Item1.transform.SetParent(objTupleParent.Item1.transform);
 
+        CollisionPoints points = new CollisionPoints()
+        {
+            A = new fp3(1, 2, 3),
+            B = new fp3(3, 1, 2),
+            Normal = new fp3(2, 1, 3),
+            DepthSqrd = 30,
+            HasCollision = true
+        };
+
+        PhysCollision collision = new PhysCollision()
+        {
+            ObjIdA = objTupleChildPersist.Item2.InstanceId,
+            ObjIdB = objTupleParent.Item2.InstanceId,
+            Points = points,
+        };
+
+        start.collisions.Add(collision);
+
         NativeArray<byte> serialized = TestUtils.ToBytes(start);
 
         // Then delete the disappear's gameobject
