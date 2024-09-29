@@ -16,107 +16,6 @@ namespace SepM.Physics {
         public Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
-        public void Serialize(BinaryWriter bw) {
-        //m_objects
-            bw.Write(m_objects.Count);
-            for(int i = 0; i < m_objects.Count; i++)
-                m_objects[i].Serialize(bw);
-        //m_solvers
-            // No need to serialize
-        //collisions
-            bw.Write(collisions.Count);
-            for (int i = 0; i < collisions.Count; i++)
-                collisions[i].Serialize(bw);
-        //objectsMap
-            bw.Write(objectsMap.Count);
-            // Write each tuple's PhysObject id and GameObject id
-            List<uint> mapKeys = objectsMap.Keys.ToList();
-            // Sort for deterministic ordering
-            mapKeys.Sort();
-            foreach(uint id in mapKeys){
-                // Write PhysObject ID
-                bw.Write(id);
-                // Write GameObject ID
-                bw.Write(objectsMap[id].GetInstanceID());
-            }
-        //collisionMatrix
-            collisionMatrix.Serialize(bw);
-        }
-
-        public Serial Deserialize(BinaryReader br) {
-        //m_objects
-            int m_objects_length = br.ReadInt32();
-            if (m_objects_length != m_objects.Count) {
-            // Create a new list if the counts aren't the same
-                m_objects = new List<PhysObject>(new PhysObject[m_objects_length]);
-                for (int i = 0; i < m_objects_length; i++)
-                    m_objects[i] = new PhysObject();
-            }
-            // Read down the data for each object
-            for(int i = 0; i < m_objects_length; i++){
-                m_objects[i].Deserialize(br);
-            }
-            // Assign each object's Transform's parents; may be a bit slow
-            {
-                PhysTransform[] transforms = m_objects.Select(o => o.Transform).ToArray();
-                foreach(PhysTransform t in transforms){
-                    if(t.m_parent_id != 0){
-                        PhysTransform parentFound = transforms.FirstOrDefault(other => other.InstanceId == t.m_parent_id);
-                        if(parentFound != null)
-                            t.SetParent(parentFound);
-                        else
-                            Debug.LogError($"Can't find PhysTransform parent with ID: {t.InstanceId}!");
-                    }
-                }
-            }
-        //m_solvers
-            // Don't serialize
-        //collisions
-            int collisions_count = br.ReadInt32();
-            // Create a new list if the counts aren't the same
-            if (collisions_count != collisions.Count)
-            {
-                collisions = new List<PhysCollision>(new PhysCollision[collisions_count]);
-            }
-            // Read down the data for each object
-            for (int i = 0; i < collisions_count; i++)
-            {
-                collisions[i] = (PhysCollision)collisions[i].Deserialize(br);
-            }
-        //objectsMap
-            int objectsMapLength = br.ReadInt32();
-            // Keep track of current GameObjects
-            var oldGameObjects = objectsMap.Values;
-            // Create a new map to populate
-            objectsMap = new Dictionary<uint, GameObject>();
-            // Read down the data for each object
-            for (int i = 0; i < objectsMapLength; i++) {
-                uint poId = br.ReadUInt32();
-                int goId = br.ReadInt32();
-                GameObject go = FindGameObjectById(goId);
-                if (go is null)
-                {
-                    // TODO: Create the right kind of object
-                    go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                }
-                objectsMap.Add(poId, go);
-            }
-
-            var orphanedGameObjects = oldGameObjects.Except(objectsMap.Values);
-
-            // Destroy any old game objects
-            foreach (GameObject go in orphanedGameObjects)
-            {
-                Debug.LogWarning($"Found orphaned GameObject with ID {go.GetInstanceID()}");
-                if (Application.isEditor) GameObject.DestroyImmediate(go);
-                else GameObject.Destroy(go);
-            }
-        //collisionMatrix
-            collisionMatrix.Deserialize(br);
-
-            return this;
-        }
-
         public PhysObject GetPhysObjectById(uint instanceId){
             foreach(PhysObject p in m_objects)
                 if(p.InstanceId == instanceId){
@@ -442,8 +341,126 @@ namespace SepM.Physics {
             }
         }
 
+        public void Serialize(BinaryWriter bw)
+        {
+        //physObject and physTransform IDs
+            bw.Write(PhysObject.CurrentInstanceId);
+            bw.Write(PhysTransform.CurrentInstanceId);
+        //m_objects
+            bw.Write(m_objects.Count);
+            for (int i = 0; i < m_objects.Count; i++)
+                m_objects[i].Serialize(bw);
+        //m_solvers
+            // No need to serialize
+        //collisions
+            bw.Write(collisions.Count);
+            for (int i = 0; i < collisions.Count; i++)
+                collisions[i].Serialize(bw);
+        //objectsMap
+            bw.Write(objectsMap.Count);
+            // Write each tuple's PhysObject id and GameObject id
+            List<uint> mapKeys = objectsMap.Keys.ToList();
+            // Sort for deterministic ordering
+            mapKeys.Sort();
+            foreach (uint id in mapKeys)
+            {
+                // Write PhysObject ID
+                bw.Write(id);
+                // Write GameObject ID
+                bw.Write(objectsMap[id].GetInstanceID());
+            }
+        //collisionMatrix
+            collisionMatrix.Serialize(bw);
+        }
+
+        public Serial Deserialize(BinaryReader br)
+        {
+        //physObject and physTransform IDs
+            PhysObject.CurrentInstanceId = br.ReadUInt32();
+            PhysTransform.CurrentInstanceId = br.ReadUInt32();
+        //m_objects
+            int m_objects_length = br.ReadInt32();
+            if (m_objects_length != m_objects.Count)
+            {
+                // Create a new list if the counts aren't the same
+                m_objects = new List<PhysObject>(new PhysObject[m_objects_length]);
+                for (int i = 0; i < m_objects_length; i++)
+                    m_objects[i] = new PhysObject();
+            }
+            // Read down the data for each object
+            for (int i = 0; i < m_objects_length; i++)
+            {
+                m_objects[i].Deserialize(br);
+            }
+            // Assign each object's Transform's parents; may be a bit slow
+            {
+                PhysTransform[] transforms = m_objects.Select(o => o.Transform).ToArray();
+                foreach (PhysTransform t in transforms)
+                {
+                    if (t.m_parent_id != 0)
+                    {
+                        PhysTransform parentFound = transforms.FirstOrDefault(other => other.InstanceId == t.m_parent_id);
+                        if (parentFound != null)
+                            t.SetParent(parentFound);
+                        else
+                            Debug.LogError($"Can't find PhysTransform parent with ID: {t.InstanceId}!");
+                    }
+                }
+            }
+        //m_solvers
+            // Don't serialize
+        //collisions
+            int collisions_count = br.ReadInt32();
+            // Create a new list if the counts aren't the same
+            if (collisions_count != collisions.Count)
+            {
+                collisions = new List<PhysCollision>(new PhysCollision[collisions_count]);
+            }
+            // Read down the data for each object
+            for (int i = 0; i < collisions_count; i++)
+            {
+                collisions[i] = (PhysCollision)collisions[i].Deserialize(br);
+            }
+        //objectsMap
+            int objectsMapLength = br.ReadInt32();
+            // Keep track of current GameObjects
+            var oldGameObjects = objectsMap.Values;
+            // Create a new map to populate
+            objectsMap = new Dictionary<uint, GameObject>();
+            // Read down the data for each object
+            for (int i = 0; i < objectsMapLength; i++)
+            {
+                uint poId = br.ReadUInt32();
+                int goId = br.ReadInt32();
+                GameObject go = FindGameObjectById(goId);
+                if (go is null)
+                {
+                    // TODO: Create the right kind of object
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                }
+                objectsMap.Add(poId, go);
+            }
+
+            var orphanedGameObjects = oldGameObjects.Except(objectsMap.Values);
+
+            // Destroy any old game objects
+            foreach (GameObject go in orphanedGameObjects)
+            {
+                Debug.LogWarning($"Found orphaned GameObject with ID {go.GetInstanceID()}");
+                if (Application.isEditor) GameObject.DestroyImmediate(go);
+                else GameObject.Destroy(go);
+            }
+        //collisionMatrix
+            collisionMatrix.Deserialize(br);
+
+            return this;
+        }
+
         public override int GetHashCode() {
             int hashCode = -1214587014;
+        //physObject and physTransform IDs
+            hashCode = hashCode * -1521134295 + PhysObject.CurrentInstanceId.GetHashCode();
+            hashCode = hashCode * -1521134295 + PhysTransform.CurrentInstanceId.GetHashCode();
         //m_objects
             foreach (var m_obj in m_objects) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();

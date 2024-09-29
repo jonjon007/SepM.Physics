@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 using SepM.Utils;
-using SepM.Math;
 using SepM.Serialization;
 using System;
 using System.IO;
@@ -147,145 +146,6 @@ namespace SepM.Physics{
 
     public interface ICollider : Serial {
         public void OnCollision(PhysCollision c);
-    }
-
-    [Serializable]
-    public class PhysTransform : Serial { // Describes an objects location
-        public static uint CurrentInstanceId = 1; //Incrementing static PhysTransform counter
-        public uint InstanceId; // UUID for object
-        public fp3 Position;
-        public fp3 Scale;
-        public fpq Rotation;
-        private PhysTransform m_parent;
-        public uint m_parent_id = 0;
-
-        public void Serialize(BinaryWriter bw) {
-        //InstanceId
-            bw.Write(InstanceId);
-        //Position
-            bw.WriteFp(Position.x);
-            bw.WriteFp(Position.y);
-            bw.WriteFp(Position.z);
-        //Scale
-            bw.WriteFp(Scale.x);
-            bw.WriteFp(Scale.y);
-            bw.WriteFp(Scale.z);
-        //Rotation
-            bw.WriteFp(Rotation.x);
-            bw.WriteFp(Rotation.y);
-            bw.WriteFp(Rotation.z);
-            bw.WriteFp(Rotation.w);
-        //m_parent
-            bw.Write(m_parent_id);
-        }
-
-        public Serial Deserialize(BinaryReader br) {
-        //InstanceId
-            InstanceId = br.ReadUInt32();
-        //Position
-            Position.x = br.ReadFp();
-            Position.y = br.ReadFp();
-            Position.z = br.ReadFp();
-        //Scale
-            Scale.x = br.ReadFp();
-            Scale.y = br.ReadFp();
-            Scale.z = br.ReadFp();
-        //Rotation
-            Rotation.x = br.ReadFp();
-            Rotation.y = br.ReadFp();
-            Rotation.z = br.ReadFp();
-            Rotation.w = br.ReadFp();
-        //m_parent
-            m_parent_id = br.ReadUInt32(); // Used in PhysWorld deserialization to tie to parent
-
-            return this;
-        }
-
-        public override int GetHashCode() {
-            int hashCode = 1858537542;
-            hashCode = hashCode * -1521134295 + InstanceId.GetHashCode();
-            hashCode = hashCode * -1521134295 + Position.GetHashCode();
-            hashCode = hashCode * -1521134295 + Scale.GetHashCode();
-            hashCode = hashCode * -1521134295 + Rotation.GetHashCode();
-            hashCode = hashCode * -1521134295 + m_parent_id.GetHashCode();
-            return hashCode;
-        }
-
-        // TODO: Find a way to serialize this without depth limit issues!
-        // private List<PhysTransform> m_children;
-        public PhysTransform(PhysTransform parent = null){
-            InstanceId = PhysTransform.CurrentInstanceId++;
-            Position = fp3.zero;
-            Scale = new fp3(1,1,1);
-            Rotation = fpq.identity;
-            SetParent(parent);
-            //m_children = new List<PhysTransform>();
-        }
-        public PhysTransform(fp3 p, PhysTransform parent = null){
-            InstanceId = PhysTransform.CurrentInstanceId++;
-            Position = p;
-            Scale = new fp3(1,1,1);
-            Rotation = fpq.identity;
-            SetParent(parent);
-            //m_children = new List<PhysTransform>();
-        }
-
-        public fp3 Right(){
-            return new fp3(1,0,0).multiply(Rotation);
-        }
-
-        public fp3 Forward(){
-            return new fp3(0,0,1).multiply(Rotation);
-        }
-
-        public fp3 Up(){
-            return new fp3(0,1,0).multiply(Rotation);
-        }
-
-        /* TODO: Comment */
-        public fp3 WorldPosition(){
-            if (!(m_parent is null)) {
-                return m_parent.WorldPosition() + Position.multiply(m_parent.Rotation);
-            }
-
-            return Position;
-
-
-        }
-        public fpq WorldRotation(){            
-            fpq parentRot = fpq.identity;
-
-            if (!(m_parent is null)) {
-                parentRot = m_parent.WorldRotation();
-            }
-
-            return Rotation.multiply(parentRot);
-        }
-        /* TODO: Comment */
-        public fp3 WorldScale(){
-            fp3 parentScale = new fp3(1,1,1);
-
-            if (!(m_parent is null)) {
-                parentScale = m_parent.WorldScale();
-            }
-
-            return Scale * parentScale;
-        }
-
-        public void Rotate(fp3 eulers){
-            fpq eulerRot = eulers.toQuaternionFromDegrees();
-            Rotation = Rotation.multiply(eulerRot);
-        }
-
-        public void Rotate(fp x, fp y, fp z){
-            Rotate(new fp3(x,y,z));
-        }
-
-        public void SetParent(PhysTransform t){
-            m_parent = t;
-            if(t != null)
-                m_parent_id = t.InstanceId;
-        }
     }
 
     [Serializable]
@@ -891,121 +751,6 @@ namespace SepM.Physics{
         public bool IsDynamic = false;
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
-        public void Serialize(BinaryWriter bw) {
-        //InstanceId
-            bw.Write(InstanceId);
-        //PhysTransform
-            Transform.Serialize(bw);
-        //Velocity
-            bw.WriteFp(Velocity.x);
-            bw.WriteFp(Velocity.y);
-            bw.WriteFp(Velocity.z);
-         //Gravity
-            bw.WriteFp(Gravity.x);
-            bw.WriteFp(Gravity.y);
-            bw.WriteFp(Gravity.z);
-        //Force
-            bw.WriteFp(Force.x);
-            bw.WriteFp(Force.y);
-            bw.WriteFp(Force.z);
-        //InverseMass
-            bw.WriteFp(InverseMass);
-        //IsKinematic
-            bw.Write(IsKinematic);
-        //Restitution
-            bw.WriteFp(Restitution);
-        //DynamicFriction
-            bw.WriteFp(DynamicFriction);
-        //StaticFriction
-            bw.WriteFp(StaticFriction);
-        //Coll
-            // Write the kind of collider, or none if one doesn't exist
-            if(Coll is null){
-                //Collider Type (read as an int)
-                bw.Write((int)Constants.coll_types.none);
-            }
-            else{
-                //Collider Type (read as an int)
-                bw.Write((int)Coll.Type);
-                // Then serialize the collider
-                Coll.Serialize(bw);
-            }
-        //IsDynamic
-            bw.Write(IsDynamic);
-        //IColl
-            // TODO: Figure out references
-            // if (!(IColl is null))
-            //     IColl.Serialize(bw);
-        }
-
-        public Serial Deserialize(BinaryReader br) {
-        //InstanceId
-            InstanceId = br.ReadUInt32();
-        //Transform
-            Transform.Deserialize(br);
-        //Velocity
-            Velocity.x = br.ReadFp();
-            Velocity.y = br.ReadFp();
-            Velocity.z = br.ReadFp();
-        //Gravity
-            Gravity.x = br.ReadFp();
-            Gravity.y = br.ReadFp();
-            Gravity.z = br.ReadFp();
-        //Force
-            Force.x = br.ReadFp();
-            Force.y = br.ReadFp();
-            Force.z = br.ReadFp();
-        //InverseMass
-            InverseMass = br.ReadFp();
-        //IsKinematic
-            IsKinematic = br.ReadBoolean();
-        //Restitution
-            Restitution = br.ReadFp();
-        //DynamicFriction
-            DynamicFriction = br.ReadFp();
-        //StaticFriction
-            StaticFriction = br.ReadFp();
-        //Coll
-            // Get the kind of collider, or none if one didn't exist
-            Constants.coll_types collType = (Constants.coll_types)br.ReadInt32();
-            if(collType != Constants.coll_types.none){
-                // Create a new collider
-                if(collType == Constants.coll_types.sphere) Coll = new SphereCollider();
-                else if(collType == Constants.coll_types.capsule) Coll = new CapsuleCollider();
-                else if(collType == Constants.coll_types.aabb) Coll = new AABBoxCollider();
-                else{
-                    Debug.LogWarning("No valid collider type found! Defaulting to SphereCollider!");
-                     Coll = new SphereCollider();
-                }
-                // Then deserialize it
-                Coll.Deserialize(br);
-            }
-        //IsDynamic
-            IsDynamic = br.ReadBoolean();
-        //IColl
-            // if (!(IColl is null))
-            //     IColl.Deserialize(br);
-
-            return this;
-        }
-
-        public override int GetHashCode() {
-            int hashCode = 1858597544;
-            // Don't account for InstanceId, as this can change
-            hashCode = hashCode * -1521134295 + Transform.GetHashCode();
-            hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
-            hashCode = hashCode * -1521134295 + Gravity.GetHashCode();
-            hashCode = hashCode * -1521134295 + Force.GetHashCode();
-            hashCode = hashCode * -1521134295 + InverseMass.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsKinematic.GetHashCode();
-            hashCode = hashCode * -1521134295 + Restitution.GetHashCode();
-            hashCode = hashCode * -1521134295 + DynamicFriction.GetHashCode();
-            hashCode = hashCode * -1521134295 + StaticFriction.GetHashCode();
-            if (!(Coll is null)) hashCode = hashCode * -1521134295 + Coll.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsDynamic.GetHashCode();
-            return hashCode;
-        }
-
         public PhysObject(){
             InstanceId = PhysObject.CurrentInstanceId++;
             Transform = new PhysTransform();
@@ -1027,7 +772,6 @@ namespace SepM.Physics{
             InstanceId = PhysObject.CurrentInstanceId++;
             PhysTransform newTransform = new PhysTransform();
             newTransform.Position = pos;
-            
             Transform = newTransform;
             Velocity = new fp3();
             Force = new fp3();
@@ -1077,7 +821,128 @@ namespace SepM.Physics{
             string result = collType + "PhysObject";
 
             return result;
+        }
 
+        public void Serialize(BinaryWriter bw)
+        {
+        //InstanceId
+            bw.Write(InstanceId);
+        //PhysTransform
+            Transform.Serialize(bw);
+        //Velocity
+            bw.WriteFp(Velocity.x);
+            bw.WriteFp(Velocity.y);
+            bw.WriteFp(Velocity.z);
+        //Gravity
+            bw.WriteFp(Gravity.x);
+            bw.WriteFp(Gravity.y);
+            bw.WriteFp(Gravity.z);
+        //Force
+            bw.WriteFp(Force.x);
+            bw.WriteFp(Force.y);
+            bw.WriteFp(Force.z);
+        //InverseMass
+            bw.WriteFp(InverseMass);
+        //IsKinematic
+            bw.Write(IsKinematic);
+        //Restitution
+            bw.WriteFp(Restitution);
+        //DynamicFriction
+            bw.WriteFp(DynamicFriction);
+        //StaticFriction
+            bw.WriteFp(StaticFriction);
+        //Coll
+            // Write the kind of collider, or none if one doesn't exist
+            if (Coll is null)
+            {
+                //Collider Type (read as an int)
+                bw.Write((int)Constants.coll_types.none);
+            }
+            else
+            {
+                //Collider Type (read as an int)
+                bw.Write((int)Coll.Type);
+                // Then serialize the collider
+                Coll.Serialize(bw);
+            }
+        //IsDynamic
+            bw.Write(IsDynamic);
+        //IColl
+            // TODO: Figure out references
+            // if (!(IColl is null))
+            //     IColl.Serialize(bw);
+        }
+
+        public Serial Deserialize(BinaryReader br)
+        {
+        //InstanceId
+            InstanceId = br.ReadUInt32();
+        //Transform
+            Transform.Deserialize(br);
+        //Velocity
+            Velocity.x = br.ReadFp();
+            Velocity.y = br.ReadFp();
+            Velocity.z = br.ReadFp();
+        //Gravity
+            Gravity.x = br.ReadFp();
+            Gravity.y = br.ReadFp();
+            Gravity.z = br.ReadFp();
+        //Force
+            Force.x = br.ReadFp();
+            Force.y = br.ReadFp();
+            Force.z = br.ReadFp();
+        //InverseMass
+            InverseMass = br.ReadFp();
+        //IsKinematic
+            IsKinematic = br.ReadBoolean();
+        //Restitution
+            Restitution = br.ReadFp();
+        //DynamicFriction
+            DynamicFriction = br.ReadFp();
+        //StaticFriction
+            StaticFriction = br.ReadFp();
+        //Coll
+            // Get the kind of collider, or none if one didn't exist
+            Constants.coll_types collType = (Constants.coll_types)br.ReadInt32();
+            if (collType != Constants.coll_types.none)
+            {
+                // Create a new collider
+                if (collType == Constants.coll_types.sphere) Coll = new SphereCollider();
+                else if (collType == Constants.coll_types.capsule) Coll = new CapsuleCollider();
+                else if (collType == Constants.coll_types.aabb) Coll = new AABBoxCollider();
+                else
+                {
+                    Debug.LogWarning("No valid collider type found! Defaulting to SphereCollider!");
+                    Coll = new SphereCollider();
+                }
+                // Then deserialize it
+                Coll.Deserialize(br);
+            }
+        //IsDynamic
+            IsDynamic = br.ReadBoolean();
+        //IColl
+            // if (!(IColl is null))
+            //     IColl.Deserialize(br);
+
+            return this;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1858597544;
+            hashCode = hashCode * -1521134295 + InstanceId.GetHashCode();
+            hashCode = hashCode * -1521134295 + Transform.GetHashCode();
+            hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Gravity.GetHashCode();
+            hashCode = hashCode * -1521134295 + Force.GetHashCode();
+            hashCode = hashCode * -1521134295 + InverseMass.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsKinematic.GetHashCode();
+            hashCode = hashCode * -1521134295 + Restitution.GetHashCode();
+            hashCode = hashCode * -1521134295 + DynamicFriction.GetHashCode();
+            hashCode = hashCode * -1521134295 + StaticFriction.GetHashCode();
+            if (!(Coll is null)) hashCode = hashCode * -1521134295 + Coll.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsDynamic.GetHashCode();
+            return hashCode;
         }
     };
 }

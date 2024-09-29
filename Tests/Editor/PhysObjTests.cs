@@ -176,6 +176,41 @@ partial class PhysObjTests
     }
 
     [Test]
+    public void TestWorldRollbackAfterNewObject()
+    {
+        bool sameHash = false;
+
+        PhysObject.CurrentInstanceId = 0; // Reset instance id sequence
+        PhysTransform.CurrentInstanceId = 1; // Reset instance id sequence
+        PhysWorld wStart = CreateSampleWorld();
+        NativeArray<byte> seriWorld = ToBytes(wStart);
+        try
+        {
+            // Read what was written into a new world and copy it
+            PhysWorld wFinish = new PhysWorld();
+            FromBytes(seriWorld, wFinish);
+
+            // Add a new object
+            wFinish.AddObject(new PhysObject());
+
+            // Then roll back
+            FromBytes(seriWorld, wFinish);
+
+            sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
+        }
+        finally
+        {
+            // Dispose of the NativeArray when we're done with it
+            if (seriWorld.IsCreated)
+                seriWorld.Dispose();
+        }
+
+        // Check hash
+        Assert.IsTrue(sameHash);
+    }
+
+
+    [Test]
     public void TestWorldSerialize(){
         bool sameHash = false;
 
