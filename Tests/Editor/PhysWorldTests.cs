@@ -98,6 +98,22 @@ public class PhysWorldTests : MonoBehaviour
     }
 
     [Test]
+    public void TestGetPhysObjectByIndexMissing()
+    {
+        PhysWorld world = new PhysWorld();
+
+        Tuple<GameObject, PhysObject> objTupleChildPersist = world.CreateAABBoxObject(
+            fp3.zero, new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.player
+        );
+
+        PhysObject expected = null;
+        PhysObject actual = world.GetPhysObjectByIndex(-1);
+
+        // Check hash
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
     public void TestGetPhysObjectIndexById()
     {
         PhysWorld world = new PhysWorld();

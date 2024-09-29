@@ -27,6 +27,8 @@ namespace SepM.Physics {
         }
 
         public PhysObject GetPhysObjectByIndex(int i){
+            if (i == -1)
+                return null;
             if(m_objects.Count <= i)
                 Debug.LogWarning($"Could not find PhysObject at index: {i}");
 
