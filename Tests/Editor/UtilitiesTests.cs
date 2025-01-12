@@ -426,6 +426,36 @@ public class UtilitiesTests
     }
 
     [Test]
+    public void TestToFp3()
+    {
+        Vector3 v3 = new Vector3(1, 2, 3);
+        fp3 expected = new fp3(1, 2, 3);
+
+        fp3 actual = v3.toFp3();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestToFpq()
+    {
+        Quaternion q = new Quaternion(1, 2, 3, 4);
+        fpq expected = new fpq(1, 2, 3, 4);
+
+        fpq actual = q.toFpq();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestToQuaternion()
+    {
+        fpq fq = new fpq(1, 2, 3, 4);
+        Quaternion expected = new Quaternion(1, 2, 3, 4);
+
+        Quaternion actual = fq.toQuaternion();
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
     public void TestToVector3(){
         fp3 f3 = new fp3(1,2,3);
         Vector3 expected = new Vector3(1,2,3);

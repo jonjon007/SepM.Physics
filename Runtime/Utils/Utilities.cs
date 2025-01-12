@@ -243,6 +243,28 @@ namespace SepM.Utils{
             return x*x;
         }
 
+        public static fp3 toFp3(this Vector3 v)
+        {
+            fp3 result = new fp3(
+                (fp)v.x,
+                (fp)v.y,
+                (fp)v.z
+            );
+            return result;
+        }
+
+        public static fpq toFpq(this Quaternion q)
+        {
+            fpq result = q;
+            return result;
+        }
+
+        public static Quaternion toQuaternion(this fpq q)
+        {
+            Quaternion result = q;
+            return result;
+        }
+
         public static Vector3 toVector3(this fp3 v){
             Vector3 result = new Vector3(
                 (float)v.x,
