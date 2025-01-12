@@ -145,7 +145,7 @@ namespace SepM.Physics{
     };
 
     public interface ICollider : Serial {
-        public void OnCollision(PhysCollision c);
+        public void OnCollision<T>(PhysCollision c, T context);
     }
 
     [Serializable]
@@ -796,9 +796,9 @@ namespace SepM.Physics{
         }
 
         /* If it's assigned, calls the ICollider's OnCollision method. */
-        public void OnCollision(PhysCollision c){
+        public void OnCollision<T>(PhysCollision c, T context){
             if(!(IColl is null)){
-                IColl.OnCollision(c);
+                IColl.OnCollision(c, context);
             }
         }
 

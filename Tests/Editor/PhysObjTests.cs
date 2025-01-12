@@ -266,7 +266,7 @@ partial class PhysObjTests
         Assert.AreEqual(originalGOCount, finalGOCount);
 
         // Run a step without error to make sure the state is stable
-        world.Step(fixedStep);
+        world.Step(fixedStep, 0);
         world.UpdateGameObjects();
     }
 
@@ -303,7 +303,7 @@ partial class PhysObjTests
         Assert.AreEqual(originalGOCount, finalGOCount);
 
         // Run a step without error to make sure the state is stable
-        world.Step(fixedStep);
+        world.Step(fixedStep, 0);
         world.UpdateGameObjects();
     }
 }

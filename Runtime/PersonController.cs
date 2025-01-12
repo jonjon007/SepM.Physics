@@ -113,7 +113,7 @@ public class PersonController : MonoBehaviour
         if(Input.GetKeyDown("space"))
             Jump();
         
-        physWorld.Step((fp)Time.deltaTime);
+        physWorld.Step((fp)Time.deltaTime, this);
 
         looker.Transform.Rotation = SepM.Utils.Utilities.LookRotationLateral(fp3.zero - looker.Transform.Position);
 

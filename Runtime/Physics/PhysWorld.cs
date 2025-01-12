@@ -272,8 +272,8 @@ namespace SepM.Physics {
         public void RemoveSolver(Solver solver) { /* TODO */ }
 
         // Call in fixed timestep
-        public void Step(fp dt) {
-            ResolveCollisions(dt);
+        public void Step<T>(fp dt, T context) {
+            ResolveCollisions(dt, context);
 
             foreach (PhysObject obj in m_objects) {
                 fp mass = 1 / obj.InverseMass;
@@ -303,7 +303,7 @@ namespace SepM.Physics {
             }
         }
 
-        void ResolveCollisions(fp dt) {
+        void ResolveCollisions<T>(fp dt, T context) {
             // Reset collisions list
             collisions = new List<PhysCollision>();
             // TODO: Work on that efficiency
@@ -339,7 +339,7 @@ namespace SepM.Physics {
             // Since each pair will be coming twice in opposite order, just run the first OnCollision
             foreach (PhysCollision cp in collisions) {
                 PhysObject po = this.GetPhysObjectById(cp.ObjIdA);
-                po.OnCollision(cp);
+                po.OnCollision(cp, context);
             }
         }
 
