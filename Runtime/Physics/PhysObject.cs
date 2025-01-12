@@ -50,14 +50,14 @@ namespace SepM.Physics{
             Points.Serialize(bw);
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //ObjIdA
             ObjIdA = br.ReadUInt32();
         //ObjIdB
             ObjIdB = br.ReadUInt32();
         //Points
-            Points = (CollisionPoints)Points.Deserialize(br);
+            Points = (CollisionPoints)Points.Deserialize(br, context);
 
             return this;
         }
@@ -109,7 +109,7 @@ namespace SepM.Physics{
             bw.Write(HasCollision);
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //A
             A.x = br.ReadFp();
@@ -155,7 +155,7 @@ namespace SepM.Physics{
 
         public abstract void Serialize(BinaryWriter bw);
 
-        public abstract Serial Deserialize(BinaryReader br);
+        public abstract Serial Deserialize<T>(BinaryReader br, T context);
 
         public abstract override int GetHashCode();
 
@@ -211,7 +211,7 @@ namespace SepM.Physics{
             bw.WriteFp(Radius);
         }
 
-        public override Serial Deserialize(BinaryReader br) {
+        public override Serial Deserialize<T>(BinaryReader br, T context) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -324,7 +324,7 @@ namespace SepM.Physics{
             bw.WriteFp(Direction.z);
         }
 
-        public override Serial Deserialize(BinaryReader br) {
+        public override Serial Deserialize<T>(BinaryReader br, T context) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -496,7 +496,7 @@ namespace SepM.Physics{
             bw.WriteFp(MaxValue.z);
         }
 
-        public override Serial Deserialize(BinaryReader br) {
+        public override Serial Deserialize<T>(BinaryReader br, T context) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -640,7 +640,7 @@ namespace SepM.Physics{
             bw.WriteFp(Distance);
         }
 
-        public override Serial Deserialize(BinaryReader br) {
+        public override Serial Deserialize<T>(BinaryReader br, T context) {
         //Layer (write as an int)
             Layer = (Constants.coll_layers)br.ReadInt32();
         //No need to read type; redundant
@@ -873,12 +873,12 @@ namespace SepM.Physics{
             //     IColl.Serialize(bw);
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Transform
-            Transform.Deserialize(br);
+            Transform.Deserialize(br, context);
         //Velocity
             Velocity.x = br.ReadFp();
             Velocity.y = br.ReadFp();
@@ -916,7 +916,7 @@ namespace SepM.Physics{
                     Coll = new SphereCollider();
                 }
                 // Then deserialize it
-                Coll.Deserialize(br);
+                Coll.Deserialize(br, context);
             }
         //IsDynamic
             IsDynamic = br.ReadBoolean();

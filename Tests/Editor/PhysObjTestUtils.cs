@@ -44,7 +44,7 @@ partial class PhysObjTests
         using (var memoryStream = new MemoryStream(bytes.ToArray())) {
             using (var reader = new BinaryReader(memoryStream)) {
                 Debug.Log($"Reading state size of {(float)(bytes.Length)/1000000} MBs");
-                w.Deserialize(reader);
+                w.Deserialize(reader, 0);
             }
         }
     }

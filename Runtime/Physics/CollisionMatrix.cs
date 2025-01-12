@@ -44,7 +44,7 @@ public class CollisionMatrix : Serial
             }
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //matrix
             int matrix_len = br.ReadInt32();

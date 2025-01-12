@@ -129,7 +129,7 @@ namespace SepM.Physics
             bw.Write(m_parent_id);
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //InstanceId
             InstanceId = br.ReadUInt32();

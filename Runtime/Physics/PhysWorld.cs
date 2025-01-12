@@ -375,7 +375,7 @@ namespace SepM.Physics {
             collisionMatrix.Serialize(bw);
         }
 
-        public Serial Deserialize(BinaryReader br)
+        public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //physObject and physTransform IDs
             PhysObject.CurrentInstanceId = br.ReadUInt32();
@@ -392,7 +392,7 @@ namespace SepM.Physics {
             // Read down the data for each object
             for (int i = 0; i < m_objects_length; i++)
             {
-                m_objects[i].Deserialize(br);
+                m_objects[i].Deserialize(br, context);
             }
             // Assign each object's Transform's parents; may be a bit slow
             {
@@ -421,7 +421,7 @@ namespace SepM.Physics {
             // Read down the data for each object
             for (int i = 0; i < collisions_count; i++)
             {
-                collisions[i] = (PhysCollision)collisions[i].Deserialize(br);
+                collisions[i] = (PhysCollision)collisions[i].Deserialize(br, context);
             }
         //objectsMap
             int objectsMapLength = br.ReadInt32();
@@ -453,7 +453,7 @@ namespace SepM.Physics {
                 else GameObject.Destroy(go);
             }
         //collisionMatrix
-            collisionMatrix.Deserialize(br);
+            collisionMatrix.Deserialize(br, context);
 
             return this;
         }

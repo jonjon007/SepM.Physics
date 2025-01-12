@@ -31,7 +31,7 @@ public class TestUtils
         using (var memoryStream = new MemoryStream(bytes.ToArray())) {
             using (var reader = new BinaryReader(memoryStream)) {
                 Debug.Log($"Reading state size of {(float)(bytes.Length) / 1000000} MBs");
-                s.Deserialize(reader);
+                s.Deserialize(reader, 0);
             }
         }
         return s;
