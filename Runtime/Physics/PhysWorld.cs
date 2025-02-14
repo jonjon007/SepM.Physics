@@ -116,36 +116,37 @@ namespace SepM.Physics {
 
         public Tuple<GameObject, PhysObject> CreateSphereObject(fp3 center, fp r, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null) {
             // Set up the collider, the physics object, and the game object
-            GameObject g_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             // Destroy the default Unity collider
             if (Application.isEditor)
-                GameObject.DestroyImmediate(g_obj.GetComponent<UnityEngine.SphereCollider>());
+                GameObject.DestroyImmediate(gameObj.GetComponent<UnityEngine.SphereCollider>());
             else
-                GameObject.Destroy(g_obj.GetComponent<UnityEngine.SphereCollider>());
+                GameObject.Destroy(gameObj.GetComponent<UnityEngine.SphereCollider>());
             SepM.Physics.SphereCollider coll = new SepM.Physics.SphereCollider(r, l);
-            PhysObject p_obj = new PhysObject(center) {
+            PhysObject physObj = new PhysObject(center) {
                 IsDynamic = isDyn,
                 IsKinematic = isKin,
                 Gravity = g,
                 Coll = coll
             };
-            p_obj.Transform.SetParent(parent);
+            physObj.Transform.SetParent(parent);
 
             // Update the GameObject
             float sphRadius = (float)coll.Radius * 2;
 
-            g_obj.transform.localPosition = center.toVector3();
-            g_obj.transform.localScale = Vector3.one * sphRadius;
+            gameObj.transform.position = physObj.Transform.WorldPosition().toVector3();
+            gameObj.transform.rotation = physObj.Transform.WorldRotation();
+            gameObj.transform.localScale = Vector3.one * sphRadius;
 
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(
-                g_obj, p_obj
+                gameObj, physObj
             );
 
             // Add to list of the world's physics objects
-            m_objects.Add(p_obj);
+            m_objects.Add(physObj);
 
             // Add to the map
-            AssignGameObject(g_obj, p_obj);
+            AssignGameObject(gameObj, physObj);
 
             return result;
         }
@@ -182,7 +183,8 @@ namespace SepM.Physics {
             float capRadius = (float)coll.Radius * 2;
             float capHeight = (float)coll.Height;
 
-            gameObj.transform.localPosition = center.toVector3();
+            gameObj.transform.position = physObj.Transform.WorldPosition().toVector3();
+            gameObj.transform.rotation = physObj.Transform.WorldRotation();
             gameObj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
 
 
@@ -225,7 +227,8 @@ namespace SepM.Physics {
             physObj.Transform.SetParent(parent);
 
             // Update the GameObject
-            gameObj.transform.localPosition = center.toVector3();
+            gameObj.transform.position = physObj.Transform.WorldPosition().toVector3();
+            gameObj.transform.rotation = physObj.Transform.WorldRotation();
             gameObj.transform.localScale = scale.toVector3();
 
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(
