@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
 namespace SepM.Math{
+    [System.Serializable]
     public struct fpq {
         public fp x;
         public fp y;
