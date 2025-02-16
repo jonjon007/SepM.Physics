@@ -410,9 +410,10 @@ namespace SepM.Physics{
         }
 
         public CapsuleStats GetStats(PhysTransform transform){
-            fp3 tip = transform.WorldPosition() + Center + Direction *(Height/2m);
-            fp3 bse = transform.WorldPosition() + Center - Direction *(Height/2m);
-            fp3 a_Normal = Direction.normalized(); 
+            fp3 netDirection = Direction.multiply(transform.WorldRotation());
+            fp3 tip = transform.WorldPosition() + Center + netDirection *(Height/2m);
+            fp3 bse = transform.WorldPosition() + Center - netDirection * (Height/2m);
+            fp3 a_Normal = netDirection.normalized();
             fp3 a_LineEndOffset = a_Normal * Radius; 
             fp3 A = bse + a_LineEndOffset; 
             fp3 B = tip - a_LineEndOffset;
