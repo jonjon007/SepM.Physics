@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics.FixedPoint;
-using SepM.Math;
 using SepM.Utils;
-using System.Diagnostics;
 
 namespace SepM.Physics{
     public static class algo {
@@ -396,11 +396,18 @@ namespace SepM.Physics{
         }
 
         public static List<CollisionPoints> RaycastAll(List<Collider> collList, fp3 origin, fp3 dir, long layers) {
+            List<Tuple<Collider, PhysTransform>> collTuples = collList.Select(c => new Tuple<Collider,PhysTransform>(c, null)).ToList();
+            return RaycastAll(collTuples, origin, dir, layers);
+        }
+
+        public static List<CollisionPoints> RaycastAll(List<Tuple<Collider, PhysTransform>> collTuples, fp3 origin, fp3 dir, long layers)
+        {
             List<CollisionPoints> resultList = new List<CollisionPoints>();
 
-            List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
-            foreach (Collider coll in filetered_colls) {
-                CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
+            List<Tuple<Collider, PhysTransform>> filetered_colls = collTuples.FindAll(c => c.Item1.InLayers(layers));
+            foreach (Tuple<Collider, PhysTransform> kvp in filetered_colls)
+            {
+                CollisionPoints raycastResult = Raycast(kvp.Item1, origin, dir, layers, kvp.Item2);
                 if (raycastResult.HasCollision)
                     resultList.Add(raycastResult);
             }
