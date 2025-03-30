@@ -47,6 +47,11 @@ namespace SepM.Physics {
             return -1;
         }
 
+        public PhysObject[] GetPhysObjectsOfLayers(long layers)
+        {
+            return m_objects.FindAll(o => o.Coll == null ? false : o.Coll.InLayers(layers)).ToArray();
+        }
+
         private GameObject FindGameObjectById(int instanceId){
             UnityEngine.GameObject[] all = GameObject.FindObjectsOfType<GameObject>();
             for (int i = 0; i < all.Length; i++)
