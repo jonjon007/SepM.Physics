@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Unity.Mathematics.FixedPoint;
+using SepM.Math;
 using SepM.Utils;
+using System.Diagnostics;
 
 namespace SepM.Physics{
-    public static class algo{
+    public static class algo {
         public static CollisionPoints FindSphereSphereCollisionPoints(
             SphereCollider a, PhysTransform ta,
             SphereCollider b, PhysTransform tb)
@@ -26,7 +28,7 @@ namespace SepM.Physics{
 
             AtoB = B - A;
 
-            return new CollisionPoints{
+            return new CollisionPoints {
                 A = A,
                 B = B,
                 Normal = AtoB.normalized(),
@@ -39,14 +41,14 @@ namespace SepM.Physics{
         // TODO: Assumes plane is infinite; add bounds calculations
         public static CollisionPoints FindSpherePlaneCollisionPoints(
             SphereCollider a, PhysTransform ta,
-            PlaneCollider  b, PhysTransform tb)
+            PlaneCollider b, PhysTransform tb)
         {
-            fp3 A  = a.Center + ta.WorldPosition();
+            fp3 A = a.Center + ta.WorldPosition();
             fp Ar = a.Radius * ta.WorldScale().major();
 
             fp3 N = b.Normal.multiply(tb.WorldRotation());
             N.normalize();
-            
+
             fp3 P = N * b.Distance + tb.WorldPosition();
 
             fp d = (A - P).dot(N); // distance from center of sphere to plane surface
@@ -54,23 +56,23 @@ namespace SepM.Physics{
             if (d > Ar) {
                 return CollisionPoints.noCollision;
             }
-            
+
             fp3 B = A - N * d;
-                    A = A - N * Ar;
+            A = A - N * Ar;
 
             fp3 AtoB = B - A;
 
-            return new CollisionPoints{
+            return new CollisionPoints {
                 A = A,
-                B = B, 
-                Normal = AtoB.normalized(), 
+                B = B,
+                Normal = AtoB.normalized(),
                 DepthSqrd = AtoB.lengthSqrd(),
                 HasCollision = true
             };
         }
 
         public static CollisionPoints FindSphereCapsuleCollisionPoints(
-            SphereCollider  a, PhysTransform ta,
+            SphereCollider a, PhysTransform ta,
             CapsuleCollider b, PhysTransform tb)
         {
             fp Bhs = 1.0m;
@@ -79,27 +81,27 @@ namespace SepM.Physics{
             fp3 s = tb.WorldScale();
             // TODO: Will need to verify this condition
             // Right
-            if (b.Direction.Equals(new fp3(1,0,0))) {
+            if (b.Direction.Equals(new fp3(1, 0, 0))) {
                 Bhs = s.x;
                 Brs = new fp2(s.y, s.z).major();
             }
             // Up
-            else if (b.Direction.Equals(new fp3(0,1,0))) {
+            else if (b.Direction.Equals(new fp3(0, 1, 0))) {
                 Bhs = s.y;
                 Brs = new fp2(s.x, s.z).major();
             }
             // Forward
-            else if (b.Direction.Equals(new fp3(0,0,1))) {
+            else if (b.Direction.Equals(new fp3(0, 0, 1))) {
                 Bhs = s.z;
                 Brs = new fp2(s.x, s.y).major();
             }
 
             fp3 offset = b.Direction.multiply(tb.WorldRotation()) * (b.Height * Bhs / 2 - b.Radius * Brs);
 
-            fp3 A = a.Center          + ta.WorldPosition();
+            fp3 A = a.Center + ta.WorldPosition();
             fp3 B = b.Center - offset + tb.WorldPosition();
             fp3 C = b.Center + offset + tb.WorldPosition(); // might not be correct
-            
+
             fp Ar = a.Radius * ta.WorldScale().major();
             fp Br = b.Radius * Brs;
 
@@ -121,7 +123,7 @@ namespace SepM.Physics{
 
             AtoD = D - A;
 
-            return new CollisionPoints(){
+            return new CollisionPoints() {
                 A = A,
                 B = D,
                 Normal = AtoD.normalized(),
@@ -138,29 +140,29 @@ namespace SepM.Physics{
             CapsuleStats bStats = b.GetStats(tb);
 
             // vectors between line endpoints:
-            fp3 v0 = bStats.A - aStats.A; 
-            fp3 v1 = bStats.B - aStats.A; 
-            fp3 v2 = bStats.A - aStats.B; 
+            fp3 v0 = bStats.A - aStats.A;
+            fp3 v1 = bStats.B - aStats.A;
+            fp3 v2 = bStats.A - aStats.B;
             fp3 v3 = bStats.B - aStats.B;
 
             // squared distances:
-            fp d0 = v0.dot(v0); 
-            fp d1 = v1.dot(v1); 
-            fp d2 = v2.dot(v2); 
+            fp d0 = v0.dot(v0);
+            fp d1 = v1.dot(v1);
+            fp d2 = v2.dot(v2);
             fp d3 = v3.dot(v3);
 
             // select best potential endpoint on capsule A:
             fp3 bestA;
-            if (d2 < d0 || d2 < d1 || d3 < d0 || d3 < d1){
+            if (d2 < d0 || d2 < d1 || d3 < d0 || d3 < d1) {
                 bestA = aStats.B;
             }
-            else{
+            else {
                 bestA = aStats.A;
             }
-            
+
             // select point on capsule B line segment nearest to best potential endpoint on A capsule:
             fp3 bestB = Utilities.closestPointOnLineSegment(bStats.A, bStats.B, bestA);
-            
+
             // now do the same for capsule A segment:
             bestA = Utilities.closestPointOnLineSegment(aStats.A, aStats.B, bestB);
 
@@ -168,9 +170,9 @@ namespace SepM.Physics{
             fp3 penetration_normal = bestA - bestB;
             fp len = 0;
 
-            if(!penetration_normal.Equals(fp3.zero)){
+            if (!penetration_normal.Equals(fp3.zero)) {
                 len = penetration_normal.lengthSqrd().sqrt();
-                if(len == 0)
+                if (len == 0)
                     penetration_normal = fp3.zero;
                 else
                     penetration_normal /= len;  // normalize
@@ -178,8 +180,8 @@ namespace SepM.Physics{
             fp penetration_depth = a.Radius + b.Radius - len;
             intersects = penetration_depth >= 0;
 
-            if(intersects){
-                return new CollisionPoints(){
+            if (intersects) {
+                return new CollisionPoints() {
                     A = bestA,
                     B = bestB,
                     Normal = penetration_normal,
@@ -196,67 +198,13 @@ namespace SepM.Physics{
             AABBoxCollider b, PhysTransform tb)
         {
             AABBoxCollider tempBox = new AABBoxCollider(
-                a.Center, new fp3(a.Radius*2, a.Height*2, a.Radius*2), true);
+                a.Center, new fp3(a.Radius * 2, a.Height * 2, a.Radius * 2), true);
             return FindAABBoxAABBoxCollisionPoints(
                 tempBox,
                 ta,
                 b,
                 tb
             );
-
-            // TODO: Make an accurate calculation instead of subbing for another box
-            /*
-            CapsuleStats aStats = a.GetStats(ta);
-
-            // Find point (p) on AABB closest to Sphere center
-            fp3 pA = b.closestPointAABB(tb, aStats.A);
-            fp3 pB = b.closestPointAABB(tb, aStats.B);
-
-            fp dA = (pA-aStats.A).dot(pA-aStats.A);
-            fp dB = (pB-aStats.B).dot(pB-aStats.B);
-
-            // If the two clamped points are equal, test capsule-point intersection to that point
-            // Sphere w/ radius 0
-            if(pA.Equals(pB)){
-                SphereCollider tempPoint = new SphereCollider(0);
-                // TODO: Should I copy the PhysTransform and alter or just create a new one?
-                PhysTransform tempTransform = new PhysTransform(dA < dB ? pA : pB);
-                return FindSphereCapsuleCollisionPoints(
-                    tempPoint,
-                    ta,
-                    a,
-                    tempTransform
-                );
-            }
-            // If the two clamped poitns are different, test capsule-line sesgment intersection
-            // Capsule w/ radius 0
-            else{
-                fp3 lineNormal = Raycast(
-                    b,
-                    dA < dB ? aStats.A : aStats.B,
-                    dA < dB ? (pA - aStats.A).normalized() : (pB - aStats.B).normalized()
-                    ).Normal;
-                fp height;
-                if(lineNormal.x > 0){
-                    height = b.Size().x*2;
-                }
-                else if(lineNormal.y > 0){
-                    height = b.Size().y*2;
-                }
-                else{
-                    height = b.Size().z*2;
-                }
-                CapsuleCollider tempLine = new CapsuleCollider(0, height, lineNormal);
-                // TODO: Should I copy the PhysTransform and alter or just create a new one?
-                PhysTransform tempTransform = new PhysTransform(dA < dB ? pA : pB);
-                return FindCapsuleCapsuleCollisionPoints(
-                    tempLine,
-                    ta,
-                    a,
-                    tempTransform
-                );
-            }
-            */
         }
 
         public static CollisionPoints FindCapsuleAABBsCollisionPoints(
@@ -264,7 +212,7 @@ namespace SepM.Physics{
             AABBoxCollider b, PhysTransform tb)
         {
             // TODO: Decide is we really need to do a capsule or can just compare AABBs
-            AABBoxCollider tempBox = new AABBoxCollider(a.Center, new fp3(a.Radius*2, a.Height, a.Radius*2), true);
+            AABBoxCollider tempBox = new AABBoxCollider(a.Center, new fp3(a.Radius * 2, a.Height, a.Radius * 2), true);
             return FindAABBoxAABBoxCollisionPoints(tempBox, ta, b, tb);
         }
 
@@ -290,17 +238,17 @@ namespace SepM.Physics{
                 // Calculate normal using sphere center a closest point on AABB
                 fp3 normal = (p - A).normalized();
 
-                fp3 B = p - normal*a.Radius;
+                fp3 B = p - normal * a.Radius;
                 fp3 AtoB = B - A;
 
-                if (AtoB.Equals(fp3.zero)){
+                if (AtoB.Equals(fp3.zero)) {
                     // Sphere is inside AABB
-                    AtoB = new fp3(0,1,0);
+                    AtoB = new fp3(0, 1, 0);
                 }
 
                 fp dsqrd = AtoB.lengthSqrd();
 
-                return new CollisionPoints(){
+                return new CollisionPoints() {
                     A = a.Center + ta.WorldPosition(),
                     B = B,
                     Normal = AtoB.normalized(),
@@ -323,7 +271,7 @@ namespace SepM.Physics{
             fp3 boxASize = a.Size();
             fp3 boxBSize = b.Size();
 
-            bool overlap = AABBTest (boxAPos, boxBPos, boxASize, boxBSize);
+            bool overlap = AABBTest(boxAPos, boxBPos, boxASize, boxBSize);
             if (overlap) {
                 fp3[] faces = {
                     new fp3 (-1, 0, 0), new fp3 (1, 0, 0),
@@ -348,13 +296,13 @@ namespace SepM.Physics{
                 fp penetration = fp.max_value;
                 fp3 bestAxis = fp3.zero;
 
-                for (int i = 0; i < 6; i ++){
-                    if (distances [ i ] < penetration ) {
-                        penetration = distances [ i ];
-                        bestAxis = faces [ i ];
+                for (int i = 0; i < 6; i++) {
+                    if (distances[i] < penetration) {
+                        penetration = distances[i];
+                        bestAxis = faces[i];
                     }
                 }
-                return new CollisionPoints{
+                return new CollisionPoints {
                     A = boxAPos,
                     B = boxBPos,
                     Normal = -bestAxis,
@@ -366,14 +314,14 @@ namespace SepM.Physics{
         }
 
         //tell us whether the objects are colliding
-        static bool AABBTest (fp3 posA, fp3 posB, fp3 halfSizeA, fp3 halfSizeB) {
+        static bool AABBTest(fp3 posA, fp3 posB, fp3 halfSizeA, fp3 halfSizeB) {
             fp3 delta = posB - posA;
             fp3 totalSize = halfSizeA + halfSizeB;
 
             if (System.Math.Abs(delta.x) <= totalSize.x
                 && System.Math.Abs(delta.y) <= totalSize.y
-                && System.Math.Abs(delta.z) <= totalSize.z){
-                    return true ;
+                && System.Math.Abs(delta.z) <= totalSize.z) {
+                return true;
             }
 
             return false;
@@ -399,80 +347,85 @@ namespace SepM.Physics{
             v = System.Math.Max(v, min.z);
             v = System.Math.Min(v, max.z);
             q.z = v;
-            
+
             return q;
         }
 
-        public static fp3 inverseTransformPoint(this PhysTransform ta, fp3 point){
+        public static fp3 inverseTransformPoint(this PhysTransform ta, fp3 point) {
             fp3 result = Utilities.scale(
-                new fp3(1/ta.Scale.x, 1/ta.Scale.y, 1/ta.Scale.z),
+                new fp3(1 / ta.Scale.x, 1 / ta.Scale.y, 1 / ta.Scale.z),
                 (point - ta.Position).multiply(ta.Rotation.conjugate())
                 );
             return result;
         }
 
-        public static fp SqDistPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point){
+        public static fp SqDistPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point) {
             fp result = (box.closestPointAABB(boxTransform, point) - point).lengthSqrd();
             return result;
         }
 
-        public static CollisionPoints Raycast(List<PhysObject> p_objs, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(List<PhysObject> p_objs, fp3 origin, fp3 dir, long layers, PhysTransform physTransform = null) {
             List<PhysObject> filetered_colls = p_objs.FindAll(p => !(p.Coll is null) && p.Coll.InLayers(layers));
-            foreach(PhysObject p_obj in filetered_colls){
-                CollisionPoints raycastResult = Raycast(p_obj, origin, dir, layers);
-                if(raycastResult.HasCollision)
+            foreach (PhysObject p_obj in filetered_colls) {
+                CollisionPoints raycastResult = Raycast(p_obj, origin, dir, layers, physTransform);
+                if (raycastResult.HasCollision)
                     return raycastResult;
             }
             return CollisionPoints.noCollision;
         }
 
-        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir){
+        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir) {
             return Raycast(p_obj, origin, dir, Constants.layer_all);
         }
 
-        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir, long layers){
-            if(p_obj.Coll is null)
+        public static CollisionPoints Raycast(PhysObject p_obj, fp3 origin, fp3 dir, long layers, PhysTransform physTransform = null) {
+            if (p_obj.Coll is null)
                 return CollisionPoints.noCollision;
             else
-                return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers);
+                return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers, physTransform = null);
         }
 
-        public static CollisionPoints Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers){
+        public static CollisionPoints Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers) {
             List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
-            foreach (Collider coll in filetered_colls){
+            foreach (Collider coll in filetered_colls) {
                 CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
-                if(raycastResult.HasCollision)
+                if (raycastResult.HasCollision)
                     return raycastResult;
             }
             return CollisionPoints.noCollision;
         }
 
-        public static List<CollisionPoints> RaycastAll(List<Collider> collList, fp3 origin, fp3 dir, long layers){
+        public static List<CollisionPoints> RaycastAll(List<Collider> collList, fp3 origin, fp3 dir, long layers) {
             List<CollisionPoints> resultList = new List<CollisionPoints>();
 
             List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
-            foreach (Collider coll in filetered_colls){
+            foreach (Collider coll in filetered_colls) {
                 CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
-                if(raycastResult.HasCollision)
+                if (raycastResult.HasCollision)
                     resultList.Add(raycastResult);
             }
             return resultList;
         }
 
-        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir){
-            return Raycast(coll, origin, dir, Constants.layer_all);
+        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir, PhysTransform physTransform = null) {
+            return Raycast(coll, origin, dir, Constants.layer_all, physTransform);
         }
 
-        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir, long layers){
-            if(coll is AABBoxCollider)
-                return Raycast((AABBoxCollider) coll, origin, dir, layers);
+        public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir, long layers, PhysTransform physTransform = null) {
+            if (coll is AABBoxCollider)
+                return RaycastAABBox((AABBoxCollider)coll, origin, dir, layers);
+            else if (coll is CapsuleCollider)
+                return RaycastCapsule((CapsuleCollider)coll, physTransform, origin, dir, layers);
             // TODO: Write for other collider types
             else
+            {
+                UnityEngine.Debug.LogWarning($"{coll.GetType().FullName} not impemented for Raycast.");
                 return CollisionPoints.noCollision;
+            }
         }
 
-        public static CollisionPoints Raycast(AABBoxCollider coll, fp3 origin, fp3 dir, long layers){
-            if(!coll.InLayers(layers)){
+        public static CollisionPoints RaycastAABBox(AABBoxCollider coll, fp3 origin, fp3 dir, long layers) {
+            if (!coll.InLayers(layers)) {
                 return CollisionPoints.noCollision;
             }
 
@@ -484,68 +437,68 @@ namespace SepM.Physics{
             bool inside = true;
 
             fp xt, xn = 0;
-            if(origin.x < coll.MinValue.x){
+            if (origin.x < coll.MinValue.x) {
                 xt = coll.MinValue.x - origin.x;
-                if(xt > dir.x) return CollisionPoints.noCollision;
+                if (xt > dir.x) return CollisionPoints.noCollision;
                 xt /= dir.x;
                 inside = false;
                 xn = -1;
             }
-            else if(origin.x > coll.MaxValue.x){
+            else if (origin.x > coll.MaxValue.x) {
                 xt = coll.MaxValue.x - origin.x;
-                if(xt < dir.x) return CollisionPoints.noCollision;
+                if (xt < dir.x) return CollisionPoints.noCollision;
                 xt /= dir.x;
                 inside = false;
                 xn = 1;
             }
-            else{
+            else {
                 xt = -1;
             }
 
             fp yt, yn = 0;
-            if(origin.y < coll.MinValue.y){
+            if (origin.y < coll.MinValue.y) {
                 yt = coll.MinValue.y - origin.y;
-                if(yt > dir.y) return CollisionPoints.noCollision;
+                if (yt > dir.y) return CollisionPoints.noCollision;
                 yt /= dir.y;
                 inside = false;
                 yn = -1;
             }
-            else if(origin.y > coll.MaxValue.y){
+            else if (origin.y > coll.MaxValue.y) {
                 yt = coll.MaxValue.y - origin.y;
-                if(yt < dir.y) return CollisionPoints.noCollision;
+                if (yt < dir.y) return CollisionPoints.noCollision;
                 yt /= dir.y;
                 inside = false;
                 yn = 1;
             }
-            else{
+            else {
                 yt = -1;
             }
 
             fp zt, zn = 0;
-            if(origin.z < coll.MinValue.z){
+            if (origin.z < coll.MinValue.z) {
                 zt = coll.MinValue.z - origin.z;
-                if(zt > dir.z) return CollisionPoints.noCollision;
+                if (zt > dir.z) return CollisionPoints.noCollision;
                 zt /= dir.z;
                 inside = false;
                 zn = -1;
             }
-            else if(origin.z > coll.MaxValue.z){
+            else if (origin.z > coll.MaxValue.z) {
                 zt = coll.MaxValue.z - origin.z;
-                if(zt < dir.z) return CollisionPoints.noCollision;
+                if (zt < dir.z) return CollisionPoints.noCollision;
                 zt /= dir.z;
                 inside = false;
                 zn = 1;
             }
-            else{
+            else {
                 zt = -1;
             }
 
             // inside box?
-            if(inside){
+            if (inside) {
                 collNormal = -dir.normalized();
                 fp3 B = coll.Center();
                 fp3 AtoB = B - origin;
-                return new CollisionPoints{
+                return new CollisionPoints {
                     A = origin,
                     B = coll.Center(),
                     Normal = collNormal,
@@ -557,50 +510,50 @@ namespace SepM.Physics{
             // select farthest plan - this is the plane of intersection
             int which = 0;
             fp t = xt;
-            if (yt > t){
+            if (yt > t) {
                 which = 1;
-                t= yt;
+                t = yt;
             }
-            if (zt > t){
+            if (zt > t) {
                 which = 2;
-                t= zt;
+                t = zt;
             }
 
-            switch(which){
+            switch (which) {
                 case 0: // intersect with yz plane
-                {
-                    fp y = origin.y + dir.y*t;
-                    if(y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
-                    fp z = origin.z + dir.z*t;
-                    if(z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
+                    {
+                        fp y = origin.y + dir.y * t;
+                        if (y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
+                        fp z = origin.z + dir.z * t;
+                        if (z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
 
-                    collNormal = new fp3(xn, 0, 0);
-                }   break;
+                        collNormal = new fp3(xn, 0, 0);
+                    } break;
 
                 case 1: // intersect with xz plane
-                {
-                    fp x = origin.x + dir.x*t;
-                    if(x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
-                    fp z = origin.z + dir.z*t;
-                    if(z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
+                    {
+                        fp x = origin.x + dir.x * t;
+                        if (x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
+                        fp z = origin.z + dir.z * t;
+                        if (z < coll.MinValue.z || z > coll.MaxValue.z) return CollisionPoints.noCollision;
 
-                    collNormal = new fp3(0, yn, 0);
-                    break;
-                }
+                        collNormal = new fp3(0, yn, 0);
+                        break;
+                    }
 
                 case 2: // intersect with xy plane
-                {
-                    fp x = origin.x + dir.x*t;
-                    if(x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
-                    fp y = origin.y + dir.y*t;
-                    if(y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
+                    {
+                        fp x = origin.x + dir.x * t;
+                        if (x < coll.MinValue.x || x > coll.MaxValue.x) return CollisionPoints.noCollision;
+                        fp y = origin.y + dir.y * t;
+                        if (y < coll.MinValue.y || y > coll.MaxValue.y) return CollisionPoints.noCollision;
 
-                    collNormal = new fp3(0, 0, zn);
-                    break;
-                }
+                        collNormal = new fp3(0, 0, zn);
+                        break;
+                    }
             }
 
-            return new CollisionPoints{
+            return new CollisionPoints {
                 A = origin,
                 B = coll.Center(),
                 Normal = collNormal,
@@ -608,8 +561,239 @@ namespace SepM.Physics{
                 HasCollision = true
             };
         }
+
+        public static CollisionPoints RaycastCapsule(CapsuleCollider coll, PhysTransform physTransform, fp3 origin, fp3 dir, long layers)
+        {
+            if (!coll.InLayers(layers))
+            {
+                return CollisionPoints.noCollision;
+            }
+
+            CapsuleCollider ray = new CapsuleCollider(origin, 0, dir.lengthSqrd(), new fp3(0, 1, 0) * dir);
+            return FindCapsuleCapsuleCollisionPoints(coll, physTransform, ray, null);
+        }
+
+            //public static CollisionPoints RayCast(CapsuleCollider coll, fp3 origin, fp3 dir, long layers){
+            //    if (!coll.InLayers(layers)) {
+            //        return CollisionPoints.noCollision;
+            //    }
+
+            //    // http://pastebin.com/2XrrNcxb
+
+            //    // Substituting equ. (1) - (6) to equ. (I) and solving for t' gives:
+            //    //
+            //    // t' = (t * dot(AB, d) + dot(AB, AO)) / dot(AB, AB); (7) or
+            //    // t' = t * m + n where 
+            //    // m = dot(AB, d) / dot(AB, AB) and 
+            //    // n = dot(AB, AO) / dot(AB, AB)
+            //    //
+            //    // TODO: Get PhysTransform instead of creating new...
+            //    CapsuleStats cStats = coll.GetStats(new());
+            //    fp3 AB = cStats.B - cStats.A;
+            //    fp3 AO = origin - cStats.A;
+
+            //    // TODO: Ensure that direction includes magnitude
+            //    fp AB_dot_d = AB.dot(dir);
+            //    fp AB_dot_AO = AB.dot(AO);
+            //    fp AB_dot_AB = AB.dot(AB);
+
+            //    fp m = AB_dot_d / AB_dot_AB;
+            //    fp n = AB_dot_AO / AB_dot_AB;
+
+            //    // Substituting (7) into (II) and solving for t gives:
+            //    //
+            //    // dot(Q, Q)*t^2 + 2*dot(Q, R)*t + (dot(R, R) - r^2) = 0
+            //    // where
+            //    // Q = d - AB * m
+            //    // R = AO - AB * n
+            //    fp3 Q = dir - (AB * m);
+            //    fp3 R = AO - (AB * n);
+
+            //    fp a = Q.dot(Q);
+            //    fp b = 2.0m * Q.dot(R);
+            //    fp c = R.dot(R) - (coll.Radius * coll.Radius);
+
+            //    if (a == 0.0m)
+            //    {
+            //        // Special case: AB and ray direction are parallel. If there is an intersection it will be on the end spheres...
+            //        // NOTE: Why is that?
+            //        // Q = d - AB * m =>
+            //        // Q = d - AB * (|AB|*|d|*cos(AB,d) / |AB|^2) => |d| == 1.0
+            //        // Q = d - AB * (|AB|*cos(AB,d)/|AB|^2) =>
+            //        // Q = d - AB * cos(AB, d) / |AB| =>
+            //        // Q = d - unit(AB) * cos(AB, d)
+            //        //
+            //        // |Q| == 0 means Q = (0, 0, 0) or d = unit(AB) * cos(AB,d)
+            //        // both d and unit(AB) are unit vectors, so cos(AB, d) = 1 => AB and d are parallel.
+            //        // 
+            //        SphereCollider sphereA = new();
+            //        SphereCollider sphereB = new();
+            //        sphereA.Center = cStats.A;
+            //        sphereA.Radius = coll.Radius;
+            //        sphereB.Center = cStats.B;
+            //        sphereB.Radius = coll.Radius;
+
+            //        fp atmin = new();
+            //        fp atmax = new();
+            //        fp btmin = new();
+            //        fp btmax = new();
+            //        if (!IntersectRaySphere(ray, sphereA, atmin, atmax) ||
+            //            !IntersectRaySphere(ray, sphereB, btmin, btmax))
+            //        {
+            //            // No intersection with one of the spheres means no intersection at all...
+            //            return CollisionPoints.noCollision;
+            //        }
+
+            //        fp3 p1, n1, p2, n2;
+
+            //        if (atmin < btmin)
+            //        {
+            //            p1 = origin + (dir * atmin);
+            //            n1 = p1 - cStats.A;
+            //            n1.normalize();
+            //        }
+            //        else
+            //        {
+            //            p1 = origin + (dir * btmin);
+            //            n1 = p1 - cStats.B;
+            //            n1.normalize();
+            //        }
+
+            //        if (atmax > btmax)
+            //        {
+            //            p2 = origin + (dir * atmax);
+            //            n2 = p2 - cStats.A;
+            //            n2.normalize();
+            //        }
+            //        else
+            //        {
+            //            p2 = origin + (dir * btmax);
+            //            n2 = p2 - cStats.B;
+            //            n2.normalize();
+            //        }
+
+            //        return new CollisionPoints
+            //        {
+            //            A = p1,
+            //            B = p2,
+            //            // TODO: What to do about these???
+            //            Normal = n2,
+            //            DepthSqrd = n2.lengthSqrd(),
+            //            HasCollision = true
+            //        };
+            //    }
+
+            //    fp discriminant = b * b - 4.0m * a * c;
+            //    if (discriminant < 0.0m)
+            //    {
+            //        // The ray doesn't hit the infinite cylinder defined by (A, B).
+            //        // No intersection.
+            //        return CollisionPoints.noCollision;
+            //    }
+
+            //    fp tmin = (-b - sqrtf(discriminant)) / (2.0f * a);
+            //    fp tmax = (-b + sqrtf(discriminant)) / (2.0f * a);
+            //    if (tmin > tmax)
+            //    {
+            //        fp temp = tmin;
+            //        tmin = tmax;
+            //        tmax = temp;
+            //    }
+
+            //    // Now check to see if K1 and K2 are inside the line segment defined by A,B
+            //    fp t_k1 = tmin * m + n;
+            //    if (t_k1 < 0.0f)
+            //    {
+            //        // On sphere (A, r)...
+            //        Sphere s;
+            //        s.m_Center = cStats.A;
+            //        s.m_Radius = coll.Radius;
+
+            //        fp stmin, stmax;
+            //        if (IntersectRaySphere(ray, s, stmin, stmax))
+            //        {
+            //            p1 = origin + (dir * stmin);
+            //            n1 = p1 - cStats.A;
+            //            n1.Normalize();
+            //        }
+            //        else
+            //            return false;
+            //    }
+            //    else if (t_k1 > 1.0f)
+            //    {
+            //        // On sphere (B, r)...
+            //        Sphere s;
+            //        s.m_Center = cStats.B;
+            //        s.m_Radius = coll.Radius;
+
+            //        fp stmin, stmax;
+            //        if (IntersectRaySphere(ray, s, stmin, stmax))
+            //        {
+            //            p1 = origin + (dir * stmin);
+            //            n1 = p1 - cStats.B;
+            //            n1.Normalize();
+            //        }
+            //        else
+            //            return false;
+            //    }
+            //    else
+            //    {
+            //        // On the cylinder...
+            //        p1 = origin + (dir * tmin);
+
+            //        fp3 k1 = cStats.A + AB * t_k1;
+            //        n1 = p1 - k1;
+            //        n1.Normalize();
+            //    }
+
+            //    fp t_k2 = tmax * m + n;
+            //    if (t_k2 < 0.0f)
+            //    {
+            //        // On sphere (A, r)...
+            //        Sphere s;
+            //        s.m_Center = cStats.A;
+            //        s.m_Radius = coll.Radius;
+
+            //        fp stmin, stmax;
+            //        if (IntersectRaySphere(ray, s, stmin, stmax))
+            //        {
+            //            p2 = origin + (dir * stmax);
+            //            n2 = p2 - cStats.A;
+            //            n2.Normalize();
+            //        }
+            //        else
+            //            return false;
+            //    }
+            //    else if (t_k2 > 1.0f)
+            //    {
+            //        // On sphere (B, r)...
+            //        Sphere s;
+            //        s.m_Center = cStats.B;
+            //        s.m_Radius = coll.Radius;
+
+            //        fp stmin, stmax;
+            //        if (IntersectRaySphere(ray, s, stmin, stmax))
+            //        {
+            //            p2 = origin + (dir * stmax);
+            //            n2 = p2 - cStats.B;
+            //            n2.Normalize();
+            //        }
+            //        else
+            //            return false;
+            //    }
+            //    else
+            //    {
+            //        p2 = origin + (dir * tmax);
+
+            //        fp3 k2 = cStats.A + AB * t_k2;
+            //        n2 = p2 - k2;
+            //        n2.Normalize();
+            //    }
+
+            //    return true;
+            //}
+        }
     }
-}
 /*
         // Swaps
 

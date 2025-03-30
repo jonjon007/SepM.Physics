@@ -181,7 +181,7 @@ namespace SepM.Physics {
 
             // Update the GameObject
             float capRadius = (float)coll.Radius * 2;
-            float capHeight = (float)coll.Height;
+            float capHeight = (float)coll.Height + (float)coll.Radius/2;
 
             gameObj.transform.position = physObj.Transform.WorldPosition().toVector3();
             gameObj.transform.rotation = physObj.Transform.WorldRotation();

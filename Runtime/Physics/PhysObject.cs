@@ -1,9 +1,10 @@
-using UnityEngine;
-using Unity.Mathematics.FixedPoint;
-using SepM.Utils;
-using SepM.Serialization;
 using System;
 using System.IO;
+using UnityEngine;
+using Unity.Mathematics.FixedPoint;
+using SepM.Math;
+using SepM.Serialization;
+using SepM.Utils;
 
 namespace SepM.Physics{
     public static class Constants{
@@ -382,6 +383,16 @@ namespace SepM.Physics{
             Type = Constants.coll_types.capsule;
         }
 
+        public CapsuleCollider(fp3 c, fp r, fp h, fp3 d)
+        {
+            Center = c;
+            Radius = r;
+            Height = h;
+            Direction = d;
+            Layer = Constants.coll_layers.normal;
+            Type = Constants.coll_types.capsule;
+        }
+
         public CapsuleCollider(fp r, fp h, Constants.coll_layers l){
             Center = fp3.zero;
             Radius = r;
@@ -410,9 +421,12 @@ namespace SepM.Physics{
         }
 
         public CapsuleStats GetStats(PhysTransform transform){
-            fp3 netDirection = Direction.multiply(transform.WorldRotation());
-            fp3 tip = transform.WorldPosition() + Center + netDirection *(Height/2m);
-            fp3 bse = transform.WorldPosition() + Center - netDirection * (Height/2m);
+            fp3 worldPosition = transform == null ? fp3.zero : transform.WorldPosition();
+            fpq worldRotation = transform == null ? fpq.identity : transform.WorldRotation();
+
+            fp3 netDirection = Direction.multiply(worldRotation);
+            fp3 tip = worldPosition + Center + netDirection *(Height/2m);
+            fp3 bse = worldPosition + Center - netDirection * (Height/2m);
             fp3 a_Normal = netDirection.normalized();
             fp3 a_LineEndOffset = a_Normal * Radius; 
             fp3 A = bse + a_LineEndOffset; 

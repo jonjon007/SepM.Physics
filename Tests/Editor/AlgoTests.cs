@@ -631,7 +631,7 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
         bool expected = true;
 
-        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_ground);
+        CollisionPoints actual = algo.RaycastAABBox(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_ground);
         Assert.AreEqual(expected, actual.HasCollision);
     }
 
@@ -640,7 +640,40 @@ public class AlgoTests
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), Constants.coll_layers.ground);
         bool expected = false;
 
-        CollisionPoints actual = algo.Raycast(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
+        CollisionPoints actual = algo.RaycastAABBox(coll, new fp3(0,2,0), new fp3(0,-1,0), Constants.layer_wall);
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void Raycast_Capsule_Touching()
+    {
+        CapsuleCollider coll = new CapsuleCollider(new fp3(2,0,0), 1, 1);
+        PhysTransform t = new PhysTransform(new fp3(-2,0,0));
+        bool expected = true;
+
+        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 1, 0), new fp3(1, 1, 0), t);
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void Raycast_Capsule_Edge()
+    {
+        CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, 0), 1, 1);
+        PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
+        bool expected = true;
+
+        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 2, 0), new fp3(1, 2, 0), t);
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void Raycast_Capsule_Not_Touching()
+    {
+        CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, 0), 1, 1);
+        PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
+        bool expected = true;
+
+        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 2, 0), new fp3(1, 2.1m, 0), t);
         Assert.AreEqual(expected, actual.HasCollision);
     }
 
