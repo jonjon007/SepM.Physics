@@ -562,6 +562,28 @@ public class AlgoTests
     }
 
     [Test]
+    public void Capsulecast_Edge()
+    {
+        CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, -2), 1, 2);
+        PhysTransform t = new PhysTransform(new fp3(-2, 0, 2));
+        bool expected = true;
+
+        CollisionPoints actual = algo.Capsulecast(coll, new fp3(0,2,0), 1, 4, new fp3(1,0,0), Constants.layer_all, t);
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
+    public void Capsulecast_Not_Touching()
+    {
+        CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, -2), 1, 2);
+        PhysTransform t = new PhysTransform(new fp3(-2, 0, 2));
+        bool expected = false;
+
+        CollisionPoints actual = algo.Capsulecast(coll, new fp3(0, 2.1m, 0), 1, 4, new fp3(1, 0, 0), Constants.layer_all, t);
+        Assert.AreEqual(expected, actual.HasCollision);
+    }
+
+    [Test]
     public void Raycast_AABB_Touching(){
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         bool expected = true;
@@ -662,7 +684,7 @@ public class AlgoTests
         PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
         bool expected = true;
 
-        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 2, 0), new fp3(1, 2, 0), t);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, .5m, 0), new fp3(2, 0, 0), t);
         Assert.AreEqual(expected, actual.HasCollision);
     }
 
@@ -671,9 +693,9 @@ public class AlgoTests
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, 0), 1, 1);
         PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
-        bool expected = true;
+        bool expected = false;
 
-        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 2, 0), new fp3(1, 2.1m, 0), t);
+        CollisionPoints actual = algo.Raycast(coll, new fp3(-1, .6m, 0), new fp3(2, 0, 0), t);
         Assert.AreEqual(expected, actual.HasCollision);
     }
 

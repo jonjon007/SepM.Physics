@@ -327,6 +327,16 @@ namespace SepM.Physics{
             return false;
         }
 
+        public static CollisionPoints Capsulecast(Collider coll, fp3 center, fp radius,  fp height, fp3 dir, long layers, PhysTransform physTransform = null) {
+            if (!coll.InLayers(layers))
+            {
+                return CollisionPoints.noCollision;
+            }
+
+            CapsuleCollider capsule = new CapsuleCollider(center, radius, height, dir);
+            return coll.TestCollision(physTransform, capsule, null);
+        }
+
         public static fp3 closestPointAABB(this AABBoxCollider box, PhysTransform boxTransform, fp3 point) // P131
         {
             // For each coordinate axis, if the point coordinate value is outside box,
