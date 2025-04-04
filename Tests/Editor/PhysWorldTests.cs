@@ -82,6 +82,26 @@ public class PhysWorldTests : MonoBehaviour
     }
 
     [Test]
+    public void TestGetAllPhysObjectsInLayer()
+    {
+        PhysWorld world = new PhysWorld();
+
+        Tuple<GameObject, PhysObject> objTup1 = world.CreateAABBoxObject(
+            fp3.zero, new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.player
+        );
+        Tuple<GameObject, PhysObject> objTup2 = world.CreateAABBoxObject(
+            fp3.zero, new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.wall
+        );
+        world.AddObject(new PhysObject());
+
+        var actual = world.GetAllPhysObjectsInLayer(Constants.layer_wall);
+
+        Assert.That(actual.Count == 1);
+        Assert.AreEqual(actual[0], objTup2.Item2);
+
+    }
+
+    [Test]
     public void TestGetPhysObjectByIndex()
     {
         PhysWorld world = new PhysWorld();

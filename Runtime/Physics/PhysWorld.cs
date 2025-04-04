@@ -246,6 +246,11 @@ namespace SepM.Physics {
             return result;
         }
 
+        public List<PhysObject> GetAllPhysObjectsInLayer(long layers)
+        {
+            return m_objects.FindAll(o => o.Coll != null && o.Coll.InLayers(layers));
+        }
+
         /// <summary>
         /// Adds the given PhysObject to the world
         /// </summary>
