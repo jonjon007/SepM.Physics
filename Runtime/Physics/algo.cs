@@ -395,10 +395,10 @@ namespace SepM.Physics{
                 return Raycast(p_obj.Coll, origin - p_obj.Transform.WorldPosition(), dir, layers, physTransform = null);
         }
 
-        public static CollisionPoints Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers) {
+        public static CollisionPoints Raycast(List<Collider> collList, fp3 origin, fp3 dir, long layers, PhysTransform physTransform = null) {
             List<Collider> filetered_colls = collList.FindAll(c => c.InLayers(layers));
             foreach (Collider coll in filetered_colls) {
-                CollisionPoints raycastResult = Raycast(coll, origin, dir, layers);
+                CollisionPoints raycastResult = Raycast(coll, origin, dir, layers, physTransform);
                 if (raycastResult.HasCollision)
                     return raycastResult;
             }
