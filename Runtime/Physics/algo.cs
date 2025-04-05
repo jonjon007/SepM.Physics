@@ -394,6 +394,11 @@ namespace SepM.Physics{
                 return Raycast(p_obj.Coll, origin, dir, layers, p_obj.Transform);
         }
 
+        public static List<Tuple<PhysObject, CollisionPoints>> RaycastAll(PhysObject physObj, fp3 origin, fp3 dir, long layers)
+        {
+            return RaycastAll(new List<PhysObject>{ physObj }, origin, dir, layers);
+        }
+
         public static List<Tuple<PhysObject, CollisionPoints>> RaycastAll(List<PhysObject> physObjects, fp3 origin, fp3 dir, long layers)
         {
             List<Tuple<PhysObject, CollisionPoints>> result = new List<Tuple<PhysObject, CollisionPoints>>();
