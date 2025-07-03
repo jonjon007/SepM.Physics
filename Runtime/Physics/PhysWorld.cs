@@ -285,6 +285,10 @@ namespace SepM.Physics {
         }
 
         public void AddSolver(Solver solver) { m_solvers.Add(solver); }
+        public uint IncrementIDCounter()
+        {
+            return ++currentPhysObjId;
+        }
         public void RemoveSolver(Solver solver) { /* TODO */ }
 
         // Call in fixed timestep
