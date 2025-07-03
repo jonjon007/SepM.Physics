@@ -10,7 +10,6 @@ namespace SepM.Physics
     [Serializable]
     public class PhysTransform : Serial
     { // Describes an objects location
-        public static uint CurrentInstanceId = 1; //Incrementing static PhysTransform counter
         public uint InstanceId; // UUID for object
         public fp3 Position;
         public fp3 Scale;
@@ -20,18 +19,18 @@ namespace SepM.Physics
 
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
-        public PhysTransform(PhysTransform parent = null)
+        public PhysTransform(uint id, PhysTransform parent = null)
         {
-            InstanceId = PhysTransform.CurrentInstanceId++;
+            InstanceId = id;
             Position = fp3.zero;
             Scale = new fp3(1, 1, 1);
             Rotation = fpq.identity;
             SetParent(parent);
             //m_children = new List<PhysTransform>();
         }
-        public PhysTransform(fp3 p, PhysTransform parent = null)
+        public PhysTransform(uint id, fp3 p, PhysTransform parent = null)
         {
-            InstanceId = PhysTransform.CurrentInstanceId++;
+            InstanceId = id;
             Position = p;
             Scale = new fp3(1, 1, 1);
             Rotation = fpq.identity;

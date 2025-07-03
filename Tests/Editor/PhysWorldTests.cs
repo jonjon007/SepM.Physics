@@ -92,7 +92,7 @@ public class PhysWorldTests : MonoBehaviour
         Tuple<GameObject, PhysObject> objTup2 = world.CreateAABBoxObject(
             fp3.zero, new fp3(1, 1, 1), true, true, Constants.GRAVITY * 2, Constants.coll_layers.wall
         );
-        world.AddObject(new PhysObject());
+        world.AddObject(new PhysObject(id: 0));
 
         var actual = world.GetAllPhysObjectsInLayer(Constants.layer_wall);
 

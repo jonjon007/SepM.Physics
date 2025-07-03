@@ -10,6 +10,9 @@ using SepM.Utils;
 namespace SepM.Physics {
     [Serializable]
     public class PhysWorld : Serial {
+        [SerializeField]
+        private uint currentPhysObjId = 0; //Incrementing PhysObject counter
+        [SerializeField]
         private List<PhysObject> m_objects = new List<PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
@@ -128,7 +131,7 @@ namespace SepM.Physics {
             else
                 GameObject.Destroy(gameObj.GetComponent<UnityEngine.SphereCollider>());
             SepM.Physics.SphereCollider coll = new SepM.Physics.SphereCollider(r, l);
-            PhysObject physObj = new PhysObject(center) {
+            PhysObject physObj = new PhysObject(++currentPhysObjId, center) {
                 IsDynamic = isDyn,
                 IsKinematic = isKin,
                 Gravity = g,
@@ -171,7 +174,7 @@ namespace SepM.Physics {
             SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h, l);
             if (physObj == null)
             {
-                physObj = new PhysObject(center)
+                physObj = new PhysObject(++currentPhysObjId, center)
                 {
                     IsDynamic = isDyn,
                     IsKinematic = isKin,
@@ -218,7 +221,7 @@ namespace SepM.Physics {
             SepM.Physics.AABBoxCollider coll = new SepM.Physics.AABBoxCollider(fp3.zero, scale, true, l);
             if (physObj == null)
             {
-                physObj = new PhysObject(center)
+                physObj = new PhysObject(++currentPhysObjId, center)
                 {
                     IsDynamic = isDyn,
                     IsKinematic = isKin,
@@ -316,6 +319,11 @@ namespace SepM.Physics {
             }
         }
 
+        public void ResetIDCounter()
+        {
+            currentPhysObjId = 0;
+        }
+
         void ResolveCollisions<T>(fp dt, T context) {
             // Reset collisions list
             collisions = new List<PhysCollision>();
@@ -359,8 +367,7 @@ namespace SepM.Physics {
         public void Serialize(BinaryWriter bw)
         {
         //physObject and physTransform IDs
-            bw.Write(PhysObject.CurrentInstanceId);
-            bw.Write(PhysTransform.CurrentInstanceId);
+            bw.Write(currentPhysObjId);
         //m_objects
             bw.Write(m_objects.Count);
             for (int i = 0; i < m_objects.Count; i++)
@@ -391,8 +398,7 @@ namespace SepM.Physics {
         public Serial Deserialize<T>(BinaryReader br, T context)
         {
         //physObject and physTransform IDs
-            PhysObject.CurrentInstanceId = br.ReadUInt32();
-            PhysTransform.CurrentInstanceId = br.ReadUInt32();
+            currentPhysObjId = br.ReadUInt32();
         //m_objects
             int m_objects_length = br.ReadInt32();
             if (m_objects_length != m_objects.Count)
@@ -400,7 +406,7 @@ namespace SepM.Physics {
                 // Create a new list if the counts aren't the same
                 m_objects = new List<PhysObject>(new PhysObject[m_objects_length]);
                 for (int i = 0; i < m_objects_length; i++)
-                    m_objects[i] = new PhysObject();
+                    m_objects[i] = new PhysObject(id: 0);
             }
             // Read down the data for each object
             for (int i = 0; i < m_objects_length; i++)
@@ -474,8 +480,7 @@ namespace SepM.Physics {
         public override int GetHashCode() {
             int hashCode = -1214587014;
         //physObject and physTransform IDs
-            hashCode = hashCode * -1521134295 + PhysObject.CurrentInstanceId.GetHashCode();
-            hashCode = hashCode * -1521134295 + PhysTransform.CurrentInstanceId.GetHashCode();
+            hashCode = hashCode * -1521134295 + currentPhysObjId.GetHashCode();
         //m_objects
             foreach (var m_obj in m_objects) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();

@@ -750,7 +750,6 @@ namespace SepM.Physics{
     [Serializable]
     /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
     public class PhysObject : Serial {
-        public static uint CurrentInstanceId = 0; //Incrementing static PhysObject counter
         public uint InstanceId; // UUID for object
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k
         public fp3 Velocity;
@@ -766,39 +765,31 @@ namespace SepM.Physics{
         public bool IsDynamic = false;
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
-        public PhysObject(){
-            InstanceId = PhysObject.CurrentInstanceId++;
-            Transform = new PhysTransform();
+        public PhysObject(uint id){
+            InstanceId = id;
+            Transform = new PhysTransform(id: id);
             Velocity = new fp3();
             Force = new fp3();
             InverseMass = 1m/5m;
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
 
-        public PhysObject(int m){
-            InstanceId = PhysObject.CurrentInstanceId++;
-            Transform = new PhysTransform();
+        public PhysObject(uint id, int m){
+            InstanceId = id;
+            Transform = new PhysTransform(id: id);
             Velocity = new fp3();
             Force = new fp3();
             InverseMass = 1m/m;
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
-        public PhysObject(fp3 pos){
-            InstanceId = PhysObject.CurrentInstanceId++;
-            PhysTransform newTransform = new PhysTransform();
+        public PhysObject(uint id, fp3 pos){
+            InstanceId = id;
+            PhysTransform newTransform = new PhysTransform(id: id);
             newTransform.Position = pos;
             Transform = newTransform;
             Velocity = new fp3();
             Force = new fp3();
             InverseMass = 1m/5m;
-            Gravity = SepM.Physics.Constants.GRAVITY;
-        }
-        public PhysObject(PhysTransform t, fp3 v, fp3 f, fp m){
-            InstanceId = PhysObject.CurrentInstanceId++;
-            Transform = t;
-            Velocity = v;
-            Force = f;
-            InverseMass = 1m/m;
             Gravity = SepM.Physics.Constants.GRAVITY;
         }
 

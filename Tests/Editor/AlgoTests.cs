@@ -9,8 +9,8 @@ public class AlgoTests
     public void SphereSphereCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -21,8 +21,8 @@ public class AlgoTests
     public void SphereSphereCollision_Overlap(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(2);
-        PhysTransform ta = new PhysTransform(new fp3(-1,1,0));
-        PhysTransform tb = new PhysTransform(new fp3(1,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(-1,1,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(1,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -33,8 +33,8 @@ public class AlgoTests
     public void SphereSphereCollision_Edge(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(1);
-        PhysTransform ta = new PhysTransform(new fp3(-1,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(1,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(-1,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(1,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -45,8 +45,8 @@ public class AlgoTests
     public void SphereSphereCollision_NotTouching(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(1);
-        PhysTransform ta = new PhysTransform(new fp3(-1.1m,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(1,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(-1.1m,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(1,0,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -57,10 +57,10 @@ public class AlgoTests
     public void SphereSphereCollision_ChildrenTouching(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -73,10 +73,10 @@ public class AlgoTests
     public void SphereSphereCollision_ChildrenNotTouching(){
         SphereCollider a = new SphereCollider(1);
         SphereCollider b = new SphereCollider(2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -89,8 +89,8 @@ public class AlgoTests
     public void SpherePlaneCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
         PlaneCollider b = new PlaneCollider(new fp3(0,1,0), 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -102,8 +102,8 @@ public class AlgoTests
         SphereCollider a = new SphereCollider(1);
         PlaneCollider b = new PlaneCollider(new fp3(0,1,0), 2);
         // Planes are infinite
-        PhysTransform ta = new PhysTransform(new fp3(5,.5m,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(5,.5m,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -114,8 +114,8 @@ public class AlgoTests
     public void SpherePlaneCollision_Edge(){
         SphereCollider a = new SphereCollider(1);
         PlaneCollider b = new PlaneCollider(new fp3(1,0,0), 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,.5m));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,.5m));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -126,8 +126,8 @@ public class AlgoTests
     public void SpherePlaneCollision_NotTouching(){
         SphereCollider a = new SphereCollider(1);
         PlaneCollider b = new PlaneCollider(new fp3(1,0,0), 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,-1.1m,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,-1.1m,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -138,8 +138,8 @@ public class AlgoTests
     public void SphereCapsuleCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -150,8 +150,8 @@ public class AlgoTests
     public void SphereCapsuleCollision_Overlap(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,.5m));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,.5m));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -162,8 +162,8 @@ public class AlgoTests
     public void SphereCapsuleCollision_Edge(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,1.5m,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,1.5m,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -174,8 +174,8 @@ public class AlgoTests
     public void SphereCapsuleCollision_NotTouching(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,3,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,3,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -186,10 +186,10 @@ public class AlgoTests
     public void SphereCapsuleCollision_ChildrenTouching(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -202,10 +202,10 @@ public class AlgoTests
     public void SphereCapsuleCollision_ChildrenNotTouching(){
         SphereCollider a = new SphereCollider(1);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -218,8 +218,8 @@ public class AlgoTests
     public void SphereAABoxCollision_SamePos(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -230,8 +230,8 @@ public class AlgoTests
     public void SphereAABoxCollision_Overlap(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-.5m,-1), new fp3(1,1.5m,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -242,8 +242,8 @@ public class AlgoTests
     public void SphereAABoxCollision_Edge(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,2,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,2,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -254,8 +254,8 @@ public class AlgoTests
     public void SphereAABoxCollision_NotTouching(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(3,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(3,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -266,10 +266,10 @@ public class AlgoTests
     public void SphereAABoxCollision_ChildrenTouching(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -282,10 +282,10 @@ public class AlgoTests
     public void SphereAABoxCollision_ChildrenNotTouching(){
         SphereCollider a = new SphereCollider(1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -298,8 +298,8 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_SamePos(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -310,8 +310,8 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_Overlap(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(1,1.5m,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(1,1.5m,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -322,8 +322,8 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_Edge(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 6);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,4,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,4,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -334,8 +334,8 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_NotTouching(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform ta = new PhysTransform(new fp3(0,4,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,4,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -347,8 +347,8 @@ public class AlgoTests
     {
         CapsuleCollider a = new CapsuleCollider(new fp3(10, 0, 0), 1, 50);
         CapsuleCollider b = new CapsuleCollider(new fp3(0, 10, 0), 1, 5);
-        PhysTransform ta = new PhysTransform(new fp3(0, 0, 0));
-        PhysTransform tb = new PhysTransform(new fp3(0, 0, 0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0, 0, 0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0, 0, 0));
         // Turn the long capsule 45 degrees
         ta.Rotate(new fp3(0, 0, 45));
         bool expected = true;
@@ -362,8 +362,8 @@ public class AlgoTests
     {
         CapsuleCollider a = new CapsuleCollider(new fp3(10,0,0), 1, 50);
         CapsuleCollider b = new CapsuleCollider(new fp3(0, 10, 0), 1, 5);
-        PhysTransform ta = new PhysTransform(new fp3(0, 0, 0));
-        PhysTransform tb = new PhysTransform(new fp3(0, 0, 0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0, 0, 0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0, 0, 0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -374,10 +374,10 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_ChildrenTouching(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -390,10 +390,10 @@ public class AlgoTests
     public void CapsuleCapsuleCollision_ChildrenNotTouching(){
         CapsuleCollider a = new CapsuleCollider(fp3.zero, 2, 5);
         CapsuleCollider b = new CapsuleCollider(fp3.zero, 1, 2);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -406,8 +406,8 @@ public class AlgoTests
     public void CapsuleAABoxCollision_SamePos(){
         CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -418,8 +418,8 @@ public class AlgoTests
     public void CapsuleAABoxCollision_Overlap(){
         CapsuleCollider a = new CapsuleCollider(new fp3(0), .5m, 2);
         AABBoxCollider b = new AABBoxCollider(new fp3(-2,0,-1), new fp3(2,.5m,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -430,8 +430,8 @@ public class AlgoTests
     public void CapsuleAABoxCollision_Edge(){
         CapsuleCollider a = new CapsuleCollider(new fp3(1.5m, 1, 1.5m), .5m, 2);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -442,8 +442,8 @@ public class AlgoTests
     public void CapsuleAABoxCollision_NotTouching(){
         CapsuleCollider a = new CapsuleCollider(new fp3(0,2,0), .5m, 2);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,-.5m,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -454,10 +454,10 @@ public class AlgoTests
     public void CapsuleAABoxCollision_ChildrenTouching(){
         CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -470,10 +470,10 @@ public class AlgoTests
     public void CapsuleAABoxCollision_ChildrenNotTouching(){
         CapsuleCollider a = new CapsuleCollider(new fp3(-1,-1,-1), 1, 1);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(5,5,5), true);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -486,8 +486,8 @@ public class AlgoTests
     public void AABBoxAABoxCollision_SamePos(){
         AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -498,8 +498,8 @@ public class AlgoTests
     public void AABBoxAABoxCollision_Overlap(){
         AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
         AABBoxCollider b = new AABBoxCollider(new fp3(-2,0,-1), new fp3(2,.5m,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -510,8 +510,8 @@ public class AlgoTests
     public void AABBoxAABoxCollision_Edge(){
         AABBoxCollider a = new AABBoxCollider(new fp3(1,1,1), new fp3(2,2,2));
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1));
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = true;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -522,8 +522,8 @@ public class AlgoTests
     public void AABBoxAABoxCollision_NotTouching(){
         AABBoxCollider a = new AABBoxCollider(new fp3(10,-8.150096m,0), new fp3(1,1,1), true);
         AABBoxCollider b = new AABBoxCollider(new fp3(10,-10,0), new fp3(1,1,1), true);
-        PhysTransform ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform tb = new PhysTransform(id: 1, new fp3(0,0,0));
         bool expected = false;
 
         CollisionPoints cp = a.TestCollision(ta, b, tb);
@@ -534,10 +534,10 @@ public class AlgoTests
     public void AABBoxAABoxCollision_ChildrenTouching(){
         AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(-10,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(-10,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = true;
@@ -550,10 +550,10 @@ public class AlgoTests
     public void AABBoxAABoxCollision_ChildrenNotTouching(){
         AABBoxCollider a = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
         AABBoxCollider b = new AABBoxCollider(new fp3(-1,-1,-1), new fp3(1,1,1), true);
-        PhysTransform parent_ta = new PhysTransform(new fp3(-10,0,0));
-        PhysTransform parent_tb = new PhysTransform(new fp3(10,0,0));
-        PhysTransform child_ta = new PhysTransform(new fp3(0,0,0));
-        PhysTransform child_tb = new PhysTransform(new fp3(0,0,0));
+        PhysTransform parent_ta = new PhysTransform(id: 1, new fp3(-10,0,0));
+        PhysTransform parent_tb = new PhysTransform(id: 1, new fp3(10,0,0));
+        PhysTransform child_ta = new PhysTransform(id: 1, new fp3(0,0,0));
+        PhysTransform child_tb = new PhysTransform(id: 1, new fp3(0,0,0));
         child_ta.SetParent(parent_ta);
         child_tb.SetParent(parent_tb);
         bool expected = false;
@@ -566,7 +566,7 @@ public class AlgoTests
     public void Capsulecast_Edge()
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, -2), 1, 2);
-        PhysTransform t = new PhysTransform(new fp3(-2, 0, 2));
+        PhysTransform t = new PhysTransform(id: 1, new fp3(-2, 0, 2));
         bool expected = true;
 
         CollisionPoints actual = algo.Capsulecast(coll, new fp3(0,2,0), 1, 4, new fp3(1,0,0), Constants.layer_all, t);
@@ -577,7 +577,7 @@ public class AlgoTests
     public void Capsulecast_Not_Touching()
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, -2), 1, 2);
-        PhysTransform t = new PhysTransform(new fp3(-2, 0, 2));
+        PhysTransform t = new PhysTransform(id: 1, new fp3(-2, 0, 2));
         bool expected = false;
 
         CollisionPoints actual = algo.Capsulecast(coll, new fp3(0, 2.1m, 0), 1, 4, new fp3(1, 0, 0), Constants.layer_all, t);
@@ -588,22 +588,22 @@ public class AlgoTests
     public void Raycastall()
     {
         // Correct spot, correct layer
-        PhysObject p1 = new PhysObject();
+        PhysObject p1 = new PhysObject(id: 0);
         Collider c1 = new AABBoxCollider(fp3.zero, new fp3(1, 1, 1), true);
         c1.Layer = Constants.coll_layers.wall;
         p1.Coll = c1;
         // Wrong spot, correct layer
-        PhysObject p2 = new PhysObject();
+        PhysObject p2 = new PhysObject(id: 0);
         Collider c2 = new AABBoxCollider(new fp3(0,.6m,0), new fp3(1,1,1), true);
         c2.Layer = Constants.coll_layers.wall;
         p2.Coll = c2;
         // Correct spot, wrong layer
-        PhysObject p3 = new PhysObject();
+        PhysObject p3 = new PhysObject(id: 0);
         Collider c3 = new AABBoxCollider(fp3.zero, new fp3(1, 1, 1), true);
         c3.Layer = Constants.coll_layers.normal;
         p3.Coll = c3;
         // Correct spot, correct layer, different type
-        PhysObject p4 = new PhysObject();
+        PhysObject p4 = new PhysObject(id: 0);
         Collider c4 = new CapsuleCollider(fp3.zero, 1, 1);
         c4.Layer = Constants.coll_layers.wall;
         p4.Coll = c4;
@@ -631,7 +631,7 @@ public class AlgoTests
     [Test]
     public void Raycast_AABB_Touching_MovedParent()
     {
-        PhysObject physObject = new PhysObject(new fp3(1,0,0));
+        PhysObject physObject = new PhysObject(id: 0, new fp3(1,0,0));
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1, -1, -1), new fp3(1, 1, 1));
         physObject.Coll = coll;
         bool expected = true;
@@ -643,7 +643,7 @@ public class AlgoTests
     [Test]
     public void Raycast_AABB_Not_Touching_MovedParent()
     {
-        PhysObject physObject = new PhysObject(new fp3(1, 0, 0));
+        PhysObject physObject = new PhysObject(id: 0, new fp3(1, 0, 0));
         AABBoxCollider coll = new AABBoxCollider(new fp3(-1, -1, -1), new fp3(1, 1, 1));
         physObject.Coll = coll;
         bool expected = false;
@@ -690,7 +690,7 @@ public class AlgoTests
 
     [Test]
     public void Raycast_AABB_Phys_Obj_Non_Unit_Vec(){
-        PhysObject p_obj = new PhysObject(new fp3(-1,0,0));
+        PhysObject p_obj = new PhysObject(id: 0, new fp3(-1,0,0));
         AABBoxCollider coll = new AABBoxCollider(new fp3(0,-1,-1), new fp3(2,1,1));
         p_obj.Coll = coll;
         bool expected = true;
@@ -701,7 +701,7 @@ public class AlgoTests
 
     [Test]
     public void Raycast_No_Coll_Phys_Obj(){
-        PhysObject p_obj = new PhysObject(new fp3(0,0,0));
+        PhysObject p_obj = new PhysObject(id: 0, new fp3(0,0,0));
         bool expected = false;
 
         CollisionPoints actual = algo.Raycast(p_obj, new fp3(0,2,0), new fp3(1,-1,0));
@@ -730,7 +730,7 @@ public class AlgoTests
     public void Raycast_Capsule_Touching()
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2,0,0), 1, 1);
-        PhysTransform t = new PhysTransform(new fp3(-2,0,0));
+        PhysTransform t = new PhysTransform(id: 1, new fp3(-2,0,0));
         bool expected = true;
 
         CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 1, 0), new fp3(1, 0, 0), t);
@@ -741,7 +741,7 @@ public class AlgoTests
     public void Raycast_Capsule_Edge()
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, 0), 1, 1);
-        PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
+        PhysTransform t = new PhysTransform(id: 1, new fp3(-2, 0, 0));
         bool expected = true;
 
         CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 1.5m, 0), new fp3(2, 0, 0), t);
@@ -752,7 +752,7 @@ public class AlgoTests
     public void Raycast_Capsule_Not_Touching()
     {
         CapsuleCollider coll = new CapsuleCollider(new fp3(2, 0, 0), 1, 1);
-        PhysTransform t = new PhysTransform(new fp3(-2, 0, 0));
+        PhysTransform t = new PhysTransform(id: 1, new fp3(-2, 0, 0));
         bool expected = false;
 
         CollisionPoints actual = algo.Raycast(coll, new fp3(-1, 1.6m, 0), new fp3(2, 0, 0), t);
@@ -770,7 +770,7 @@ public class AlgoTests
         long expectedRawY;
         long expectedRawZ;
         fp3 actual;
-        PhysObject po = new PhysObject(fp3.zero);
+        PhysObject po = new PhysObject(id: 0, fp3.zero);
         fp3 otherPos;
 
         po.Transform.Position = new fp3(1,0,0);
@@ -799,7 +799,7 @@ public class AlgoTests
         long expectedRawY;
         long expectedRawZ;
         fp3 actual;
-        PhysObject po = new PhysObject(fp3.zero);
+        PhysObject po = new PhysObject(id: 0, fp3.zero);
         fp3 otherPos;
 
         po.Transform.Position = new fp3(1,0,0);

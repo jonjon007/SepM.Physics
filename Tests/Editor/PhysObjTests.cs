@@ -82,9 +82,9 @@ partial class PhysObjTests
     {
         bool sameHash = false;
 
-        PhysTransform parent = new PhysTransform();
+        PhysTransform parent = new PhysTransform(id: 1);
 
-        PhysTransform start = new PhysTransform(new fp3(1,2,3), parent);
+        PhysTransform start = new PhysTransform(id: 1, new fp3(1,2,3), parent);
         start.Scale = new fp3(6, 5, 4);
         start.Rotation = new fpq(
             fp.FromRaw(2765320905L),
@@ -96,7 +96,7 @@ partial class PhysObjTests
 
         try
         {
-            PhysTransform finish = new PhysTransform();
+            PhysTransform finish = new PhysTransform(id: 1);
             finish = (PhysTransform)TestUtils.FromBytes(serialized, finish);
             sameHash = start.GetHashCode() == finish.GetHashCode();
         }
@@ -162,8 +162,8 @@ partial class PhysObjTests
         fp3 expected;
         fp3 actual;
 
-        PhysTransform parent_t = new PhysTransform(fp3.zero);
-        PhysTransform child_t = new PhysTransform(new fp3(0,0,10));
+        PhysTransform parent_t = new PhysTransform(id: 1, fp3.zero);
+        PhysTransform child_t = new PhysTransform(id: 1, new fp3(0,0,10));
         child_t.SetParent(parent_t);
         expected = new fp3(0, 0, fp.FromRaw(42949672960L)); // 0,0,10
         actual = child_t.WorldPosition();
@@ -180,8 +180,7 @@ partial class PhysObjTests
     {
         bool sameHash = false;
 
-        PhysObject.CurrentInstanceId = 0; // Reset instance id sequence
-        PhysTransform.CurrentInstanceId = 1; // Reset instance id sequence
+        world.ResetIDCounter();
         PhysWorld wStart = CreateSampleWorld();
         NativeArray<byte> seriWorld = ToBytes(wStart);
         try
@@ -191,7 +190,7 @@ partial class PhysObjTests
             FromBytes(seriWorld, wFinish);
 
             // Add a new object
-            wFinish.AddObject(new PhysObject());
+            wFinish.AddObject(new PhysObject(id: 0));
 
             // Then roll back
             FromBytes(seriWorld, wFinish);
@@ -214,8 +213,7 @@ partial class PhysObjTests
     public void TestWorldSerialize(){
         bool sameHash = false;
 
-        PhysObject.CurrentInstanceId = 0; // Reset instance id sequence
-        PhysTransform.CurrentInstanceId = 1; // Reset instance id sequence
+        world.ResetIDCounter();
         PhysWorld wStart = CreateSampleWorld();
         NativeArray<byte> seriWorld = ToBytes(wStart);
         try{
@@ -236,25 +234,25 @@ partial class PhysObjTests
 
     [Test]
     public void TestWorldSerializeCreateObjects(){
-        int preGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        int preGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         // Create one world
         PhysWorld world = CreateSampleWorld();
         // Store game object count
-        int originalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        int originalGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         // Write it with binary writer
         NativeArray<byte> seriWorld = ToBytes(world);
 
         //Clear the world
         world.CleanUp();
         // Assert that GO count is the same as it originally was
-        Assert.AreEqual(preGOCount, GameObject.FindObjectsOfType<GameObject>().Length);
+        Assert.AreEqual(preGOCount, GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length);
 
         int finalGOCount = -1;
         // Read down the old one again
         try{
             // Read what was written into a new world and copy it
             FromBytes(seriWorld, world);
-            finalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+            finalGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         }
         finally{
             // Dispose of the NativeArray when we're done with it
@@ -272,11 +270,11 @@ partial class PhysObjTests
 
     [Test]
     public void TestWorldSerializeDeleteObject(){
-        int preGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        int preGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         // Create one world
         PhysWorld world = CreateSampleWorld();
         // Store game object count
-        int originalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+        int originalGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         // Write it with binary writer
         NativeArray<byte> seriWorld = ToBytes(world);
         // Add a gameobject to the world
@@ -284,14 +282,14 @@ partial class PhysObjTests
             new fp3(0,10,0), 2, true, true, Constants.GRAVITY
         );
         // Assert that GO count went up by 1
-        Assert.AreEqual(originalGOCount+1, GameObject.FindObjectsOfType<GameObject>().Length);
+        Assert.AreEqual(originalGOCount+1, GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length);
 
         int finalGOCount = -1;
         // Read down the old one again
         try{
             // Read what was written into a new world and copy it
             FromBytes(seriWorld, world);
-            finalGOCount = GameObject.FindObjectsOfType<GameObject>().Length;
+            finalGOCount = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
         }
         finally{
             // Dispose of the NativeArray when we're done with it

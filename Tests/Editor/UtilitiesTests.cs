@@ -152,7 +152,7 @@ public class UtilitiesTests
 
     [Test]
     public void TestLookRotationDiagonal(){
-        PhysTransform t = new PhysTransform();
+        PhysTransform t = new PhysTransform(id: 1);
         t.Position = new fp3(6,3,7);
         t.Rotation = fpq.identity;
         fp3 posTarget = new fp3(0,0,1);
