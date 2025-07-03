@@ -16,9 +16,8 @@ namespace SepM.Physics {
 
         // Update is called once per frame
         public void Initialize(PhysWorld world) {
-            // Set the PhysObject's ID
-            // TODO: Erm, this isn't good, but I'm not using this anyway
-            physObj.InstanceId = 0;//PhysObject.CurrentInstanceId++;
+            physObj.InstanceId = world.IncrementIDCounter();
+            physObj.Transform.InstanceId = physObj.InstanceId;
 
             // Set the PhysObject's position
             physObj.Transform.Position = new fp3(
