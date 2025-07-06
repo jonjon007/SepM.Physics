@@ -748,22 +748,6 @@ namespace SepM.Physics{
         }
     };
 
-    // public class CustomIColliderConverter : JsonConverter<ICollider> {
-    //     public override void WriteJson(JsonWriter writer, ICollider value, JsonSerializer serializer) {
-    //         uint instanceId = 0;
-    //         string t = "unknownType";
-    //         if (value is PhysObject) {
-    //             instanceId = value == null ? 0 : ((PhysObject)value).InstanceId;
-    //             t = "PhysObject";
-    //         }
-    //        writer.WriteValue($"{t}({instanceId})");
-    //     }
-
-    //     public override ICollider ReadJson(JsonReader reader, Type objectType, ICollider existingValue, bool hasExistingValue, JsonSerializer serializer) {
-    //         return existingValue;
-    //     }
-    // }
-
     [Serializable]
     /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
     public class PhysObject : Serial {
@@ -780,9 +764,6 @@ namespace SepM.Physics{
         public fp StaticFriction = 0.5m; // Static friction coefficient
         public Collider Coll = null; // Collider attached to PhysObject
         public bool IsDynamic = false;
-        //[JsonConverter(typeof(CustomIColliderConverter))]
-        // TODO: Figure this out
-        [JsonIgnore]
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
         public PhysObject(uint id){

@@ -11,8 +11,10 @@ using Newtonsoft.Json;
 namespace SepM.Physics {
     [Serializable]
     public class PhysWorld : Serial {
+        [JsonProperty]
         [SerializeField]
         private uint currentPhysObjId = 0; //Incrementing PhysObject counter
+        [JsonProperty]
         [SerializeField]
         private List<PhysObject> m_objects = new List<PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
@@ -58,7 +60,7 @@ namespace SepM.Physics {
         }
 
         private GameObject FindGameObjectById(int instanceId){
-            UnityEngine.GameObject[] all = GameObject.FindObjectsOfType<GameObject>();
+            UnityEngine.GameObject[] all = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
             for (int i = 0; i < all.Length; i++)
             {
                 if (all[i].GetInstanceID() == instanceId)
