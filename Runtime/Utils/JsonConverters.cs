@@ -1,5 +1,6 @@
 using System;
 using Unity.Mathematics.FixedPoint;
+using UnityEngine;
 using Newtonsoft.Json;
 
 namespace SepM.Utils
@@ -40,6 +41,19 @@ namespace SepM.Utils
             }
 
             public override fp4 ReadJson(JsonReader reader, Type objectType, fp4 existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                return existingValue;
+            }
+        }
+
+        public class GameObjectConverter : JsonConverter<GameObject>
+        {
+            public override void WriteJson(JsonWriter writer, GameObject value, JsonSerializer serializer)
+            {
+                writer.WriteValue(value.ToString());
+            }
+
+            public override GameObject ReadJson(JsonReader reader, Type objectType, GameObject existingValue, bool hasExistingValue, JsonSerializer serializer)
             {
                 return existingValue;
             }

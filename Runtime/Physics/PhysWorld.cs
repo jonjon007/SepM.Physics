@@ -19,8 +19,8 @@ namespace SepM.Physics {
         private List<PhysObject> m_objects = new List<PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
-        [JsonIgnore]
-        public Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
+        [JsonProperty]
+        private Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
         public PhysObject GetPhysObjectById(uint instanceId){
