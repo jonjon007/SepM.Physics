@@ -777,6 +777,7 @@ namespace SepM.Physics{
         public fp StaticFriction = 0.5m; // Static friction coefficient
         public Collider Coll = null; // Collider attached to PhysObject
         public bool IsDynamic = false;
+        [JsonProperty(ReferenceLoopHandling = ReferenceLoopHandling.Ignore)]
         [JsonConverter(typeof(IColliderConverter))]
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
