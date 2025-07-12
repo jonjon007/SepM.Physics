@@ -751,6 +751,19 @@ namespace SepM.Physics{
     [Serializable]
     /* Using as a class (instead of a struct) since it represents a combination of values and will be mutated often. */
     public class PhysObject : Serial {
+        public class IColliderConverter : JsonConverter<ICollider>
+        {
+            public override void WriteJson(JsonWriter writer, ICollider value, JsonSerializer serializer)
+            {
+                writer.WriteValue(value == null ? string.Empty : value.ToString());
+            }
+
+            public override ICollider ReadJson(JsonReader reader, Type objectType, ICollider existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                return existingValue;
+            }
+        }
+
         public uint InstanceId; // UUID for object
         public PhysTransform Transform; // struct with 3 floats for x, y, z or i + j + k
         public fp3 Velocity;
@@ -764,6 +777,7 @@ namespace SepM.Physics{
         public fp StaticFriction = 0.5m; // Static friction coefficient
         public Collider Coll = null; // Collider attached to PhysObject
         public bool IsDynamic = false;
+        [JsonConverter(typeof(IColliderConverter))]
         public ICollider IColl = null; // Attached script with OnCollision callbacks
 
         public PhysObject(uint id){
