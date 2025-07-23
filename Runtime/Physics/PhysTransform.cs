@@ -4,6 +4,7 @@ using SepM.Utils;
 using System;
 using System.IO;
 using Unity.Mathematics.FixedPoint;
+using Newtonsoft.Json;
 
 namespace SepM.Physics
 {
@@ -16,6 +17,8 @@ namespace SepM.Physics
         public fpq Rotation;
         private PhysTransform m_parent;
         public uint m_parent_id = 0;
+        [JsonProperty]
+        private int HashCode => GetHashCode();
 
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;

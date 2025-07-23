@@ -780,6 +780,8 @@ namespace SepM.Physics{
         [JsonProperty(ReferenceLoopHandling = ReferenceLoopHandling.Ignore)]
         [JsonConverter(typeof(IColliderConverter))]
         public ICollider IColl = null; // Attached script with OnCollision callbacks
+        [JsonProperty]
+        private int HashCode => GetHashCode();
 
         public PhysObject(uint id){
             InstanceId = id;

@@ -22,6 +22,8 @@ namespace SepM.Physics {
         [JsonProperty]
         public Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
+        [JsonProperty]
+        private int HashCode => GetHashCode();
 
         public PhysObject GetPhysObjectById(uint instanceId){
             foreach(PhysObject p in m_objects)
