@@ -491,17 +491,23 @@ namespace SepM.Physics {
             int hashCode = -1214587014;
         //physObject and physTransform IDs
             hashCode = hashCode * -1521134295 + currentPhysObjId.GetHashCode();
-        //m_objects
-            foreach (var m_obj in m_objects) {
+        //m_objects (sorted by InstanceId for determinism)
+            var sortedObjects = m_objects.OrderBy(obj => obj.InstanceId).ToList();
+            foreach (var m_obj in sortedObjects) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();
             }
-        //collisions
-            foreach (var c in collisions)
+        //collisions (sorted by ObjIds for determinism)
+            var sortedCollisions = collisions
+                .OrderBy(c => c.ObjIdA)
+                .ThenBy(c => c.ObjIdB)
+                .ToList();
+            foreach (var c in sortedCollisions)
             {
                 hashCode = hashCode * -1521134295 + c.GetHashCode();
             }
-        //objectsMap
-            foreach (var k in objectsMap.Keys)
+        //objectsMap (sorted keys for determinism)
+            var sortedKeys = objectsMap.Keys.OrderBy(k => k).ToList();
+            foreach (var k in sortedKeys)
             {
                 hashCode = hashCode * -1521134295 + k.GetHashCode();
             }
