@@ -43,6 +43,7 @@ namespace SepM.Physics {
             else {
                 Debug.LogWarningFormat("No SepObject implementation for type '{0}'!", colliderType.ToString());
             }
+            world.AddObject(physObj);
 
             // Get the result
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(

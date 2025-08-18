@@ -117,9 +117,9 @@ namespace SepM.Physics {
         public void AssignGameObject(GameObject gameObj, PhysObject physObj) {
             objectsMap[physObj.InstanceId] = gameObj;
 
-            // If you're seeing this, find a cleaner way to create your objects.
             if (!m_objects.Contains(physObj)) {
-                Debug.LogWarning($"m_objects missing PhysObject from objectsMap with ID of {physObj.InstanceId}!\nCreating a new one.");
+                Debug.LogWarning($"m_objects missing PhysObject from objectsMap with ID of {physObj.InstanceId}! Creating a new one." +
+                    $"\nIf you're seeing this, remember to add your new PhysObjects to the world after creating them");
                 m_objects.Add(physObj);
             }
         }
