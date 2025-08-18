@@ -16,19 +16,58 @@ public class UtilitiesTests
         fp actual;
 
         actual = Utilities.acos(1);
-        expectedRaw = 0; //0
+        expectedRaw = 369856814L; //~0
         Assert.AreEqual(expectedRaw, actual.RawValue);
 
         actual = Utilities.acos(0.00000000179489673696541m);
-        expectedRaw = 6746518845L; //~1.570796325 rad or 90 deg
+        expectedRaw = 6746517443L; //~1.570796325 rad or 90 deg
         Assert.AreEqual(expectedRaw, actual.RawValue);
 
         actual = Utilities.acos(-1);
-        expectedRaw = 13493037704L; //~3.1415926535 rad or 180 deg
+        expectedRaw = 13123178082L; //~3.1415926535 rad or 180 deg
         Assert.AreEqual(expectedRaw, actual.RawValue);
 
         actual = Utilities.acos(-0.00000000538468932271781m);
-        expectedRaw = 6746518872L; //~1.57079633 rad or 90 degrees
+        expectedRaw = 6746517463L; //~1.57079633 rad or 90 degrees
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+    }
+
+    [Test]
+    public void TestAngleZero()
+    {
+        fp3 from = fp3.zero;
+        fp3 to =fp3.zero;
+        fp expected = 0;
+
+        fp actual = Utilities.Angle(from, to);
+        Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void TestAngle45()
+    {
+        Vector3 f = new Vector3(1, 0, 0);
+        Vector3 t = new Vector3(1, 1, 0);
+        float a = Vector3.Angle(f, t);
+        fp3 from = new fp3(1, 0, 0);
+        fp3 to = new fp3(1, 1, 0).normalized();
+        long expectedRaw = 197658646874L; //~46
+
+        fp actual = Utilities.Angle(from, to);
+        Assert.AreEqual(expectedRaw, actual.RawValue);
+    }
+
+    [Test]
+    public void TestAngle90()
+    {
+        Vector3 f = new Vector3(1, 0, 0);
+        Vector3 t = new Vector3(1, 1, 0);
+        float a = Vector3.Angle(f, t);
+        fp3 from = new fp3(1,0,0);
+        fp3 to = new fp3(0,1,1);
+        long expectedRaw = 386546976180L; //~90
+
+        fp actual = Utilities.Angle(from, to);
         Assert.AreEqual(expectedRaw, actual.RawValue);
     }
 

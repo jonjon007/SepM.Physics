@@ -9,7 +9,21 @@ namespace SepM.Utils{
     {
         /* Returns the arccosine of the given value in radians. */
         public static fp acos(fp x){
-               return (-0.69813170079773212m * x * x - 0.87266462599716477m) * x + 1.5707963267948966m;
+            // Tradeoff for speed, max error is ~4.93 degrees
+            return (-0.798325m * x * x - 0.686357m) * x + 1.570796m;
+        }
+
+        /* Returns the angle between two vectors in degrees. Values will be between 0 and 180 */
+        public static fp Angle(fp3 from, fp3 to)
+        {
+            fp kEpsilonNormalSqrt = 1e-9m;
+            // sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
+            fp denominator = Utilities.sqrt(from.lengthSqrd() * to.lengthSqrd());
+            if (denominator < kEpsilonNormalSqrt)
+                return 0m;
+
+            fp dot = Utilities.clamp(Utilities.dot(from, to) / denominator, -1m, 1m);
+            return fpmath.degrees(Utilities.acos(dot));
         }
 
         public static fp clamp(this fp x, fp min, fp max){
