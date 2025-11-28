@@ -76,18 +76,35 @@ namespace SepM.Physics
 
         public void SetDimensions(fp height, fp radius)
         {
-            // Total height = cylinder height + 2 * radius (for the two hemisphere caps)
-            // Therefore: cylinder height = total height - 2 * radius
-            fp cylinderHeight = height - radius * 2;
+            // Convert fp to float for Unity transforms
+            float h = (float)height;
+            float r = (float)radius;
             
-            cylinder.localScale = new(cylinder.localScale.x * (float)radius*2f, (float)height/2, cylinder.localScale.z * (float)radius*2f);
-            topSphere.localScale = new((float)radius*2f, (float)radius*2f, (float)radius*2f);
-            bottomSphere.localScale = new((float)radius*2f, (float)radius*2f, (float)radius*2f);
-
-            // Position spheres at the ends of the cylinder
-            fp halfCylinderHeight = cylinderHeight / 2;
-            topSphere.localPosition = new(0, (float)halfCylinderHeight, 0);
-            bottomSphere.localPosition = new(0, -(float)halfCylinderHeight, 0);
+            // The height parameter is the total height of the capsule
+            // The cylinder height is the total height minus the two hemisphere radii (which equal the diameter)
+            float cylinderHeight = h - (2f * r);
+            
+            // If cylinder height is negative or zero, we have a sphere (degenerate capsule)
+            if (cylinderHeight <= 0f)
+            {
+                cylinderHeight = 0.001f; // Minimum cylinder height to avoid issues
+            }
+            
+            // Position top sphere at the top of the capsule
+            // The center of the top hemisphere is at (height/2 - radius)
+            topSphere.localPosition = new Vector3(0f, (h / 2f) - r, 0f);
+            topSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f); // Unity sphere primitive has diameter 1
+            
+            // Position cylinder at the center
+            cylinder.localPosition = Vector3.zero;
+            // Unity cylinder primitive: diameter=1, height=2 (from -1 to +1)
+            // Scale: x and z for radius, y for height
+            cylinder.localScale = new Vector3(r * 2f, cylinderHeight / 2f, r * 2f);
+            
+            // Position bottom sphere at the bottom of the capsule
+            // The center of the bottom hemisphere is at -(height/2 - radius)
+            bottomSphere.localPosition = new Vector3(0f, -(h / 2f) + r, 0f);
+            bottomSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f);
         }
     }
 }
