@@ -85,7 +85,6 @@ namespace SepM.Physics {
             CleanUp(new PhysObject[] {p});
         }
 
-        // TODO: Write test
         public void CleanUp(PhysObject[] p = null) {
             if(p == null){
                 // Clear everything
@@ -107,7 +106,7 @@ namespace SepM.Physics {
                     objectsMap.Remove(kvp.Key);
                     var physObjToRemove = m_objects.First(k => k.InstanceId == kvp.Key);
                     m_objects.Remove(physObjToRemove);
-                    });
+                });
             }
 
             // No need to clear solvers
@@ -170,13 +169,6 @@ namespace SepM.Physics {
         }
 
         public Tuple<GameObject, PhysObject> CreateCapsuleObject(fp3 center, fp r, fp h, bool isDyn, bool isKin, fp3 g, Constants.coll_layers l, PhysTransform parent = null, PhysObject physObj = null) {
-            // Set up the collider, the physics object, and the game object
-            GameObject gameObj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            // Destroy the default Unity collider
-            if (Application.isEditor)
-                GameObject.DestroyImmediate(gameObj.GetComponent<UnityEngine.CapsuleCollider>());
-            else
-                GameObject.Destroy(gameObj.GetComponent<UnityEngine.CapsuleCollider>());
             SepM.Physics.CapsuleCollider coll = new SepM.Physics.CapsuleCollider(r, h, l);
             if (physObj == null)
             {
@@ -193,14 +185,13 @@ namespace SepM.Physics {
             }
             physObj.Transform.SetParent(parent);
 
-            // Update the GameObject
-            float capRadius = (float)coll.Radius * 2;
-            float capHeight = (float)coll.Height + (float)coll.Radius/2;
+            // Set up the collider, the physics object, and the game object
+            // Create MCapsule procedurally instead of loading from Resources
+            GameObject gameObj = MCapsule.CreateMCapsule();
+            gameObj.GetComponent<MCapsule>().SetDimensions(h, r);
 
             gameObj.transform.position = physObj.Transform.WorldPosition().toVector3();
             gameObj.transform.rotation = physObj.Transform.WorldRotation();
-            gameObj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
-
 
             Tuple<GameObject, PhysObject> result = new Tuple<GameObject, PhysObject>(
                 gameObj, physObj
@@ -264,29 +255,6 @@ namespace SepM.Physics {
         /// Adds the given PhysObject to the world
         /// </summary>
         public void AddObject(PhysObject obj) {
-            // GameObject u_obj;
-            // if(obj.Coll is SepM.Physics.SphereCollider){
-            //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            //     float sphRadius = (float)((SepM.Physics.SphereCollider)obj.Coll).Radius*2;
-            //     u_obj.transform.localScale = Vector3.one*sphRadius;
-            // }
-            // else if(obj.Coll is SepM.Physics.CapsuleCollider){
-            //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            //     float capRadius = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Radius*2;
-            //     float capHeight = (float)((SepM.Physics.CapsuleCollider)obj.Coll).Height;
-            //     u_obj.transform.localScale = new Vector3(capRadius, capHeight, capRadius);
-            // }
-            // else{
-            //     u_obj = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            //     PlaneCollider c = (PlaneCollider)obj.Coll;
-            //     Vector3 planeDir = c.Normal.toVector3();
-            //     float scale = (float)c.Distance/10;
-            //     u_obj.transform.Rotate(planeDir);
-            //     u_obj.transform.localScale = Vector3.one*scale;
-            // }
-            // PhysObjController u_objCont = u_obj.AddComponent<PhysObjController>();
-            // u_objCont.setPhysObject(obj);
-
             m_objects.Add(obj);
         }
 
@@ -483,7 +451,6 @@ namespace SepM.Physics {
             }
         //collisionMatrix
             collisionMatrix.Deserialize(br, context);
-
             return this;
         }
 
