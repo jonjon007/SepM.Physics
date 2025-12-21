@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Collections;
 using Unity.Mathematics.FixedPoint;
 using System;
 using System.IO;
@@ -24,6 +25,19 @@ namespace SepM.Utils{
 
             fp dot = Utilities.clamp(Utilities.dot(from, to) / denominator, -1m, 1m);
             return fpmath.degrees(Utilities.acos(dot));
+        }
+
+        /* Calculates the Fletcher-32 checksum for the given byte array data */
+        public static int CalcFletcher32(NativeArray<byte> data) {
+            uint sum1 = 0;
+            uint sum2 = 0;
+
+            int index;
+            for (index = 0; index < data.Length; ++index) {
+                sum1 = (sum1 + data[index]) % 0xffff;
+                sum2 = (sum2 + sum1) % 0xffff;
+            }
+            return unchecked((int)((sum2 << 16) | sum1));
         }
 
         public static fp clamp(this fp x, fp min, fp max){
