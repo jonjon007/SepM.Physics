@@ -58,17 +58,17 @@ public class PhysWorldTests : MonoBehaviour
 
         start.collisions.Add(collision);
 
-        NativeArray<byte> serialized = TestUtils.ToBytes(start);
-
         // Then delete the disappear's gameobject
         GameObject.DestroyImmediate(objTupleChildDisappear.Item1);
+
+        NativeArray<byte> serialized = TestUtils.ToBytes(start);
 
         try
         {
             // Read what was written into new character and copy it
             PhysWorld finish = new PhysWorld();
             TestUtils.FromBytes(serialized, finish);
-            sameHash = start.GetHashCode() == finish.GetHashCode();
+            sameHash = start.Checksum == finish.Checksum;
         }
         finally
         {

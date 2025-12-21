@@ -25,7 +25,7 @@ public class CollisionMatrixTests : MonoBehaviour
         {
             CollisionMatrix finish = new CollisionMatrix();
             TestUtils.FromBytes(serialized, finish);
-            sameHash = start.GetHashCode() == finish.GetHashCode();
+            sameHash = start.Checksum == finish.Checksum;
         }
         finally
         {

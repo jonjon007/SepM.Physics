@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
+using Unity.Collections;
 using SepM.Math;
 using SepM.Serialization;
 using SepM.Utils;
@@ -64,6 +65,24 @@ namespace SepM.Physics{
             return this;
         }
 
+        /// <summary>
+        /// Gets the deterministic checksum for this collision.
+        /// Structs don't need caching as they're immutable value types.
+        /// </summary>
+        public int Checksum {
+            get {
+                using (var memoryStream = new System.IO.MemoryStream()) {
+                    using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                        Serialize(writer);
+                    }
+                    var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                    int checksum = Utilities.CalcFletcher32(bytes);
+                    bytes.Dispose();
+                    return checksum;
+                }
+            }
+        }
+
         public override int GetHashCode()
         {
             int hashCode = -1214587014;
@@ -83,10 +102,10 @@ namespace SepM.Physics{
         public fp DepthSqrd; // Length of B – A
         public bool HasCollision;
 
-        public static CollisionPoints noCollision = new CollisionPoints{ 
+        public static CollisionPoints noCollision = new CollisionPoints{
             A = fp3.zero,
-            B = fp3.zero, 
-            Normal = fp3.zero, 
+            B = fp3.zero,
+            Normal = fp3.zero,
             DepthSqrd = 0,
             HasCollision = false
         };
@@ -133,6 +152,24 @@ namespace SepM.Physics{
             return this;
         }
 
+        /// <summary>
+        /// Gets the deterministic checksum for this collision data.
+        /// Structs don't need caching as they're immutable value types.
+        /// </summary>
+        public int Checksum {
+            get {
+                using (var memoryStream = new System.IO.MemoryStream()) {
+                    using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                        Serialize(writer);
+                    }
+                    var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                    int checksum = Utilities.CalcFletcher32(bytes);
+                    bytes.Dispose();
+                    return checksum;
+                }
+            }
+        }
+
         public override int GetHashCode()
         {
             int hashCode = -1214587014;
@@ -158,6 +195,12 @@ namespace SepM.Physics{
         public abstract void Serialize(BinaryWriter bw);
 
         public abstract Serial Deserialize<T>(BinaryReader br, T context);
+
+        /// <summary>
+        /// Gets the deterministic checksum for this collider.
+        /// Implemented by concrete collider types.
+        /// </summary>
+        public abstract int Checksum { get; }
 
         public abstract override int GetHashCode();
 
@@ -200,6 +243,24 @@ namespace SepM.Physics{
     public class SphereCollider : Collider{
         public fp3 Center;
         public fp Radius;
+        
+        private int? _cachedChecksum;
+        
+        public override int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
 
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
@@ -307,6 +368,24 @@ namespace SepM.Physics{
         public fp Radius;
         public fp Height;
         public fp3 Direction;
+        
+        private int? _cachedChecksum;
+        
+        public override int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
 
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
@@ -497,6 +576,24 @@ namespace SepM.Physics{
     public class AABBoxCollider : Collider{
         public fp3 MinValue;
         public fp3 MaxValue;
+        
+        private int? _cachedChecksum;
+        
+        public override int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
 
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
@@ -643,6 +740,24 @@ namespace SepM.Physics{
     public class PlaneCollider : Collider{
         public fp3 Normal;
         public fp Distance;
+        
+        private int? _cachedChecksum;
+        
+        public override int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
 
         public override void Serialize(BinaryWriter bw) {
         //Layer (read as an int)
@@ -667,6 +782,7 @@ namespace SepM.Physics{
         //Distance
             Distance = br.ReadFp();
 
+            _cachedChecksum = null;
             return this;
         }
 
@@ -780,8 +896,33 @@ namespace SepM.Physics{
         [JsonProperty(ReferenceLoopHandling = ReferenceLoopHandling.Ignore)]
         [JsonConverter(typeof(IColliderConverter))]
         public ICollider IColl = null; // Attached script with OnCollision callbacks
+        
+        private int? _cachedChecksum;
+        
+        /// <summary>
+        /// Gets the deterministic checksum for this physics object.
+        /// Uses Fletcher32 on serialized bytes with caching for performance.
+        /// </summary>
         [JsonProperty]
-        private int HashCode => GetHashCode();
+        public int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = SepM.Utils.Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
+        
+        private void InvalidateChecksum() {
+            _cachedChecksum = null;
+        }
 
         public PhysObject(uint id){
             InstanceId = id;
@@ -813,6 +954,7 @@ namespace SepM.Physics{
 
         public void AddForce(fp3 f){
             Force += f;
+            InvalidateChecksum();
         }
 
         public fp GetMass(){
@@ -828,6 +970,7 @@ namespace SepM.Physics{
 
         public void SetVelocity(fp3 v){
             Velocity = v;
+            InvalidateChecksum();
         }
 
         public override string ToString(){
@@ -899,6 +1042,7 @@ namespace SepM.Physics{
 
         public Serial Deserialize<T>(BinaryReader br, T context)
         {
+            InvalidateChecksum();
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Transform

@@ -1,12 +1,36 @@
 using System;
 using System.IO;
 using System.Linq;
+using Unity.Collections;
 using SepM.Serialization;
+using SepM.Utils;
 
 namespace SepM.Physics{
 public class CollisionMatrix : Serial
     {
         public bool[][] matrix;
+        
+        private int? _cachedChecksum;
+        
+        public int Checksum {
+            get {
+                if (_cachedChecksum == null) {
+                    using (var memoryStream = new System.IO.MemoryStream()) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                            Serialize(writer);
+                        }
+                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
+                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
+                        bytes.Dispose();
+                    }
+                }
+                return _cachedChecksum.Value;
+            }
+        }
+        
+        private void InvalidateChecksum() {
+            _cachedChecksum = null;
+        }
 
         // Every layer is defaulted to collide to every layer
         public CollisionMatrix(){
@@ -22,6 +46,7 @@ public class CollisionMatrix : Serial
             // Set the matrix values
             matrix[a_index][b_index] = isColl;
             matrix[b_index][a_index] = isColl;
+            InvalidateChecksum();
         }
 
         public bool CanLayersCollide(Constants.coll_layers a, Constants.coll_layers b){
@@ -46,6 +71,7 @@ public class CollisionMatrix : Serial
 
         public Serial Deserialize<T>(BinaryReader br, T context)
         {
+            InvalidateChecksum();
         //matrix
             int matrix_len = br.ReadInt32();
             // Create a new list if the counts aren't the same

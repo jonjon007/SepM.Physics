@@ -64,7 +64,7 @@ partial class PhysObjTests
         {
             CollisionPoints finish = new CollisionPoints();
             finish = (CollisionPoints)TestUtils.FromBytes(serialized, finish);
-            sameHash = start.GetHashCode() == finish.GetHashCode();
+            sameHash = start.Checksum == finish.Checksum;
         }
         finally
         {
@@ -98,7 +98,7 @@ partial class PhysObjTests
         {
             PhysTransform finish = new PhysTransform(id: 1);
             finish = (PhysTransform)TestUtils.FromBytes(serialized, finish);
-            sameHash = start.GetHashCode() == finish.GetHashCode();
+            sameHash = start.Checksum == finish.Checksum;
         }
         finally
         {
@@ -143,7 +143,7 @@ partial class PhysObjTests
         {
             PhysCollision finish = new PhysCollision();
             finish = (PhysCollision)TestUtils.FromBytes(serialized, finish);
-            sameHash = start.GetHashCode() == finish.GetHashCode();
+            sameHash = start.Checksum == finish.Checksum;
         }
         finally
         {
@@ -195,7 +195,7 @@ partial class PhysObjTests
             // Then roll back
             FromBytes(seriWorld, wFinish);
 
-            sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
+            sameHash = wStart.Checksum == wFinish.Checksum;
         }
         finally
         {
@@ -220,7 +220,7 @@ partial class PhysObjTests
             // Read what was written into a new world and copy it
             PhysWorld wFinish = new PhysWorld();
             FromBytes(seriWorld, wFinish);
-            sameHash = wStart.GetHashCode() == wFinish.GetHashCode();
+            sameHash = wStart.Checksum == wFinish.Checksum;
         }
         finally{
             // Dispose of the NativeArray when we're done with it
