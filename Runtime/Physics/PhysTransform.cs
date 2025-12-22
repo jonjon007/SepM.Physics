@@ -26,8 +26,9 @@ namespace SepM.Physics
             get {
                 if (_cachedChecksum == null) {
                     using (var memoryStream = new System.IO.MemoryStream()) {
-                        using (var writer = new System.IO.BinaryWriter(memoryStream)) {
+                        using (var writer = new System.IO.BinaryWriter(memoryStream, System.Text.Encoding.UTF8, leaveOpen: true)) {
                             Serialize(writer);
+                            writer.Flush();
                         }
                         var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
                         _cachedChecksum = Utilities.CalcFletcher32(bytes);
