@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using Unity.Mathematics.FixedPoint;
-using Unity.Collections;
 using SepM.Serialization;
 using SepM.Utils;
 using Newtonsoft.Json;
@@ -12,6 +11,8 @@ using Newtonsoft.Json;
 namespace SepM.Physics {
     [Serializable]
     public class PhysWorld : Serial {
+        public int Checksum => GetHashCode();
+        
         [JsonProperty]
         [SerializeField]
         private uint currentPhysObjId = 0; //Incrementing PhysObject counter
@@ -23,39 +24,6 @@ namespace SepM.Physics {
         [JsonProperty]
         public Dictionary<uint, GameObject> objectsMap = new Dictionary<uint, GameObject>();
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
-        
-        // Cached checksum for deterministic state verification
-        private int? _cachedChecksum;
-        
-        /// <summary>
-        /// Gets the deterministic checksum for this PhysWorld state.
-        /// Uses Fletcher32 algorithm on serialized bytes for network-safe comparison.
-        /// </summary>
-        [JsonProperty]
-        public int Checksum {
-            get {
-                if (_cachedChecksum == null) {
-                    using (var memoryStream = new System.IO.MemoryStream()) {
-                        using (var writer = new System.IO.BinaryWriter(memoryStream, System.Text.Encoding.UTF8, leaveOpen: true)) {
-                            Serialize(writer);
-                            writer.Flush();
-                        }
-                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
-                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
-                        bytes.Dispose();
-                    }
-                }
-                return _cachedChecksum.Value;
-            }
-        }
-        
-        /// <summary>
-        /// Invalidates the cached checksum when state changes.
-        /// Must be called after any mutation to ensure checksum accuracy.
-        /// </summary>
-        private void InvalidateChecksum() {
-            _cachedChecksum = null;
-        }
 
         public PhysObject GetPhysObjectById(uint instanceId){
             foreach(PhysObject p in m_objects)
@@ -125,7 +93,6 @@ namespace SepM.Physics {
 
                 objectsMap.Clear();
                 m_objects.Clear();
-                InvalidateChecksum();
             }
             else if(p.Length > 0){
                 // Clear the given physObjects
@@ -140,7 +107,6 @@ namespace SepM.Physics {
                     var physObjToRemove = m_objects.First(k => k.InstanceId == kvp.Key);
                     m_objects.Remove(physObjToRemove);
                 });
-                InvalidateChecksum();
             }
 
             // No need to clear solvers
@@ -290,7 +256,6 @@ namespace SepM.Physics {
         /// </summary>
         public void AddObject(PhysObject obj) {
             m_objects.Add(obj);
-            InvalidateChecksum();
         }
 
         public void AddSolver(Solver solver) { m_solvers.Add(solver); }
@@ -302,7 +267,6 @@ namespace SepM.Physics {
 
         // Call in fixed timestep
         public void Step<T>(fp dt, T context) {
-            InvalidateChecksum();
             ResolveCollisions(dt, context);
 
             foreach (PhysObject obj in m_objects) {
@@ -413,7 +377,6 @@ namespace SepM.Physics {
 
         public Serial Deserialize<T>(BinaryReader br, T context)
         {
-            InvalidateChecksum();
         //physObject and physTransform IDs
             currentPhysObjId = br.ReadUInt32();
         //m_objects
@@ -515,7 +478,8 @@ namespace SepM.Physics {
             var sortedKeys = objectsMap.Keys.OrderBy(k => k).ToList();
             foreach (var k in sortedKeys)
             {
-                hashCode = hashCode * -1521134295 + k.GetHashCode();
+                if (objectsMap[k] != null)
+                    hashCode = hashCode * -1521134295 + k.GetHashCode();
             }
         //collisionMatrix
             hashCode = hashCode * -1521134295 + collisionMatrix.GetHashCode();

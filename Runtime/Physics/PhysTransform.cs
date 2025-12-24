@@ -4,7 +4,6 @@ using SepM.Utils;
 using System;
 using System.IO;
 using Unity.Mathematics.FixedPoint;
-using Unity.Collections;
 using Newtonsoft.Json;
 
 namespace SepM.Physics
@@ -19,29 +18,8 @@ namespace SepM.Physics
         private PhysTransform m_parent;
         public uint m_parent_id = 0;
         
-        private int? _cachedChecksum;
-        
         [JsonProperty]
-        public int Checksum {
-            get {
-                if (_cachedChecksum == null) {
-                    using (var memoryStream = new System.IO.MemoryStream()) {
-                        using (var writer = new System.IO.BinaryWriter(memoryStream, System.Text.Encoding.UTF8, leaveOpen: true)) {
-                            Serialize(writer);
-                            writer.Flush();
-                        }
-                        var bytes = new NativeArray<byte>(memoryStream.ToArray(), Allocator.Temp);
-                        _cachedChecksum = Utilities.CalcFletcher32(bytes);
-                        bytes.Dispose();
-                    }
-                }
-                return _cachedChecksum.Value;
-            }
-        }
-        
-        private void InvalidateChecksum() {
-            _cachedChecksum = null;
-        }
+        public int Checksum => GetHashCode();
 
         // TODO: Find a way to serialize this without depth limit issues!
         // private List<PhysTransform> m_children;
@@ -119,7 +97,6 @@ namespace SepM.Physics
         {
             fpq eulerRot = eulers.toQuaternionFromDegrees();
             Rotation = Rotation.multiply(eulerRot);
-            InvalidateChecksum();
         }
 
         public void Rotate(fp x, fp y, fp z)
@@ -132,7 +109,6 @@ namespace SepM.Physics
             m_parent = t;
             if (t != null)
                 m_parent_id = t.InstanceId;
-            InvalidateChecksum();
         }
 
         public void Serialize(BinaryWriter bw)
@@ -158,7 +134,6 @@ namespace SepM.Physics
 
         public Serial Deserialize<T>(BinaryReader br, T context)
         {
-            InvalidateChecksum();
         //InstanceId
             InstanceId = br.ReadUInt32();
         //Position
