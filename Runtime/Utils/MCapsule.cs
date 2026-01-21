@@ -80,21 +80,15 @@ namespace SepM.Physics
             float h = (float)height;
             float r = (float)radius;
             
-            // The cylinder spans the full height with spheres centered at top and bottom
-            // Sphere centers are at +/- height/2, coinciding with cylinder ends
+            float sphereOffset = h / 2f - r;
             
-            // Position top sphere at the top (center at height/2)
-            topSphere.localPosition = new Vector3(0f, h / 2f, 0f);
-            topSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f); // Unity sphere primitive has diameter 1
+            topSphere.localPosition = new Vector3(0f, sphereOffset, 0f);
+            topSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f);
             
-            // Position cylinder at the center, spanning full height
             cylinder.localPosition = Vector3.zero;
-            // Unity cylinder primitive: diameter=1, height=2 (from -1 to +1)
-            // Scale: x and z for radius, y for half-height (cylinder extends from -y to +y)
-            cylinder.localScale = new Vector3(r * 2f, h / 2f, r * 2f);
+            cylinder.localScale = new Vector3(r * 2f, sphereOffset, r * 2f);
             
-            // Position bottom sphere at the bottom (center at -height/2)
-            bottomSphere.localPosition = new Vector3(0f, -h / 2f, 0f);
+            bottomSphere.localPosition = new Vector3(0f, -sphereOffset, 0f);
             bottomSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f);
         }
     }
