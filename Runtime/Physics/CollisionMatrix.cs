@@ -25,6 +25,12 @@ public class CollisionMatrix : Serial
             matrix[b_index][a_index] = isColl;
         }
 
+        public void DisableAll(){
+            for(int i = 0; i < matrix.Length; i++)
+                for(int j = 0; j < matrix[i].Length; j++)
+                    matrix[i][j] = false;
+        }
+
         public bool CanLayersCollide(Constants.coll_layers a, Constants.coll_layers b){
             int a_index = (int)a;
             int b_index = (int)b;
