@@ -15,13 +15,7 @@ namespace SepM.Physics
         public fp DepthSqrd; // Length of B – A
         public bool HasCollision;
 
-        public static CollisionPoints noCollision = new CollisionPoints{
-            A = fp3.zero,
-            B = fp3.zero,
-            Normal = fp3.zero,
-            DepthSqrd = 0,
-            HasCollision = false
-        };
+        public static readonly CollisionPoints noCollision = default;
 
         public void Serialize(BinaryWriter bw)
         {

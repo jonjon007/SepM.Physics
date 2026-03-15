@@ -304,11 +304,13 @@ namespace SepM.Physics {
 
         void ResolveCollisions<T>(fp dt, T context) {
             // Reset collisions list
-            collisions = new List<PhysCollision>();
-            // TODO: Work on that efficiency
-            foreach (PhysObject a in m_objects) {
-                foreach (PhysObject b in m_objects) {
-                    if (a == b) continue;
+            collisions.Clear();
+
+            for (int i = 0; i < m_objects.Count; i++) {
+                for (int j = i + 1; j < m_objects.Count; j++) {
+                    PhysObject a = m_objects[i];
+                    PhysObject b = m_objects[j];
+
                     // Check if a collider is assigned
                     if (a.Coll is null || b.Coll is null) continue;
                     // Check if the layers register collisions with each other
@@ -320,6 +322,13 @@ namespace SepM.Physics {
                         b.Transform);
 
                     if (points.HasCollision) {
+                        // The double-dispatch may produce a normal inconsistent with
+                        // the A/B ordering. Ensure it points from A toward B so the
+                        // solvers push objects apart correctly.
+                        fp3 aToB = b.Transform.WorldPosition() - a.Transform.WorldPosition();
+                        if (aToB.dot(points.Normal) < 0) {
+                            points.Normal = -points.Normal;
+                        }
                         collisions.Add(
                             new PhysCollision {
                                 ObjIdA = a.InstanceId,
@@ -335,10 +344,11 @@ namespace SepM.Physics {
                 solver.Solve(collisions, dt, this);
             }
 
-            // Since each pair will be coming twice in opposite order, just run the first OnCollision
             foreach (PhysCollision cp in collisions) {
-                PhysObject po = this.GetPhysObjectById(cp.ObjIdA);
-                po.OnCollision(cp, context);
+                PhysObject poA = this.GetPhysObjectById(cp.ObjIdA);
+                PhysObject poB = this.GetPhysObjectById(cp.ObjIdB);
+                poA.OnCollision(cp, context);
+                poB.OnCollision(cp, context);
             }
         }
 
@@ -436,8 +446,7 @@ namespace SepM.Physics {
                 GameObject go = FindGameObjectById(goId);
                 if (go is null)
                 {
-                    // TODO: Create the right kind of object
-                    go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    go = CreateGameObjectForPhysObject(poId);
                 }
                 objectsMap.Add(poId, go);
             }
@@ -454,6 +463,57 @@ namespace SepM.Physics {
         //collisionMatrix
             collisionMatrix.Deserialize(br, context);
             return this;
+        }
+
+        /// <summary>
+        /// Creates the appropriate GameObject for a deserialized PhysObject based on its collider type.
+        /// </summary>
+        private GameObject CreateGameObjectForPhysObject(uint poId)
+        {
+            PhysObject physObj = m_objects.FirstOrDefault(o => o.InstanceId == poId);
+            if (physObj?.Coll == null)
+                return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+
+            switch (physObj.Coll.Type)
+            {
+                case Constants.coll_types.sphere:
+                {
+                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    if (Application.isEditor)
+                        GameObject.DestroyImmediate(go.GetComponent<UnityEngine.SphereCollider>());
+                    else
+                        GameObject.Destroy(go.GetComponent<UnityEngine.SphereCollider>());
+                    float sphRadius = (float)((SphereCollider)physObj.Coll).Radius * 2;
+                    go.transform.position = physObj.Transform.WorldPosition().toVector3();
+                    go.transform.rotation = physObj.Transform.WorldRotation();
+                    go.transform.localScale = Vector3.one * sphRadius;
+                    return go;
+                }
+                case Constants.coll_types.capsule:
+                {
+                    var capColl = (CapsuleCollider)physObj.Coll;
+                    GameObject go = MCapsule.CreateMCapsule();
+                    go.GetComponent<MCapsule>().SetDimensions(capColl.Height, capColl.Radius);
+                    go.transform.position = physObj.Transform.WorldPosition().toVector3();
+                    go.transform.rotation = physObj.Transform.WorldRotation();
+                    return go;
+                }
+                case Constants.coll_types.aabb:
+                {
+                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    if (Application.isEditor)
+                        GameObject.DestroyImmediate(go.GetComponent<UnityEngine.BoxCollider>());
+                    else
+                        GameObject.Destroy(go.GetComponent<UnityEngine.BoxCollider>());
+                    var aabbColl = (AABBoxCollider)physObj.Coll;
+                    go.transform.position = physObj.Transform.WorldPosition().toVector3();
+                    go.transform.rotation = physObj.Transform.WorldRotation();
+                    go.transform.localScale = (aabbColl.MaxValue - aabbColl.MinValue).toVector3();
+                    return go;
+                }
+                default:
+                    return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            }
         }
 
         public override int GetHashCode() {
