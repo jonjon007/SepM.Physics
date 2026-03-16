@@ -15,7 +15,7 @@ namespace SepM.Physics{
 
             foreach (PhysCollision collision in collisions) {
                 PhysObject aBody = world.GetPhysObjectById(collision.ObjIdA);
-                PhysObject bBody = world.GetPhysObjectById(collision.ObjIdA);
+                PhysObject bBody = world.GetPhysObjectById(collision.ObjIdB);
 
                 aBody = aBody.IsDynamic ? aBody : null;
                 bBody = bBody.IsDynamic ? bBody : null;
