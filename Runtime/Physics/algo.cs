@@ -193,14 +193,19 @@ namespace SepM.Physics{
             return CollisionPoints.noCollision;
         }
 
+        [ThreadStatic]
+        private static AABBoxCollider s_tempBox;
+
         public static CollisionPoints FindCapsuleAABBCollisionPoints(
             CapsuleCollider a, PhysTransform ta,
             AABBoxCollider b, PhysTransform tb)
         {
-            AABBoxCollider tempBox = new AABBoxCollider(
-                a.Center, new fp3(a.Radius * 2, a.Height * 2, a.Radius * 2), true);
+            if (s_tempBox == null) s_tempBox = new AABBoxCollider();
+            fp3 scale = new fp3(a.Radius * 2, a.Height * 2, a.Radius * 2);
+            s_tempBox.MinValue = a.Center - scale / 2;
+            s_tempBox.MaxValue = a.Center + scale / 2;
             return FindAABBoxAABBoxCollisionPoints(
-                tempBox,
+                s_tempBox,
                 ta,
                 b,
                 tb
@@ -212,8 +217,11 @@ namespace SepM.Physics{
             AABBoxCollider b, PhysTransform tb)
         {
             // TODO: Decide is we really need to do a capsule or can just compare AABBs
-            AABBoxCollider tempBox = new AABBoxCollider(a.Center, new fp3(a.Radius * 2, a.Height, a.Radius * 2), true);
-            return FindAABBoxAABBoxCollisionPoints(tempBox, ta, b, tb);
+            if (s_tempBox == null) s_tempBox = new AABBoxCollider();
+            fp3 scale = new fp3(a.Radius * 2, a.Height, a.Radius * 2);
+            s_tempBox.MinValue = a.Center - scale / 2;
+            s_tempBox.MaxValue = a.Center + scale / 2;
+            return FindAABBoxAABBoxCollisionPoints(s_tempBox, ta, b, tb);
         }
 
         public static CollisionPoints FindSphereAABBCollisionPoints(
@@ -261,6 +269,12 @@ namespace SepM.Physics{
             return CollisionPoints.noCollision;
         }
 
+        private static readonly fp3[] s_aabbFaces = {
+            new fp3 (-1, 0, 0), new fp3 (1, 0, 0),
+            new fp3 (0, -1, 0), new fp3 (0, 1, 0),
+            new fp3 (0, 0, -1), new fp3 (0, 0, 1),
+        };
+
         public static CollisionPoints FindAABBoxAABBoxCollisionPoints(
             AABBoxCollider a, PhysTransform ta,
             AABBoxCollider b, PhysTransform tb)
@@ -273,39 +287,34 @@ namespace SepM.Physics{
 
             bool overlap = AABBTest(boxAPos, boxBPos, boxASize, boxBSize);
             if (overlap) {
-                fp3[] faces = {
-                    new fp3 (-1, 0, 0), new fp3 (1, 0, 0),
-                    new fp3 (0, -1, 0), new fp3 (0, 1, 0),
-                    new fp3 (0, 0, -1), new fp3 (0, 0, 1),
-                };
-
                 fp3 maxA = boxAPos + boxASize;
                 fp3 minA = boxAPos - boxASize;
 
                 fp3 maxB = boxBPos + boxBSize;
                 fp3 minB = boxBPos - boxBSize;
 
-                fp[] distances = {
-                    (maxB . x - minA . x ), // distance of box ’b ’ to ’ left ’ of ’a ’.
-                    (maxA . x - minB . x ), // distance of box ’b ’ to ’ right ’ of ’a ’.
-                    (maxB . y - minA . y ), // distance of box ’b ’ to ’ bottom ’ of ’a ’.
-                    (maxA . y - minB . y ), // distance of box ’b ’ to ’ top ’ of ’a ’.
-                    (maxB . z - minA . z ), // distance of box ’b ’ to ’ far ’ of ’a ’.
-                    (maxA . z - minB . z ) // distance of box ’b ’ to ’ near ’ of ’a ’.
-                };
+                // Find the axis of least penetration without allocating arrays
                 fp penetration = fp.max_value;
-                fp3 bestAxis = fp3.zero;
+                int bestIdx = 0;
 
-                for (int i = 0; i < 6; i++) {
-                    if (distances[i] < penetration) {
-                        penetration = distances[i];
-                        bestAxis = faces[i];
-                    }
-                }
+                fp d0 = maxB.x - minA.x;
+                fp d1 = maxA.x - minB.x;
+                fp d2 = maxB.y - minA.y;
+                fp d3 = maxA.y - minB.y;
+                fp d4 = maxB.z - minA.z;
+                fp d5 = maxA.z - minB.z;
+
+                if (d0 < penetration) { penetration = d0; bestIdx = 0; }
+                if (d1 < penetration) { penetration = d1; bestIdx = 1; }
+                if (d2 < penetration) { penetration = d2; bestIdx = 2; }
+                if (d3 < penetration) { penetration = d3; bestIdx = 3; }
+                if (d4 < penetration) { penetration = d4; bestIdx = 4; }
+                if (d5 < penetration) { penetration = d5; bestIdx = 5; }
+
                 return new CollisionPoints {
                     A = boxAPos,
                     B = boxBPos,
-                    Normal = -bestAxis,
+                    Normal = -s_aabbFaces[bestIdx],
                     DepthSqrd = penetration.sqrd(),
                     HasCollision = true
                 };
@@ -394,21 +403,29 @@ namespace SepM.Physics{
                 return Raycast(p_obj.Coll, origin, dir, layers, p_obj.Transform);
         }
 
-        public static List<Tuple<PhysObject, CollisionPoints>> RaycastAll(PhysObject physObj, fp3 origin, fp3 dir, long layers)
+        public static List<RaycastHit> RaycastAll(PhysObject physObj, fp3 origin, fp3 dir, long layers)
         {
-            return RaycastAll(new List<PhysObject>{ physObj }, origin, dir, layers);
+            var result = new List<RaycastHit>();
+            RaycastAll(new List<PhysObject>{ physObj }, origin, dir, layers, result);
+            return result;
         }
 
-        public static List<Tuple<PhysObject, CollisionPoints>> RaycastAll(List<PhysObject> physObjects, fp3 origin, fp3 dir, long layers)
+        public static List<RaycastHit> RaycastAll(List<PhysObject> physObjects, fp3 origin, fp3 dir, long layers)
         {
-            List<Tuple<PhysObject, CollisionPoints>> result = new List<Tuple<PhysObject, CollisionPoints>>();
+            var result = new List<RaycastHit>();
+            RaycastAll(physObjects, origin, dir, layers, result);
+            return result;
+        }
+
+        public static void RaycastAll(List<PhysObject> physObjects, fp3 origin, fp3 dir, long layers, List<RaycastHit> results)
+        {
+            results.Clear();
             foreach (PhysObject physObject in physObjects)
             {
                 var a = Raycast(physObject, origin, dir, layers);
                 if (a.HasCollision)
-                    result.Add(new Tuple<PhysObject, CollisionPoints>(physObject, a));
+                    results.Add(new RaycastHit { PhysObject = physObject, Points = a });
             }
-            return result;
         }
 
         public static CollisionPoints Raycast(Collider coll, fp3 origin, fp3 dir, PhysTransform physTransform = null) {
@@ -569,6 +586,9 @@ namespace SepM.Physics{
             };
         }
 
+        [ThreadStatic]
+        private static CapsuleCollider s_rayCapsule;
+
         private static CollisionPoints RaycastCapsule(CapsuleCollider coll, PhysTransform physTransform, fp3 origin, fp3 dir, long layers)
         {
             if (!coll.InLayers(layers))
@@ -576,8 +596,16 @@ namespace SepM.Physics{
                 return CollisionPoints.noCollision;
             }
 
-            CapsuleCollider ray = new CapsuleCollider(origin + (dir/2), 0, dir.lengthSqrd().sqrt(), dir.normalized());
-            return FindCapsuleCapsuleCollisionPoints(coll, physTransform, ray, null);
+            fp len = dir.lengthSqrd().sqrt();
+            if (len == 0) return CollisionPoints.noCollision;
+
+            if (s_rayCapsule == null) s_rayCapsule = new CapsuleCollider();
+            s_rayCapsule.Center = origin + (dir / 2);
+            s_rayCapsule.Radius = 0;
+            s_rayCapsule.Height = len;
+            s_rayCapsule.Direction = dir / len;
+
+            return FindCapsuleCapsuleCollisionPoints(coll, physTransform, s_rayCapsule, null);
         }
 
         }

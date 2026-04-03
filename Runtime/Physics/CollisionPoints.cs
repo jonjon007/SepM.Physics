@@ -6,6 +6,11 @@ using Unity.Mathematics.FixedPoint;
 
 namespace SepM.Physics
 {
+    public struct RaycastHit {
+        public PhysObject PhysObject;
+        public CollisionPoints Points;
+    }
+
     [Serializable]
     public struct CollisionPoints : Serial {
         public int Checksum => GetHashCode();

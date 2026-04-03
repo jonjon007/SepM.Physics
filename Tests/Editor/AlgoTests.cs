@@ -608,15 +608,15 @@ public class AlgoTests
         c4.Layer = Constants.coll_layers.wall;
         p4.Coll = c4;
 
-        System.Collections.Generic.List<Tuple<PhysObject, CollisionPoints>> actual = algo.RaycastAll(
+        System.Collections.Generic.List<RaycastHit> actual = algo.RaycastAll(
             new System.Collections.Generic.List<PhysObject> { p1, p2, p3, p4 },
             new fp3(0, 0, -10),
             new fp3(0, 0, 20),
             Constants.layer_wall);
 
         Assert.That(actual.Count == 2);
-        Assert.That(actual[0].Item1.Equals(p1));
-        Assert.That(actual[1].Item1.Equals(p4));
+        Assert.That(actual[0].PhysObject.Equals(p1));
+        Assert.That(actual[1].PhysObject.Equals(p4));
     }
 
     [Test]
