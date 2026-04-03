@@ -19,6 +19,7 @@ namespace SepM.Physics {
         [JsonProperty]
         [SerializeField]
         private List<PhysObject> m_objects = new List<PhysObject>();
+        private Dictionary<uint, PhysObject> m_objectsById = new Dictionary<uint, PhysObject>();
         private List<Solver> m_solvers = new List<Solver>();
         public List<PhysCollision> collisions = new List<PhysCollision>();
         [JsonProperty]
@@ -26,10 +27,8 @@ namespace SepM.Physics {
         public CollisionMatrix collisionMatrix = new CollisionMatrix();
 
         public PhysObject GetPhysObjectById(uint instanceId){
-            foreach(PhysObject p in m_objects)
-                if(p.InstanceId == instanceId){
-                    return p;
-                }
+            if (m_objectsById.TryGetValue(instanceId, out PhysObject p))
+                return p;
 
             Debug.LogWarning($"Could not find PhysObject with instanceId: {instanceId}");
             return null;
@@ -93,6 +92,7 @@ namespace SepM.Physics {
 
                 objectsMap.Clear();
                 m_objects.Clear();
+                m_objectsById.Clear();
             }
             else if(p.Length > 0){
                 // Clear the given physObjects
@@ -106,6 +106,7 @@ namespace SepM.Physics {
                     objectsMap.Remove(kvp.Key);
                     var physObjToRemove = m_objects.First(k => k.InstanceId == kvp.Key);
                     m_objects.Remove(physObjToRemove);
+                    m_objectsById.Remove(kvp.Key);
                 });
             }
 
@@ -120,6 +121,7 @@ namespace SepM.Physics {
                 Debug.LogWarning($"m_objects missing PhysObject from objectsMap with ID of {physObj.InstanceId}! Creating a new one." +
                     $"\nIf you're seeing this, remember to add your new PhysObjects to the world after creating them");
                 m_objects.Add(physObj);
+                m_objectsById[physObj.InstanceId] = physObj;
             }
         }
 
@@ -157,6 +159,7 @@ namespace SepM.Physics {
 
             // Add to list of the world's physics objects
             m_objects.Add(physObj);
+            m_objectsById[physObj.InstanceId] = physObj;
 
             // Add to the map
             AssignGameObject(gameObj, physObj);
@@ -182,6 +185,7 @@ namespace SepM.Physics {
 
                 // Add to list of the world's physics objects
                 m_objects.Add(physObj);
+                m_objectsById[physObj.InstanceId] = physObj;
             }
             physObj.Transform.SetParent(parent);
 
@@ -228,6 +232,7 @@ namespace SepM.Physics {
 
                 // Add to list of the world's physics objects
                 m_objects.Add(physObj);
+                m_objectsById[physObj.InstanceId] = physObj;
             }
             physObj.Transform.SetParent(parent);
 
@@ -256,6 +261,7 @@ namespace SepM.Physics {
         /// </summary>
         public void AddObject(PhysObject obj) {
             m_objects.Add(obj);
+            m_objectsById[obj.InstanceId] = obj;
         }
 
         public void AddSolver(Solver solver) { m_solvers.Add(solver); }
@@ -403,6 +409,10 @@ namespace SepM.Physics {
             {
                 m_objects[i].Deserialize(br, context);
             }
+            // Rebuild the ID lookup dictionary after deserialization
+            m_objectsById.Clear();
+            for (int i = 0; i < m_objects.Count; i++)
+                m_objectsById[m_objects[i].InstanceId] = m_objects[i];
             // Assign each object's Transform's parents; may be a bit slow
             {
                 PhysTransform[] transforms = m_objects.Select(o => o.Transform).ToArray();
@@ -470,7 +480,7 @@ namespace SepM.Physics {
         /// </summary>
         private GameObject CreateGameObjectForPhysObject(uint poId)
         {
-            PhysObject physObj = m_objects.FirstOrDefault(o => o.InstanceId == poId);
+            m_objectsById.TryGetValue(poId, out PhysObject physObj);
             if (physObj?.Coll == null)
                 return GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 

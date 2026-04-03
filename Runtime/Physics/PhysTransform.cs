@@ -17,6 +17,15 @@ namespace SepM.Physics
         public fpq Rotation;
         private PhysTransform m_parent;
         public uint m_parent_id = 0;
+
+        #region Don't serialize
+        // Cached direction vectors — recomputed when Rotation changes
+        private fpq _cachedRotation;
+        private fp3 _cachedForward;
+        private fp3 _cachedUp;
+        private fp3 _cachedRight;
+        private bool _directionsCached;
+        #endregion
         
         [JsonProperty]
         public int Checksum => GetHashCode();
@@ -42,19 +51,34 @@ namespace SepM.Physics
             //m_children = new List<PhysTransform>();
         }
 
+        private void RefreshDirectionCache()
+        {
+            if (!_directionsCached || !Rotation.Equals(_cachedRotation))
+            {
+                _cachedRotation = Rotation;
+                _cachedRight   = new fp3(1, 0, 0).multiply(Rotation);
+                _cachedForward = new fp3(0, 0, 1).multiply(Rotation);
+                _cachedUp      = new fp3(0, 1, 0).multiply(Rotation);
+                _directionsCached = true;
+            }
+        }
+
         public fp3 Right()
         {
-            return new fp3(1, 0, 0).multiply(Rotation);
+            RefreshDirectionCache();
+            return _cachedRight;
         }
 
         public fp3 Forward()
         {
-            return new fp3(0, 0, 1).multiply(Rotation);
+            RefreshDirectionCache();
+            return _cachedForward;
         }
 
         public fp3 Up()
         {
-            return new fp3(0, 1, 0).multiply(Rotation);
+            RefreshDirectionCache();
+            return _cachedUp;
         }
 
         /* TODO: Comment */
@@ -97,6 +121,7 @@ namespace SepM.Physics
         {
             fpq eulerRot = eulers.toQuaternionFromDegrees();
             Rotation = Rotation.multiply(eulerRot);
+            _directionsCached = false;
         }
 
         public void Rotate(fp x, fp y, fp z)
@@ -149,6 +174,7 @@ namespace SepM.Physics
             Rotation.y = br.ReadFp();
             Rotation.z = br.ReadFp();
             Rotation.w = br.ReadFp();
+            _directionsCached = false;
         //m_parent
             m_parent_id = br.ReadUInt32(); // Used in PhysWorld deserialization to tie to parent
 
