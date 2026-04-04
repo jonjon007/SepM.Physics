@@ -526,27 +526,38 @@ namespace SepM.Physics {
             }
         }
 
+        // Reusable buffers for GetHashCode to avoid per-frame LINQ allocations
+        private static readonly List<PhysObject> _hashObjBuf = new List<PhysObject>();
+        private static readonly List<PhysCollision> _hashCollBuf = new List<PhysCollision>();
+        private static readonly List<uint> _hashKeyBuf = new List<uint>();
+
         public override int GetHashCode() {
             int hashCode = -1214587014;
         //physObject and physTransform IDs
             hashCode = hashCode * -1521134295 + currentPhysObjId.GetHashCode();
         //m_objects (sorted by InstanceId for determinism)
-            var sortedObjects = m_objects.OrderBy(obj => obj.InstanceId).ToList();
-            foreach (var m_obj in sortedObjects) {
+            _hashObjBuf.Clear();
+            _hashObjBuf.AddRange(m_objects);
+            _hashObjBuf.Sort((a, b) => a.InstanceId.CompareTo(b.InstanceId));
+            foreach (var m_obj in _hashObjBuf) {
                 hashCode = hashCode * -1521134295 + m_obj.GetHashCode();
             }
         //collisions (sorted by ObjIds for determinism)
-            var sortedCollisions = collisions
-                .OrderBy(c => c.ObjIdA)
-                .ThenBy(c => c.ObjIdB)
-                .ToList();
-            foreach (var c in sortedCollisions)
+            _hashCollBuf.Clear();
+            _hashCollBuf.AddRange(collisions);
+            _hashCollBuf.Sort((a, b) => {
+                int cmp = a.ObjIdA.CompareTo(b.ObjIdA);
+                return cmp != 0 ? cmp : a.ObjIdB.CompareTo(b.ObjIdB);
+            });
+            foreach (var c in _hashCollBuf)
             {
                 hashCode = hashCode * -1521134295 + c.GetHashCode();
             }
         //objectsMap (sorted keys for determinism)
-            var sortedKeys = objectsMap.Keys.OrderBy(k => k).ToList();
-            foreach (var k in sortedKeys)
+            _hashKeyBuf.Clear();
+            foreach (uint k in objectsMap.Keys) _hashKeyBuf.Add(k);
+            _hashKeyBuf.Sort();
+            foreach (var k in _hashKeyBuf)
             {
                 if (objectsMap[k] != null)
                     hashCode = hashCode * -1521134295 + k.GetHashCode();

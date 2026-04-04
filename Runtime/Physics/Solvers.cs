@@ -10,8 +10,11 @@ namespace SepM.Physics{
 
     [Serializable]
     public class SmoothPositionSolver : Solver{
+        private struct Delta { public fp3 a, b; }
+        private readonly List<Delta> _deltas = new List<Delta>();
+
         public void Solve(List<PhysCollision> collisions, fp deltaTime, PhysWorld world){
-            List<Tuple<fp3, fp3>> deltas = new List<Tuple<fp3, fp3>>();
+            _deltas.Clear();
 
             foreach (PhysCollision collision in collisions) {
                 PhysObject aBody = world.GetPhysObjectById(collision.ObjIdA);
@@ -42,7 +45,7 @@ namespace SepM.Physics{
                     deltaB = bInvMass * correction;
                 }
 
-                deltas.Add(new Tuple<fp3, fp3>(deltaA, deltaB));
+                _deltas.Add(new Delta { a = deltaA, b = deltaB });
             }
 
             for (int i = 0; i < collisions.Count; i++) {
@@ -53,11 +56,11 @@ namespace SepM.Physics{
                 bBody = bBody.IsDynamic ? bBody : null;
 
                 if (!(aBody is null) ? aBody.IsKinematic : false) {
-                    aBody.Transform.Position -= deltas[i].Item1;
+                    aBody.Transform.Position -= _deltas[i].a;
                 }
 
                 if (!(bBody is null) ? bBody.IsKinematic : false) {
-                    bBody.Transform.Position += deltas[i].Item2;
+                    bBody.Transform.Position += _deltas[i].b;
                 }
             }
         }
