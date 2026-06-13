@@ -5,6 +5,8 @@ namespace SepM.Physics
 {
     public class MCapsule : MonoBehaviour
     {
+        public decimal Height { get; private set; }
+        public decimal Radius { get; private set; }
         [Header("Set in Inspector")]
         [SerializeField]
         private Transform topSphere;
@@ -74,11 +76,11 @@ namespace SepM.Physics
             return root;
         }
 
-        public void SetDimensions(fp height, fp radius)
+        public void ApplyDimensions()
         {
             // Convert fp to float for Unity transforms
-            float h = (float)height;
-            float r = (float)radius;
+            float h = (float)Height;
+            float r = (float)Radius;
             
             float sphereOffset = h / 2f - r;
             
@@ -90,6 +92,13 @@ namespace SepM.Physics
             
             bottomSphere.localPosition = new Vector3(0f, -sphereOffset, 0f);
             bottomSphere.localScale = new Vector3(r * 2f, r * 2f, r * 2f);
+        }
+
+        public void SetDimensions(fp h, fp r)
+        {
+            Height = h;
+            Radius = r;
+            ApplyDimensions();
         }
     }
 }
