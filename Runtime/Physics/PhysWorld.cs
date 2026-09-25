@@ -60,11 +60,11 @@ namespace SepM.Physics {
             return m_objects.FindAll(o => o.Coll == null ? false : o.Coll.InLayers(layers)).ToArray();
         }
 
-        private GameObject FindGameObjectById(int instanceId){
+        private GameObject FindGameObjectById(ulong instanceId){
             UnityEngine.GameObject[] all = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
             for (int i = 0; i < all.Length; i++)
             {
-                if (all[i].GetInstanceID() == instanceId)
+                if (EntityId.ToULong(all[i].GetEntityId()) == instanceId)
                 {
                     return all[i];
                 }
@@ -385,7 +385,7 @@ namespace SepM.Physics {
                 // Write PhysObject ID
                 bw.Write(id);
                 // Write GameObject ID
-                bw.Write(validMapEntries[id].GetInstanceID());
+                bw.Write(EntityId.ToULong(validMapEntries[id].GetEntityId()));
             }
         //collisionMatrix
             collisionMatrix.Serialize(bw);
@@ -452,7 +452,7 @@ namespace SepM.Physics {
             for (int i = 0; i < objectsMapLength; i++)
             {
                 uint poId = br.ReadUInt32();
-                int goId = br.ReadInt32();
+                ulong goId = br.ReadUInt64();
                 GameObject go = FindGameObjectById(goId);
                 if (go is null)
                 {
@@ -466,7 +466,7 @@ namespace SepM.Physics {
             // Destroy any old game objects
             foreach (GameObject go in orphanedGameObjects)
             {
-                Debug.LogWarning($"Found orphaned GameObject with ID {go.GetInstanceID()}");
+                Debug.LogWarning($"Found orphaned GameObject with ID {EntityId.ToULong(go.GetEntityId())}");
                 if (Application.isEditor) GameObject.DestroyImmediate(go);
                 else GameObject.Destroy(go);
             }
