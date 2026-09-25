@@ -2,7 +2,8 @@
   "name": "com.sepm.physics",
   "displayName": "SepM Physics",
   "version": "0.0.1",
-  "unity": "2020.3",
+  "unity": "6000.6",
+  "unityRelease": "3f1",
   "description": "Fixed-point physics based using danielmansson's FixedPoint library.",
   "keywords": [
     "fixedpoint",
