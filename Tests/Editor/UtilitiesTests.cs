@@ -10,6 +10,14 @@ using SepM.Physics;
 
 public class UtilitiesTests
 {
+    // A sphere-shaped capsule's segment ends up one raw unit long, whose squared length underflows to zero
+    [Test]
+    public void ClosestPointOnLineSegment_NearlyZeroLength_ReturnsAInsteadOfThrowing(){
+        fp3 a = new fp3(1, 2, 3);
+        fp3 b = a + new fp3(fp.FromRaw(1), 0, 0);
+        Assert.AreEqual(a, Utilities.closestPointOnLineSegment(a, b, new fp3(5, 5, 5)));
+    }
+
     [Test]
     public void TestACos(){
         long expectedRaw;

@@ -50,12 +50,13 @@ namespace SepM.Utils{
         public static fp3 closestPointOnLineSegment(fp3 A, fp3 B, fp3 Point){
             fp3 AB = B - A;
 
-            // TODO: Write test for this case
-            // If point A is the same as point B, just return A
-            if(AB.Equals(fp3.zero))
+            // A capsule exactly as tall as it is wide leaves A and B a rounding error apart, and the squared
+            // length can underflow to zero even when AB itself isn't
+            fp lengthSqrd = AB.dot(AB);
+            if(lengthSqrd == 0)
                 return A;
 
-            fp t = (Point - A).dot(AB) / AB.dot(AB);
+            fp t = (Point - A).dot(AB) / lengthSqrd;
             return A + clamp(t, 0, 1) * AB;
         }
 
